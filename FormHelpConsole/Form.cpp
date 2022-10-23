@@ -2,27 +2,15 @@
 
 #include "Form.h"
 
-Form::Form(pair<int, int> ind_, vector<string> values_, string description_, string tag_class_, string tag_subject_, string tag_section_, string tag_subsection_)
+Form::Form(pair<int, int> ind_, vector<string> values_, string description_, vector<string> tag_class_, vector<string> tag_location_)
 {
 	this->_ind = ind_;
 	// что то делать с values_
-	this->_tag_class = tag_class_;
 	this->_description = description_;
-	this->_tag_location.push_back(tag_subject_);
-	this->_tag_location.push_back(tag_section_);
-	this->_tag_location.push_back(tag_subsection_);
-}
-
-Form::Form(pair<int, int> ind_, vector<string> values_, string description_, string tag_class_, string tag_subject_, string tag_section_, string tag_subsection_, string tag_optional)
-{
-	this->_ind = ind_;
-	// что то делать с values_
-	this->_tag_class = tag_class_;
-	this->_description = description_;
-	this->_tag_location.push_back(tag_subject_);
-	this->_tag_location.push_back(tag_section_);
-	this->_tag_location.push_back(tag_subsection_);
-	this->_tag_location.push_back(tag_optional);
+	for (int i = 0; i < tag_class_.size(); i++)
+		this->_tag_class.push_back(tag_class_[i]);
+	for (int i = 0; i < tag_location_.size(); i++)
+		this->_tag_location.push_back(tag_location_[i]);
 }
 
 /*
@@ -37,7 +25,7 @@ string Form::getFormDescription()
 	return this->_description;
 }
 
-string Form::getClassTag()
+vector <string> Form::getClassTag()
 {
 	return this->_tag_class;
 }
