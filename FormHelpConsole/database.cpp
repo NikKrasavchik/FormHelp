@@ -3,6 +3,7 @@
 #include "Var.h"
 #include "database.h"
 
+
 void createVarDB(map<string, Var> &var_)
 {
 	Var iv0(0, "S", "#Class7", "#Phisics", "#Mechanics", "#Classic");
@@ -45,6 +46,33 @@ void createVarDB(map<string, Var> &var_)
 	Var iv37(37, "R", "#Class7", "#Phisics", "#Mechanics", "#Classic");
 	Var iv38(38, "U", "#Class7", "#Phisics", "#Mechanics", "#Classic");
 	Var iv39(39, "D", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv40(40, "Sx", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv41(41, "x1", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv42(42, "x2", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv43(43, "vx", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv44(44, "x0", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv45(45, "~v0", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv46(46, "v0", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv47(47, "G", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv48(48, "m1", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv49(49, "m2", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv50(50, "r", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv51(51, "H", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv52(52, "T", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv53(53, "pi", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv54(54, "w", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv55(55, "fi0", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv56(56, "xo", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv57(57, "u", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv58(58, "B", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv59(59, "d", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv60(60, "f", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv61(61, "Z", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv62(62, "Ma", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv63(63, "dm", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv64(64, "mn", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv65(65, "mp", "#Class7", "#Phisics", "#Mechanics", "#Classic");
+	Var iv66(66, "E", "#Class7", "#Phisics", "#Mechanics", "#Classic");
 
 	var_.emplace("iv0", iv0);
 	var_.emplace("iv1", iv1);
@@ -86,6 +114,33 @@ void createVarDB(map<string, Var> &var_)
 	var_.emplace("iv37", iv37);
 	var_.emplace("iv38", iv38);
 	var_.emplace("iv39", iv39);
+	var_.emplace("iv40", iv40);
+	var_.emplace("iv41", iv41);
+	var_.emplace("iv42", iv42);
+	var_.emplace("iv43", iv43);
+	var_.emplace("iv44", iv44);
+	var_.emplace("iv45", iv45);
+	var_.emplace("iv46", iv46);
+	var_.emplace("iv47", iv47);
+	var_.emplace("iv48", iv48);
+	var_.emplace("iv49", iv49);
+	var_.emplace("iv50", iv50);
+	var_.emplace("iv51", iv51);
+	var_.emplace("iv52", iv52);
+	var_.emplace("iv53", iv53);
+	var_.emplace("iv54", iv54);
+	var_.emplace("iv55", iv55);
+	var_.emplace("iv56", iv56);
+	var_.emplace("iv57", iv57);
+	var_.emplace("iv58", iv58);
+	var_.emplace("iv59", iv59);
+	var_.emplace("iv60", iv60);
+	var_.emplace("iv61", iv61);
+	var_.emplace("iv62", iv62);
+	var_.emplace("iv63", iv63);
+	var_.emplace("iv64", iv64);
+	var_.emplace("iv65", iv65);
+	var_.emplace("iv66", iv66);
 
 }
 
@@ -103,886 +158,3443 @@ void createMathOperationsDB(map<string, string>& op_)
 
 void createFormsDB(map<string, Form>& form_)
 {
-	pair<int, int> ind0(1, 0);
-	pair<int, int> ind1(1, 1);
-	pair<int, int> ind2(1, 2);
-	pair<int, int> ind3(2, 0);
-	pair<int, int> ind4(2, 1);
-	pair<int, int> ind5(2, 2);
-	pair<int, int> ind6(3, 0);
-	pair<int, int> ind7(3, 1);
-	pair<int, int> ind8(4, 0);
-	pair<int, int> ind9(4, 1);
-	pair<int, int> ind10(5, 0);
-	pair<int, int> ind11(5, 1);
-	pair<int, int> ind12(5, 2);
-	pair<int, int> ind13(5, 3);
-	pair<int, int> ind14(6, 0);
-	pair<int, int> ind15(6, 1);
-	pair<int, int> ind16(6, 2);
-	pair<int, int> ind17(7, 0);
-	pair<int, int> ind18(7, 1);
-	pair<int, int> ind19(7, 2);
-	pair<int, int> ind20(7, 3);
-	pair<int, int> ind21(7, 4);
-	pair<int, int> ind22(7, 5);
-	pair<int, int> ind23(8, 0);
-	pair<int, int> ind24(8, 1);
-	pair<int, int> ind25(9, 0);
-	pair<int, int> ind26(9, 1);
-	pair<int, int> ind27(9, 2);
-	pair<int, int> ind28(10, 0);
-	pair<int, int> ind29(10, 1);
-	pair<int, int> ind30(10, 2);
-	pair<int, int> ind31(11, 0);
-	pair<int, int> ind32(11, 1);
-	pair<int, int> ind33(11, 2);
-	pair<int, int> ind34(12, 0);
-	pair<int, int> ind35(12, 1);
-	pair<int, int> ind36(12, 2);
-	pair<int, int> ind37(12, 3);
-	pair<int, int> ind38(13, 0);
-	pair<int, int> ind39(13, 1);
-	pair<int, int> ind40(13, 2);
-	pair<int, int> ind41(14, 0);
-	pair<int, int> ind42(14, 1);
-	pair<int, int> ind43(14, 2);
-	pair<int, int> ind44(15, 0);
-	pair<int, int> ind45(15, 1);
-	pair<int, int> ind46(15, 2);
-	pair<int, int> ind47(16, 0);
-	pair<int, int> ind48(16, 1);
-	pair<int, int> ind49(16, 2);
-	pair<int, int> ind50(17, 0);
-	pair<int, int> ind51(17, 1);
-	pair<int, int> ind52(17, 2);
-	pair<int, int> ind53(18, 0);
-	pair<int, int> ind54(18, 1);
-	pair<int, int> ind55(18, 2);
-	pair<int, int> ind56(19, 0);
-	pair<int, int> ind57(19, 1);
-	pair<int, int> ind58(19, 2);
-	pair<int, int> ind59(20, 0);
-	pair<int, int> ind60(20, 1);
-	pair<int, int> ind61(20, 2);
-	pair<int, int> ind62(20, 3);
-	pair<int, int> ind63(21, 0);
-	pair<int, int> ind64(21, 1);
-	pair<int, int> ind65(22, 0);
-	pair<int, int> ind66(22, 1);
-	pair<int, int> ind67(23, 0);
-	pair<int, int> ind68(23, 1);
-	pair<int, int> ind69(24, 0);
-	pair<int, int> ind70(24, 1);
-	pair<int, int> ind71(24, 2);
-	pair<int, int> ind72(25, 0);
-	pair<int, int> ind73(25, 1);
-	pair<int, int> ind74(26, 0);
-	pair<int, int> ind75(26, 1);
-	pair<int, int> ind76(26, 2);
-	pair<int, int> ind77(27, 0);
-	pair<int, int> ind78(27, 1);
-	pair<int, int> ind79(27, 2);
-	pair<int, int> ind80(28, 0);
-	pair<int, int> ind81(28, 1);
-	pair<int, int> ind82(28, 2);
-	pair<int, int> ind83(28, 3);
-	pair<int, int> ind84(29, 0);
-	pair<int, int> ind85(29, 1);
-	pair<int, int> ind86(29, 2);
-	pair<int, int> ind87(30, 0);
-	pair<int, int> ind88(30, 1);
-	pair<int, int> ind89(30, 2);
-	pair<int, int> ind90(31, 0);
-	pair<int, int> ind91(31, 1);
-	pair<int, int> ind92(31, 2);
-	pair<int, int> ind93(31, 2);
-	pair<int, int> ind94(32, 0);
-	pair<int, int> ind95(32, 1);
-	pair<int, int> ind96(32, 2);
-	pair<int, int> ind97(33, 0);
-	pair<int, int> ind98(33, 1);
-	pair<int, int> ind99(33, 2);
-	pair<int, int> ind100(34, 0);
-	pair<int, int> ind101(34, 1);
-	pair<int, int> ind102(34, 2);
-	pair<int, int> ind103(35, 0);
-	pair<int, int> ind104(35, 1);
-	pair<int, int> ind105(35, 2);
-	pair<int, int> ind106(36, 0);
-	pair<int, int> ind107(36, 1);
-	pair<int, int> ind108(36, 2);
-	pair<int, int> ind109(37, 0);
-	pair<int, int> ind110(37, 1);
-	pair<int, int> ind111(37, 2);
-	pair<int, int> ind112(37, 3);
-	pair<int, int> ind113(38, 0);
-	pair<int, int> ind114(38, 1);
-	pair<int, int> ind115(38, 2);
-	pair<int, int> ind116(38, 3);
-	pair<int, int> ind117(39, 0);
-	pair<int, int> ind118(39, 1);
-	pair<int, int> ind119(39, 2);
-	pair<int, int> ind120(39, 3);
-	pair<int, int> ind121(40, 0);
-	pair<int, int> ind122(40, 1);
-	pair<int, int> ind123(41, 0);
-	pair<int, int> ind124(41, 1);
+	{
+		pair<int, int> ind(1, 0);
+		vector<string> val = { "S", "v*t", "S", "t", "v" };
+		string des = "Формула, позволяющая вычислить пройденный путь по скорости и времени";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if0", f);
+	}
 
-	vector<string> val0 = { "S", "v*t", "S", "t", "v" };
-	vector<string> val1 = { "v", "S/t", "S", "t", "v" };
-	vector<string> val2 = { "t", "S/v", "S", "t", "v" };
-	vector<string> val3 = { "m", "po*V", "V", "m", "po" };
-	vector<string> val4 = { "po", "m/V", "V", "m", "po" };
-	vector<string> val5 = { "V", "m/po", "V", "m", "po" };
-	vector<string> val6 = { "F", "m*g", "F", "g", "m" };
-	vector<string> val7 = { "m", "F/g", "F", "g", "m" };
-	vector<string> val8 = { "F", "k*x", "F", "k", "x" };
-	vector<string> val9 = { "x", "F/k", "F", "k", "x" };
-	vector<string> val10 = { "P", "m*g", "P", "g", "m" };
-	vector<string> val11 = { "m", "P/g", "P", "g", "m" };
-	vector<string> val12 = { "P", "Ft-Fa", "Fa", "Ft", "P" };
-	vector<string> val13 = { "P", "m*g-po*g*V", "P", "V", "g", "m", "po" };
-	vector<string> val14 = { "p", "F/S", "F", "S", "p" };
-	vector<string> val15 = { "F", "p*S", "F", "S", "p" };
-	vector<string> val16 = { "S", "F/p", "F", "S", "p" };
-	vector<string> val17 = { "p", "po*g*h", "g", "h", "p", "po" };
-	vector<string> val18 = { "po", "p/(g*h)", "g", "h", "p", "po" };
-	vector<string> val19 = { "h", "p/(po*g)", "g", "h", "p", "po" };
-	vector<string> val20 = { "p", "p0+po*g*h", "g", "h", "p", "p0", "po" };
-	vector<string> val21 = { "po", "(p-p0)/(g*h)", "g", "h", "p", "p0", "po" };
-	vector<string> val22 = { "h", "(p-p0)/(po*g)", "g", "h", "p", "p0", "po" };
-	vector<string> val23 = { "p", "p0-(h/12)", "h", "p", "p0" };
-	vector<string> val24 = { "h", "12*(p0-p)", "h", "p", "p0" };
-	vector<string> val25 = { "S", "l*a", "S", "a", "l" };
-	vector<string> val26 = { "l", "S/a", "S", "a", "l" };
-	vector<string> val27 = { "a", "S/l", "S", "a", "l" };
-	vector<string> val28 = { "V", "S*h", "S", "V", "h" };
-	vector<string> val29 = { "S", "V/h", "S", "V", "h" };
-	vector<string> val30 = { "h", "V/S", "S", "V", "h" };
-	vector<string> val31 = { "F", "po*g*V", "F", "V", "g", "po" };
-	vector<string> val32 = { "po", "F/(g*V)", "F", "V", "g", "po" };
-	vector<string> val33 = { "V", "F/(po*d)", "F", "V", "g", "po" };
-	vector<string> val34 = { "F", "mu*P", "F", "P", "mu" };
-	vector<string> val35 = { "F", "mu*m*g", "F", "g", "m", "mu" };
-	vector<string> val36 = { "P", "F/mu", "F", "P", "mu" };
-	vector<string> val37 = { "m", "F/(mu*g)", "F", "g", "m", "mu" };
-	vector<string> val38 = { "A", "F*S", "A", "F", "S" };
-	vector<string> val39 = { "F", "A/S", "A", "F", "S" };
-	vector<string> val40 = { "S", "A/F", "A", "F", "S" };
-	vector<string> val41 = { "N", "A/t", "A", "N", "t" };
-	vector<string> val42 = { "A", "N*t", "A", "N", "t" };
-	vector<string> val43 = { "t", "A/N", "A", "N", "t" };
-	vector<string> val44 = { "M", "F*l", "F", "M", "l" };
-	vector<string> val45 = { "F", "M/l", "F", "M", "l" };
-	vector<string> val46 = { "l", "M/F", "F", "M", "l" };
-	vector<string> val47 = { "n", "(Ap/Az)*100%", "Ap", "Az", "n" };
-	vector<string> val48 = { "Ap", "(n*Az)/100%", "Ap", "Az", "n" };
-	vector<string> val49 = { "Az", "(Ap*100%)/n", "Ap", "Az", "n" };
-	vector<string> val50 = { "N", "F*v", "F", "N", "v" };
-	vector<string> val51 = { "F", "N/v", "F", "N", "v" };
-	vector<string> val52 = { "v", "N/F", "F", "N", "v" };
-	vector<string> val53 = { "Ek", "(m*v*v)/2", "Ek", "m", "v" };
-	vector<string> val54 = { "m", "(2*Ek)/(v*v)", "Ek", "m", "v" };
-	vector<string> val55 = { "v", "sqrt((2*Ek)/m)", "Ek", "m", "v" };
-	vector<string> val56 = { "Ep", "m*g*h", "Ep", "g", "h", "m" };
-	vector<string> val57 = { "m", "Ep/(g*h)", "Ep", "g", "h", "m" };
-	vector<string> val58 = { "h", "Ep/(m*g)", "Ep", "g", "h", "m" };
-	vector<string> val59 = { "Q", "c*m*(t-t0)", "Q", "c", "m", "t", "t0" };
-	vector<string> val60 = { "m", "Q/(c*(t-t0))", "Q", "c", "m", "t", "t0" };
-	vector<string> val61 = { "t", "Q/(c*m)-t0", "Q", "c", "m", "t", "t0" };
-	vector<string> val62 = { "t0", "t-Q/(c*m)t0", "Q", "c", "m", "t" };
-	vector<string> val63 = { "Q", "q*m", "Q", "m", "q" };
-	vector<string> val64 = { "m", "Q/q", "Q", "m", "q" };
-	vector<string> val65 = { "Q", "lambda*m", "Q", "lambda", "m" };
-	vector<string> val66 = { "m", "Q/lambda", "Q", "lambda", "m" };
-	vector<string> val67 = { "Q", "L*m", "L", "Q", "m" };
-	vector<string> val68 = { "m", "Q/L", "L", "Q", "m" };
-	vector<string> val69 = { "po", "m/V", "V", "m", "po" };
-	vector<string> val70 = { "m", "po*V", "V", "m", "po" };
-	vector<string> val71 = { "V", "m/po", "V", "m", "po" };
-	vector<string> val72 = { "fi", "po/pon*100%", "fi", "po", "pon" };
-	vector<string> val73 = { "po", "fi*pon/100%", "fi", "po", "pon" };
-	vector<string> val74 = { "n", "Ap/Qn*100%", "Ap", "Qn", "n" };
-	vector<string> val75 = { "Ap", "n*Qn*100%", "Ap", "Qn", "n" };
-	vector<string> val76 = { "Qn", "Ap/(n*100%)", "Ap", "Qn", "n" };
-	vector<string> val77 = { "I", "U/R", "I", "R", "U" };
-	vector<string> val78 = { "U", "I*R", "I", "R", "U" };
-	vector<string> val79 = { "R", "U/I", "I", "R", "U" };
-	vector<string> val80 = { "R", "po*L/S", "L", "R", "S", "po" };
-	vector<string> val81 = { "L", "R*S/po", "L", "R", "S", "po" };
-	vector<string> val82 = { "S", "po*L/R", "L", "R", "S", "po" };
-	vector<string> val83 = { "po", "R*S/L", "L", "R", "S", "po" };
-	vector<string> val84 = { "q", "I*t", "I", "q", "t" };
-	vector<string> val85 = { "I", "q/t", "I", "q", "t" };
-	vector<string> val86 = { "t", "q/I", "I", "q", "t" };
-	vector<string> val87 = { "A", "U*q", "A", "U", "q" };
-	vector<string> val88 = { "U", "A/q", "A", "U", "q" };
-	vector<string> val89 = { "q", "A/U", "A", "U", "q" };
-	vector<string> val90 = { "A", "U*I*t", "A", "I", "U", "t" };
-	vector<string> val91 = { "U", "A/(I*t)", "A", "I", "U", "t" };
-	vector<string> val92 = { "I", "A/(U*t)", "A", "I", "U", "t" };
-	vector<string> val93 = { "t", "A/(U*I)", "A", "I", "U", "t" };
-	vector<string> val94 = { "P", "A/t", "A", "P", "t" };
-	vector<string> val95 = { "A", "P*t", "A", "P", "t" };
-	vector<string> val96 = { "t", "A/P", "A", "P", "t" };
-	vector<string> val97 = { "P", "U*I", "I", "P", "U" };
-	vector<string> val98 = { "U", "P/I", "I", "P", "U" };
-	vector<string> val99 = { "I", "P/U", "I", "P", "U" };
-	vector<string> val100 = { "P", "U*U/R", "P", "R", "U" };
-	vector<string> val101 = { "R", "P/(U*U)", "P", "R", "U" };
-	vector<string> val102 = { "U", "sqrt(P/R)", "P", "R", "U" };
-	vector<string> val103 = { "P", "I*I*R", "I", "P", "R" };
-	vector<string> val104 = { "R", "P/(I*I)", "I", "P", "R" };
-	vector<string> val105 = { "I", "sqrt(P/R)", "I", "P", "R" };
-	vector<string> val106 = { "Q", "Pt", "P", "Q", "t" };
-	vector<string> val107 = { "P", "Q/t", "P", "Q", "t" };
-	vector<string> val108 = { "t", "Q/P", "P", "Q", "t" };
-	vector<string> val109 = { "Q", "I*I*R*t", "I", "Q", "R", "t" };
-	vector<string> val110 = { "I", "sqrt(Q/(R*t))", "I", "Q", "R", "t" };
-	vector<string> val111 = { "R", "Q/(I*I*t)", "I", "Q", "R", "t" };
-	vector<string> val112 = { "t", "Q/(I*I*R)", "I", "Q", "R", "t" };
-	vector<string> val113 = { "Q", "U*I*t", "I", "Q", "U", "t" };
-	vector<string> val114 = { "U", "Q/(I*t)", "I", "Q", "U", "t" };
-	vector<string> val115 = { "I", "Q/(U*t)", "I", "Q", "U", "t" };
-	vector<string> val116 = { "t", "Q/(U*I)", "I", "Q", "U", "t" };
-	vector<string> val117 = { "Q", "U*U*t/R", "Q", "R", "U", "t" };
-	vector<string> val118 = { "U", "sqrt(Q*R/t)", "Q", "R", "U", "t" };
-	vector<string> val119 = { "R", "U*U*t/Q", "Q", "R", "U", "t" };
-	vector<string> val120 = { "t", "Q*R/(U*U)", "Q", "R", "U", "t" };
-	vector<string> val121 = { "n", "c/v", "c", "n", "v" };
-	vector<string> val122 = { "v", "c/n", "c", "n", "v" };
-	vector<string> val123 = { "D", "1/F", "D", "F" };
-	vector<string> val124 = { "F", "1/D", "D", "F" };
+	{
+		pair<int, int> ind(1, 1);
+		vector<string> val = { "v", "S/t", "S", "t", "v" };
+		string des = "Формула, позволяющая вычислить скорость по пройденному пути и времени";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if1", f);
+	}
 
-	string des0 = "Формула, позволяющая вычислить пройденный путь по скорости и времени";
-	string des1 = "Формула, позволяющая вычислить скорость по пройденному пути и времени";
-	string des2 = "Формула, позволяющая вычислить время по пройденному пути и скорости";
-	string des3 = "Формула, позволяющая вычислить массу тела по его плотности и объему";
-	string des4 = "Формула, позволяющая вычислить плотность тела по его массе и объему";
-	string des5 = "Формула, позволяющая вычислить объем тела по его плотности и массе";
-	string des6 = "Формула, позволяющая вычислить силу тяжести по массе тела и ускорению свободного падения";
-	string des7 = "Формула, позволяющая вычислить массу тела по силе тяжести и ускорению свободного падения";
-	string des8 = "Формула, позволяющая вычислить силу упругости по коэффициенту жесткости и изменению длины тела";
-	string des9 = "Формула, позволяющая вычислить изменение длины тела по коэффициенту жесткости и силе упругости";
-	string des10 = "Формула, позволяющая вычислить вес тела по его массе и ускорению свободного падения";
-	string des11 = "Формула, позволяющая вычислить массу тела по его весу и ускорению свободного падения";
-	string des12 = "Формула, позволяющая вычислить вес тела в жидкости по силе тяжести и силе архимеда";
-	string des13 = "Формула, позволяющая вычислить вес тела в жидкости по его массе, объему, ускорению свободного падения и плотности жидкости";
-	string des14 = "Формула, позволяющая вычислить давление по силе давления на тело и его площади";
-	string des15 = "Формула, позволяющая вычислить силу давления на тело по его площади и давлению";
-	string des16 = "Формула, позволяющая вычислить площадь тела по давлению и силе давления на него";
-	string des17 = "Формула, позволяющая вычислить давление в жидкости(газе) по плотности жидкости, ускорению свободного падения и высоте столба жидкости";
-	string des18 = "Формула, позволяющая вычислить плотность жидкости по давлению в жидкости(газе), ускорению свободного падения и высоте столба жидкости";
-	string des19 = "Формула, позволяющая вычислить высоту столба жидкости по давлению в жидкости(газе), плотности жидкости и ускорению свободного падения";
-	string des20 = "Формула, позволяющая вычислить давление в жидкости(газе) по плотности жидкости, ускорению свободного падения и высоте столба жидкости и нормальному атомсферному давлению";
-	string des21 = "Формула, позволяющая вычислить плотность жидкости по давлению в жидкости(газе), ускорению свободного падения и высоте столба жидкости и нормальному атомсферному давлению";
-	string des22 = "Формула, позволяющая вычислить высоту столба жидкости по давлению в жидкости(газе), плотности жидкости и ускорению свободного падения и нормальному атомсферному давлению";
-	string des23 = "Формула, позволяющая вычислить давление воздуха по высоте и нормальному атмосферному давлению";
-	string des24 = "Формула, позволяющая вычислить высоту по давлению воздуха и нормальному атмосферному давлению";
-	string des25 = "Формула, позволяющая вычислить площадь по длине и ширине";
-	string des26 = "Формула, позволяющая вычислить длину по площади и ширине";
-	string des27 = "Формула, позволяющая вычислить ширину по площади и длине";
-	string des28 = "Формула, позволяющая вычислить объем по площади и высоте";
-	string des29 = "Формула, позволяющая вычислить площадь по объему и высоте";
-	string des30 = "Формула, позволяющая вычислить высоту по площади и объему";
-	string des31 = "Формула, позволяющая вычислить архимедову силу по плотности жидкости, ускорению свободного падения и объему тела";
-	string des32 = "Формула, позволяющая вычислить плотность жидкости по архимедовой силе, ускорению свободного падения и объему тела";
-	string des33 = "Формула, позволяющая вычислить объем тела по плотности жидкости, ускорению свободного падения и архимедовой силе";
-	string des34 = "Формула, позволяющая вычислить силу трения по весу тела и коэффициенту трения";
-	string des35 = "Формула, позволяющая вычислить силу трения по массе тела, ускорению свободного падения и коэффициенту трения";
-	string des36 = "Формула, позволяющая вычислить вес тела по силе трения и коэффициенту трения";
-	string des37 = "Формула, позволяющая вычислить массу тела по силе трения, ускорению свободного падения и коэффициенту трения";
-	string des38 = "Формула, позволяющая вычислить работу тела по силе, действующей на тело и его площади";
-	string des39 = "Формула, позволяющая вычислить силу, действующую на тело по работе тела и его площади";
-	string des40 = "Формула, позволяющая вычислить площадь тела по работе тела и силе, действующей на тело";
-	string des41 = "Формула, позволяющая вычислить мощность по работе и времени";
-	string des42 = "Формула, позволяющая вычислить работу по мощности и времени";
-	string des43 = "Формула, позволяющая вычислить время по мощности и работе";
-	string des44 = "Формула, позволяющая вычислить момент силы по силе и плечу силы";
-	string des45 = "Формула, позволяющая вычислить силу по моменту силы и плечу силы";
-	string des46 = "Формула, позволяющая вычислить плечо силы по моменту силы и силе";
-	string des47 = "Формула, позволяющая вычислить КПД по полезной и затраченной работе";
-	string des48 = "Формула, позволяющая вычислить полезную работу по КПД и затраченной работе";
-	string des49 = "Формула, позволяющая вычислить затраченную работу по КПД и полезной работе";
-	string des50 = "Формула, позволяющая вычислить механическую мощность по силе и скорости";
-	string des51 = "Формула, позволяющая вычислить силу по механической мощности и скорости";
-	string des52 = "Формула, позволяющая вычислить скорость по механической мощности и силе";
-	string des53 = "Формула, позволяющая вычислить кинетическую энергию тела по его массе и скорости";
-	string des54 = "Формула, позволяющая вычислить массу тела по его кинетической энергии и скорости";
-	string des55 = "Формула, позволяющая вычислить скорость тела по его кинетической энергии и массе";
-	string des56 = "Формула, позволяющая вычислить потенциальную энергию силы тяжести по массе тела, высоте и ускорению свободного падения";
-	string des57 = "Формула, позволяющая вычислить массу тела по потенциальной энергии силы тяжести, высоте и ускорению свободного падения";
-	string des58 = "Формула, позволяющая вычислить высоту по потенциальной энергии силы тяжести, массе тела и ускорению свободного падения";
-	string des59 = "Формула, позволяющая вычислить кол-во теплоты по удельной теплоёмкости, массе тела и разности температур";
-	string des60 = "Формула, позволяющая вычислить массу тела по кол-ву теплоты, удельной теплоёмкости и разности температур";
-	string des61 = "Формула, позволяющая вычислить конечную температуру по кол-ву теплоты, удельной теплоёмкости, массе тела и начальной температуре";
-	string des62 = "Формула, позволяющая вычислить начальную температуру по кол-ву теплоты, удельной теплоёмкости, массе тела и конечной температуре";
-	string des63 = "Формула, позволяющая вычислить кол-во теплоты при сгорании топлива по удельной теплоте сгорания топлива и массе топлива";
-	string des64 = "Формула, позволяющая вычислить массу топлива по кол-ву теплоты при сгорании топлива и удельной теплоте сгорания топлива";
-	string des65 = "Формула, позволяющая вычислить кол-во теплоты, необходимое для плавления вещества по удельной теплоте плавления и массе вещества";
-	string des66 = "Формула, позволяющая вычислить массу вещества по кол-ву теплоты, необходимой для плавления вещества и удельной теплоте плавления";
-	string des67 = "Формула, позволяющая вычислить кол-во теплоты при парообразовании и конденсации по удельной теплоте парообразования и конденсации и массе вещества";
-	string des68 = "Формула, позволяющая вычислить массу вещества по кол-ву теплоты при парообразовании и конденсации и удельной теплоте парообразования и конденсации";
-	string des69 = "Формула, позволяющая вычислить абсолютную влажность воздуха по массе пара и объему воздуха";
-	string des70 = "Формула, позволяющая вычислить массу пара по абсолютной влажности воздуха и объему воздуха";
-	string des71 = "Формула, позволяющая вычислить объем воздуха по абсолютной влажности воздуха и массе пара";
-	string des72 = "Формула, позволяющая вычислить относительную влажность воздуха по абсолютной влажности и плотности насыщенного пара при данной температуре";
-	string des73 = "Формула, позволяющая вычислить абсолютнуюную влажность по относительной влажности воздуха и плотности насыщенного пара при данной температуре";
-	string des74 = "Формула, позволяющая вычислить КПД теплового двигателя по полезной работе, совершенной двигателем и кол-ву теплоты, полученного от нагревателя";
-	string des75 = "Формула, позволяющая вычислить полезную работу, совершенную двигателем по КПД теплового двигателя и кол-ву теплоты, полученного от нагревателя";
-	string des76 = "Формула, позволяющая вычислить кол-во теплоты, полученное от нагревателя по КПД теплового двигателя и полезной работе, совершенной двигателем";
-	string des77 = "Формула, позволяющая вычислить силу тока по напряжению и сопротивлению";
-	string des78 = "Формула, позволяющая вычислить напряжение по силе тока и сопротивлению";
-	string des79 = "Формула, позволяющая вычислить спортивление по напряжению и силе тока";
-	string des80 = "Формула, позволяющая вычислить сопротивление по удельному сопротивлению вещества, длине проводника и площади его поперечного сечения";
-	string des81 = "Формула, позволяющая вычислить длину проводника по удельному сопротивлению вещества, сопртивлению и площади поперечного сечения проводника";
-	string des82 = "Формула, позволяющая вычислить площадь поперечного сечения проводника по удельному сопротивлению вещества, длине проводника и сопротивлению";
-	string des83 = "Формула, позволяющая вычислить удельное сопротивление вещества по сопротивлению, длине проводника и площади его поперечного сечения";
-	string des84 = "Формула, позволяющая вычислить заряд по силе тока и времени, за которое этот заряд протекает по проводнику";
-	string des85 = "Формула, позволяющая вычислить силу тока по заряду и времени, за которое этот заряд протекает по проводнику";
-	string des86 = "Формула, позволяющая вычислить время, за которое заряд протекает по проводнику по силе тока и заряду";
-	string des87 = "Формула, позволяющая вычислить работу электрического тока по напряжению на концах участка и заряду";
-	string des88 = "Формула, позволяющая вычислить напряжение на концах участка по работе электрического тока и заряду";
-	string des89 = "Формула, позволяющая вычислить заряд по напряжению на концах участка и работе электрического тока";
-	string des90 = "Формула, позволяющая вычислить работу электрического тока по напряжению на концах участка, силе тока и времени";
-	string des91 = "Формула, позволяющая вычислить напряжение на концах участка по работе электрического тока, силе тока и времени";
-	string des92 = "Формула, позволяющая вычислить силу тока по работе электрического тока, напряжению на концах участка и времени";
-	string des93 = "Формула, позволяющая вычислить время по работе электрического тока, напряжению на концах участка и силе тока";
-	string des94 = "Формула, позволяющая вычислить электрическую мощность по работе электрического тока и времени";
-	string des95 = "Формула, позволяющая вычислить работу электрического тока по электрической мощности и времени";
-	string des96 = "Формула, позволяющая вычислить время по работе электрического тока и электрической мощности";
-	string des97 = "Формула, позволяющая вычислить электрическую мощность по напряжению на концах участка и силе тока";
-	string des98 = "Формула, позволяющая вычислить напряжение на концах участка по электрической мощности и силе тока";
-	string des99 = "Формула, позволяющая вычислить силу тока по напряжению на концах участка и электрической мощности";
-	string des100 = "Формула, позволяющая вычислить электрическую мощность по напряжению на концах участка и сопротивлению";
-	string des101 = "Формула, позволяющая вычислить сопротивление по электрической мощности и напряжению на концах участка";
-	string des102 = "Формула, позволяющая вычислить напряжение на концах участка по электрической мощности и сопротивлению";
-	string des103 = "Формула, позволяющая вычислить электрическую мощность по силе тока и сопротивлению";
-	string des104 = "Формула, позволяющая вычислить сопротивление по электрической мощности по силе тока";
-	string des105 = "Формула, позволяющая вычислить силу тока по электрической мощности и сопротивлению";
-	string des106 = "Формула, позволяющая вычислить кол-во теплоты по электрической мощности и времени";
-	string des107 = "Формула, позволяющая вычислить электрическую мощность по кол-ву теплоты и времени";
-	string des108 = "Формула, позволяющая вычислить время по кол-ву теплоты и электрической мощности";
-	string des109 = "Формула, позволяющая вычислить кол-во теплоты по силе тока, сопротивлению и времени";
-	string des110 = "Формула, позволяющая вычислить силу тока по кол-ву теплоты, сопротивлению и времени";
-	string des111 = "Формула, позволяющая вычислить сопротивление по кол-ву теплоты, силе тока и времени";
-	string des112 = "Формула, позволяющая вычислить время по кол-ву теплоты, силе тока и сопротивлению";
-	string des113 = "Формула, позволяющая вычислить кол-во теплоты по напряжению на концах участка, силе тока и времени";
-	string des114 = "Формула, позволяющая вычислить напряжение на концах участка по кол-ву теплоты, силе тока и времени";
-	string des115 = "Формула, позволяющая вычислить силу тока по кол-ву теплоты, напряжению на концах участка и времени";
-	string des116 = "Формула, позволяющая вычислить время по кол-ву теплоты, напряжению на концах участка и силе тока";
-	string des117 = "Формула, позволяющая вычислить кол-во теплоты по напряжению на концах участка, сопротивлению и времени";
-	string des118 = "Формула, позволяющая вычислить напряжение на концах участка по кол-ву теплоты, сопротивлению и времени";
-	string des119 = "Формула, позволяющая вычислить сопротивление по кол-ву теплоты, напряжению на концах участка и времени";
-	string des120 = "Формула, позволяющая вычислить время по кол-ву теплоты, напряжению на концах участка и сопротивлению";
-	string des121 = "Формула, позволяющая вычислить абсолютный показатель преломления вещества по скорости света в вакууме и скорости света в данной среде";
-	string des122 = "Формула, позволяющая вычислить скорость света в данной среде по абсолютному показателю преломления вещества и скорости света в вакууме";
-	string des123 = "Формула, позволяющая вычислить оптическую силу линзы по фокусному расстоянию линзы";
-	string des124 = "Формула, позволяющая вычислить фокусное расстояние линзы по оптической силе линзы";
+	{
+		pair<int, int> ind(1, 2);
+		vector<string> val = { "t", "S/v", "S", "t", "v" };
+		string des = "Формула, позволяющая вычислить время по пройденному пути и скорости";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if2", f);
+	}
 
-	vector<string> tag_cl0 = { "#Class7" };
-	vector<string> tag_cl1 = { "#Class7" };
-	vector<string> tag_cl2 = { "#Class7" };
-	vector<string> tag_cl3 = { "#Class7" };
-	vector<string> tag_cl4 = { "#Class7" };
-	vector<string> tag_cl5 = { "#Class7" };
-	vector<string> tag_cl6 = { "#Class7" };
-	vector<string> tag_cl7 = { "#Class7" };
-	vector<string> tag_cl8 = { "#Class7" };
-	vector<string> tag_cl9 = { "#Class7" };
-	vector<string> tag_cl10 = { "#Class7" };
-	vector<string> tag_cl11 = { "#Class7" };
-	vector<string> tag_cl12 = { "#Class7" };
-	vector<string> tag_cl13 = { "#Class7" };
-	vector<string> tag_cl14 = { "#Class7" };
-	vector<string> tag_cl15 = { "#Class7" };
-	vector<string> tag_cl16 = { "#Class7" };
-	vector<string> tag_cl17 = { "#Class7" };
-	vector<string> tag_cl18 = { "#Class7" };
-	vector<string> tag_cl19 = { "#Class7" };
-	vector<string> tag_cl20 = { "#Class7" };
-	vector<string> tag_cl21 = { "#Class7" };
-	vector<string> tag_cl22 = { "#Class7" };
-	vector<string> tag_cl23 = { "#Class7" };
-	vector<string> tag_cl24 = { "#Class7" };
-	vector<string> tag_cl25 = { "#Class7" };
-	vector<string> tag_cl26 = { "#Class7" };
-	vector<string> tag_cl27 = { "#Class7" };
-	vector<string> tag_cl28 = { "#Class7" };
-	vector<string> tag_cl29 = { "#Class7" };
-	vector<string> tag_cl30 = { "#Class7" };
-	vector<string> tag_cl31 = { "#Class7" };
-	vector<string> tag_cl32 = { "#Class7" };
-	vector<string> tag_cl33 = { "#Class7" };
-	vector<string> tag_cl34 = { "#Class7" };
-	vector<string> tag_cl35 = { "#Class7" };
-	vector<string> tag_cl36 = { "#Class7" };
-	vector<string> tag_cl37 = { "#Class7" };
-	vector<string> tag_cl38 = { "#Class7" };
-	vector<string> tag_cl39 = { "#Class7" };
-	vector<string> tag_cl40 = { "#Class7" };
-	vector<string> tag_cl41 = { "#Class7" };
-	vector<string> tag_cl42 = { "#Class7" };
-	vector<string> tag_cl43 = { "#Class7" };
-	vector<string> tag_cl44 = { "#Class7" };
-	vector<string> tag_cl45 = { "#Class7" };
-	vector<string> tag_cl46 = { "#Class7" };
-	vector<string> tag_cl47 = { "#Class7" };
-	vector<string> tag_cl48 = { "#Class7" };
-	vector<string> tag_cl49 = { "#Class7" };
-	vector<string> tag_cl50 = { "#Class7" };
-	vector<string> tag_cl51 = { "#Class7" };
-	vector<string> tag_cl52 = { "#Class7" };
-	vector<string> tag_cl53 = { "#Class7" };
-	vector<string> tag_cl54 = { "#Class7" };
-	vector<string> tag_cl55 = { "#Class7" };
-	vector<string> tag_cl56 = { "#Class7" };
-	vector<string> tag_cl57 = { "#Class7" };
-	vector<string> tag_cl58 = { "#Class7" };
-	vector<string> tag_cl59 = { "#Class8" };
-	vector<string> tag_cl60 = { "#Class8" };
-	vector<string> tag_cl61 = { "#Class8" };
-	vector<string> tag_cl62 = { "#Class8" };
-	vector<string> tag_cl63 = { "#Class8" };
-	vector<string> tag_cl64 = { "#Class8" };
-	vector<string> tag_cl65 = { "#Class8" };
-	vector<string> tag_cl66 = { "#Class8" };
-	vector<string> tag_cl67 = { "#Class8" };
-	vector<string> tag_cl68 = { "#Class8" };
-	vector<string> tag_cl69 = { "#Class8" };
-	vector<string> tag_cl70 = { "#Class8" };
-	vector<string> tag_cl71 = { "#Class8" };
-	vector<string> tag_cl72 = { "#Class8" };
-	vector<string> tag_cl73 = { "#Class8" };
-	vector<string> tag_cl74 = { "#Class8" };
-	vector<string> tag_cl75 = { "#Class8" };
-	vector<string> tag_cl76 = { "#Class8" };
-	vector<string> tag_cl77 = { "#Class8" };
-	vector<string> tag_cl78 = { "#Class8" };
-	vector<string> tag_cl79 = { "#Class8" };
-	vector<string> tag_cl80 = { "#Class8" };
-	vector<string> tag_cl81 = { "#Class8" };
-	vector<string> tag_cl82 = { "#Class8" };
-	vector<string> tag_cl83 = { "#Class8" };
-	vector<string> tag_cl84 = { "#Class8" };
-	vector<string> tag_cl85 = { "#Class8" };
-	vector<string> tag_cl86 = { "#Class8" };
-	vector<string> tag_cl87 = { "#Class8" };
-	vector<string> tag_cl88 = { "#Class8" };
-	vector<string> tag_cl89 = { "#Class8" };
-	vector<string> tag_cl90 = { "#Class8" };
-	vector<string> tag_cl91 = { "#Class8" };
-	vector<string> tag_cl92 = { "#Class8" };
-	vector<string> tag_cl93 = { "#Class8" };
-	vector<string> tag_cl94 = { "#Class8" };
-	vector<string> tag_cl95 = { "#Class8" };
-	vector<string> tag_cl96 = { "#Class8" };
-	vector<string> tag_cl97 = { "#Class8" };
-	vector<string> tag_cl98 = { "#Class8" };
-	vector<string> tag_cl99 = { "#Class8" };
-	vector<string> tag_cl100 = { "#Class8" };
-	vector<string> tag_cl101 = { "#Class8" };
-	vector<string> tag_cl102 = { "#Class8" };
-	vector<string> tag_cl103 = { "#Class8" };
-	vector<string> tag_cl104 = { "#Class8" };
-	vector<string> tag_cl105 = { "#Class8" };
-	vector<string> tag_cl106 = { "#Class8" };
-	vector<string> tag_cl107 = { "#Class8" };
-	vector<string> tag_cl108 = { "#Class8" };
-	vector<string> tag_cl109 = { "#Class8" };
-	vector<string> tag_cl110 = { "#Class8" };
-	vector<string> tag_cl111 = { "#Class8" };
-	vector<string> tag_cl112 = { "#Class8" };
-	vector<string> tag_cl113 = { "#Class8" };
-	vector<string> tag_cl114 = { "#Class8" };
-	vector<string> tag_cl115 = { "#Class8" };
-	vector<string> tag_cl116 = { "#Class8" };
-	vector<string> tag_cl117 = { "#Class8" };
-	vector<string> tag_cl118 = { "#Class8" };
-	vector<string> tag_cl119 = { "#Class8" };
-	vector<string> tag_cl120 = { "#Class8" };
-	vector<string> tag_cl121 = { "#Class8" };
-	vector<string> tag_cl122 = { "#Class8" };
-	vector<string> tag_cl123 = { "#Class8" };
-	vector<string> tag_cl124 = { "#Class8" };
+	{
+		pair<int, int> ind(2, 0);
+		vector<string> val = { "m", "po*V", "V", "m", "po" };
+		string des = "Формула, позволяющая вычислить массу тела по его плотности и объему";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if3", f);
+	}
 
-	vector <string> tag_loc0 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc1 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc2 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc3 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc4 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc5 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc6 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc7 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc8 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc9 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc10 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc11 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc12 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc13 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc14 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc15 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc16 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc17 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc18 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc19 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc20 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc21 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc22 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc23 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc24 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc25 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc26 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc27 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc28 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc29 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc30 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc31 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc32 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc33 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc34 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc35 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc36 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc37 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc38 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc39 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc40 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc41 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc42 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc43 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc44 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc45 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc46 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc47 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc48 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc49 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc50 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc51 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc52 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc53 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc54 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc55 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc56 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc57 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc58 = { "#Physics", "#Mechanics", "#Classic" };
-	vector <string> tag_loc59 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc60 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc61 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc62 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc63 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc64 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc65 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc66 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc67 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc68 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc69 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc70 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc71 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc72 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc73 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc74 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc75 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc76 = { "#Physics", "#Thermodynamics" };
-	vector <string> tag_loc77 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc78 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc79 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc80 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc81 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc82 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc83 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc84 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc85 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc86 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc87 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc88 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc89 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc90 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc91 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc92 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc93 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc94 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc95 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc96 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc97 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc98 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc99 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc100 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc101 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc102 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc103 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc104 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc105 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc106 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc107 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc108 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc109 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc110 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc111 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc112 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc113 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc114 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc115 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc116 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc117 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc118 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc119 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc120 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc121 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc122 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc123 = { "#Physics", "#Electrostatics and electrodynamics" };
-	vector <string> tag_loc124 = { "#Physics", "#Electrostatics and electrodynamics" };
+	{
+		pair<int, int> ind(2, 1);
+		vector<string> val = { "po", "m/V", "V", "m", "po" };
+		string des = "Формула, позволяющая вычислить плотность тела по его массе и объему";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if4", f);
+	}
 
-	Form if0(ind0, val0, des0, tag_cl0, tag_loc0);
-	Form if1(ind1, val1, des1, tag_cl1, tag_loc1);
-	Form if2(ind2, val2, des2, tag_cl2, tag_loc2);
-	Form if3(ind3, val3, des3, tag_cl3, tag_loc3);
-	Form if4(ind4, val4, des4, tag_cl4, tag_loc4);
-	Form if5(ind5, val5, des5, tag_cl5, tag_loc5);
-	Form if6(ind6, val6, des6, tag_cl6, tag_loc6);
-	Form if7(ind7, val7, des7, tag_cl7, tag_loc7);
-	Form if8(ind8, val8, des8, tag_cl8, tag_loc8);
-	Form if9(ind9, val9, des9, tag_cl9, tag_loc9);
-	Form if10(ind10, val10, des10, tag_cl10, tag_loc10);
-	Form if11(ind11, val11, des11, tag_cl11, tag_loc11);
-	Form if12(ind12, val12, des12, tag_cl12, tag_loc12);
-	Form if13(ind13, val13, des13, tag_cl13, tag_loc13);
-	Form if14(ind14, val14, des14, tag_cl14, tag_loc14);
-	Form if15(ind15, val15, des15, tag_cl15, tag_loc15);
-	Form if16(ind16, val16, des16, tag_cl16, tag_loc16);
-	Form if17(ind17, val17, des17, tag_cl17, tag_loc17);
-	Form if18(ind18, val18, des18, tag_cl18, tag_loc18);
-	Form if19(ind19, val19, des19, tag_cl19, tag_loc19);
-	Form if20(ind20, val20, des20, tag_cl20, tag_loc20);
-	Form if21(ind21, val21, des21, tag_cl21, tag_loc21);
-	Form if22(ind22, val22, des22, tag_cl22, tag_loc22);
-	Form if23(ind23, val23, des23, tag_cl23, tag_loc23);
-	Form if24(ind24, val24, des24, tag_cl24, tag_loc24);
-	Form if25(ind25, val25, des25, tag_cl25, tag_loc25);
-	Form if26(ind26, val26, des26, tag_cl26, tag_loc26);
-	Form if27(ind27, val27, des27, tag_cl27, tag_loc27);
-	Form if28(ind28, val28, des28, tag_cl28, tag_loc28);
-	Form if29(ind29, val29, des29, tag_cl29, tag_loc29);
-	Form if30(ind30, val30, des30, tag_cl30, tag_loc30);
-	Form if31(ind31, val31, des31, tag_cl31, tag_loc31);
-	Form if32(ind32, val32, des32, tag_cl32, tag_loc32);
-	Form if33(ind33, val33, des33, tag_cl33, tag_loc33);
-	Form if34(ind34, val34, des34, tag_cl34, tag_loc34);
-	Form if35(ind35, val35, des35, tag_cl35, tag_loc35);
-	Form if36(ind36, val36, des36, tag_cl36, tag_loc36);
-	Form if37(ind37, val37, des37, tag_cl37, tag_loc37);
-	Form if38(ind38, val38, des38, tag_cl38, tag_loc38);
-	Form if39(ind39, val39, des39, tag_cl39, tag_loc39);
-	Form if40(ind40, val40, des40, tag_cl40, tag_loc40);
-	Form if41(ind41, val41, des41, tag_cl41, tag_loc41);
-	Form if42(ind42, val42, des42, tag_cl42, tag_loc42);
-	Form if43(ind43, val43, des43, tag_cl43, tag_loc43);
-	Form if44(ind44, val44, des44, tag_cl44, tag_loc44);
-	Form if45(ind45, val45, des45, tag_cl45, tag_loc45);
-	Form if46(ind46, val46, des46, tag_cl46, tag_loc46);
-	Form if47(ind47, val47, des47, tag_cl47, tag_loc47);
-	Form if48(ind48, val48, des48, tag_cl48, tag_loc48);
-	Form if49(ind49, val49, des49, tag_cl49, tag_loc49);
-	Form if50(ind50, val50, des50, tag_cl50, tag_loc50);
-	Form if51(ind51, val51, des51, tag_cl51, tag_loc51);
-	Form if52(ind52, val52, des52, tag_cl52, tag_loc52);
-	Form if53(ind53, val53, des53, tag_cl53, tag_loc53);
-	Form if54(ind54, val54, des54, tag_cl54, tag_loc54);
-	Form if55(ind55, val55, des55, tag_cl55, tag_loc55);
-	Form if56(ind56, val56, des56, tag_cl56, tag_loc56);
-	Form if57(ind57, val57, des57, tag_cl57, tag_loc57);
-	Form if58(ind58, val58, des58, tag_cl58, tag_loc58);
-	Form if59(ind59, val59, des59, tag_cl59, tag_loc59);
-	Form if60(ind60, val60, des60, tag_cl60, tag_loc60);
-	Form if61(ind61, val61, des61, tag_cl61, tag_loc61);
-	Form if62(ind62, val62, des62, tag_cl62, tag_loc62);
-	Form if63(ind63, val63, des63, tag_cl63, tag_loc63);
-	Form if64(ind64, val64, des64, tag_cl64, tag_loc64);
-	Form if65(ind65, val65, des65, tag_cl65, tag_loc65);
-	Form if66(ind66, val66, des66, tag_cl66, tag_loc66);
-	Form if67(ind67, val67, des67, tag_cl67, tag_loc67);
-	Form if68(ind68, val68, des68, tag_cl68, tag_loc68);
-	Form if69(ind69, val69, des69, tag_cl69, tag_loc69);
-	Form if70(ind70, val70, des70, tag_cl70, tag_loc70);
-	Form if71(ind71, val71, des71, tag_cl71, tag_loc71);
-	Form if72(ind72, val72, des72, tag_cl72, tag_loc72);
-	Form if73(ind73, val73, des73, tag_cl73, tag_loc73);
-	Form if74(ind74, val74, des74, tag_cl74, tag_loc74);
-	Form if75(ind75, val75, des75, tag_cl75, tag_loc75);
-	Form if76(ind76, val76, des76, tag_cl76, tag_loc76);
-	Form if77(ind77, val77, des77, tag_cl77, tag_loc77);
-	Form if78(ind78, val78, des78, tag_cl78, tag_loc78);
-	Form if79(ind79, val79, des79, tag_cl79, tag_loc79);
-	Form if80(ind80, val80, des80, tag_cl80, tag_loc80);
-	Form if81(ind81, val81, des81, tag_cl81, tag_loc81);
-	Form if82(ind82, val82, des82, tag_cl82, tag_loc82);
-	Form if83(ind83, val83, des83, tag_cl83, tag_loc83);
-	Form if84(ind84, val84, des84, tag_cl84, tag_loc84);
-	Form if85(ind85, val85, des85, tag_cl85, tag_loc85);
-	Form if86(ind86, val86, des86, tag_cl86, tag_loc86);
-	Form if87(ind87, val87, des87, tag_cl87, tag_loc87);
-	Form if88(ind88, val88, des88, tag_cl88, tag_loc88);
-	Form if89(ind89, val89, des89, tag_cl89, tag_loc89);
-	Form if90(ind90, val90, des90, tag_cl90, tag_loc90);
-	Form if91(ind91, val91, des91, tag_cl91, tag_loc91);
-	Form if92(ind92, val92, des92, tag_cl92, tag_loc92);
-	Form if93(ind93, val93, des93, tag_cl93, tag_loc93);
-	Form if94(ind94, val94, des94, tag_cl94, tag_loc94);
-	Form if95(ind95, val95, des95, tag_cl95, tag_loc95);
-	Form if96(ind96, val96, des96, tag_cl96, tag_loc96);
-	Form if97(ind97, val97, des97, tag_cl97, tag_loc97);
-	Form if98(ind98, val98, des98, tag_cl98, tag_loc98);
-	Form if99(ind99, val99, des99, tag_cl99, tag_loc99);
-	Form if100(ind100, val100, des100, tag_cl100, tag_loc100);
-	Form if101(ind101, val101, des101, tag_cl101, tag_loc101);
-	Form if102(ind102, val102, des102, tag_cl102, tag_loc102);
-	Form if103(ind103, val103, des103, tag_cl103, tag_loc103);
-	Form if104(ind104, val104, des104, tag_cl104, tag_loc104);
-	Form if105(ind105, val105, des105, tag_cl105, tag_loc105);
-	Form if106(ind106, val106, des106, tag_cl106, tag_loc106);
-	Form if107(ind107, val107, des107, tag_cl107, tag_loc107);
-	Form if108(ind108, val108, des108, tag_cl108, tag_loc108);
-	Form if109(ind109, val109, des109, tag_cl109, tag_loc109);
-	Form if110(ind110, val110, des110, tag_cl110, tag_loc110);
-	Form if111(ind111, val111, des111, tag_cl111, tag_loc111);
-	Form if112(ind112, val112, des112, tag_cl112, tag_loc112);
-	Form if113(ind113, val113, des113, tag_cl113, tag_loc113);
-	Form if114(ind114, val114, des114, tag_cl114, tag_loc114);
-	Form if115(ind115, val115, des115, tag_cl115, tag_loc115);
-	Form if116(ind116, val116, des116, tag_cl116, tag_loc116);
-	Form if117(ind117, val117, des117, tag_cl117, tag_loc117);
-	Form if118(ind118, val118, des118, tag_cl118, tag_loc118);
-	Form if119(ind119, val119, des119, tag_cl119, tag_loc119);
-	Form if120(ind120, val120, des120, tag_cl120, tag_loc120);
-	Form if121(ind121, val121, des121, tag_cl121, tag_loc121);
-	Form if122(ind122, val122, des122, tag_cl122, tag_loc122);
-	Form if123(ind123, val123, des123, tag_cl123, tag_loc123);
-	Form if124(ind124, val124, des124, tag_cl124, tag_loc124);
+	{
+		pair<int, int> ind(2, 2);
+		vector<string> val = { "V", "m/po", "V", "m", "po" };
+		string des = "Формула, позволяющая вычислить объем тела по его плотности и массе";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if5", f);
+	}
 
-	form_.emplace("if0", if0);
-	form_.emplace("if1", if1);
-	form_.emplace("if2", if2);
-	form_.emplace("if3", if3);
-	form_.emplace("if4", if4);
-	form_.emplace("if5", if5);
-	form_.emplace("if6", if6);
-	form_.emplace("if7", if7);
-	form_.emplace("if8", if8);
-	form_.emplace("if9", if9);
-	form_.emplace("if10", if10);
-	form_.emplace("if11", if11);
-	form_.emplace("if12", if12);
-	form_.emplace("if13", if13);
-	form_.emplace("if14", if14);
-	form_.emplace("if15", if15);
-	form_.emplace("if16", if16);
-	form_.emplace("if17", if17);
-	form_.emplace("if18", if18);
-	form_.emplace("if19", if19);
-	form_.emplace("if20", if20);
-	form_.emplace("if21", if21);
-	form_.emplace("if22", if22);
-	form_.emplace("if23", if23);
-	form_.emplace("if24", if24);
-	form_.emplace("if25", if25);
-	form_.emplace("if26", if26);
-	form_.emplace("if27", if27);
-	form_.emplace("if28", if28);
-	form_.emplace("if29", if29);
-	form_.emplace("if30", if30);
-	form_.emplace("if31", if31);
-	form_.emplace("if32", if32);
-	form_.emplace("if33", if33);
-	form_.emplace("if34", if34);
-	form_.emplace("if35", if35);
-	form_.emplace("if36", if36);
-	form_.emplace("if37", if37);
-	form_.emplace("if38", if38);
-	form_.emplace("if39", if39);
-	form_.emplace("if40", if40);
-	form_.emplace("if41", if41);
-	form_.emplace("if42", if42);
-	form_.emplace("if43", if43);
-	form_.emplace("if44", if44);
-	form_.emplace("if45", if45);
-	form_.emplace("if46", if46);
-	form_.emplace("if47", if47);
-	form_.emplace("if48", if48);
-	form_.emplace("if49", if49);
-	form_.emplace("if50", if50);
-	form_.emplace("if51", if51);
-	form_.emplace("if52", if52);
-	form_.emplace("if53", if53);
-	form_.emplace("if54", if54);
-	form_.emplace("if55", if55);
-	form_.emplace("if56", if56);
-	form_.emplace("if57", if57);
-	form_.emplace("if58", if58);
-	form_.emplace("if59", if59);
-	form_.emplace("if60", if60);
-	form_.emplace("if61", if61);
-	form_.emplace("if62", if62);
-	form_.emplace("if63", if63);
-	form_.emplace("if64", if64);
-	form_.emplace("if65", if65);
-	form_.emplace("if66", if66);
-	form_.emplace("if67", if67);
-	form_.emplace("if68", if68);
-	form_.emplace("if69", if69);
-	form_.emplace("if70", if70);
-	form_.emplace("if71", if71);
-	form_.emplace("if72", if72);
-	form_.emplace("if73", if73);
-	form_.emplace("if74", if74);
-	form_.emplace("if75", if75);
-	form_.emplace("if76", if76);
-	form_.emplace("if77", if77);
-	form_.emplace("if78", if78);
-	form_.emplace("if79", if79);
-	form_.emplace("if80", if80);
-	form_.emplace("if81", if81);
-	form_.emplace("if82", if82);
-	form_.emplace("if83", if83);
-	form_.emplace("if84", if84);
-	form_.emplace("if85", if85);
-	form_.emplace("if86", if86);
-	form_.emplace("if87", if87);
-	form_.emplace("if88", if88);
-	form_.emplace("if89", if89);
-	form_.emplace("if90", if90);
-	form_.emplace("if91", if91);
-	form_.emplace("if92", if92);
-	form_.emplace("if93", if93);
-	form_.emplace("if94", if94);
-	form_.emplace("if95", if95);
-	form_.emplace("if96", if96);
-	form_.emplace("if97", if97);
-	form_.emplace("if98", if98);
-	form_.emplace("if99", if99);
-	form_.emplace("if100", if100);
-	form_.emplace("if101", if101);
-	form_.emplace("if102", if102);
-	form_.emplace("if103", if103);
-	form_.emplace("if104", if104);
-	form_.emplace("if105", if105);
-	form_.emplace("if106", if106);
-	form_.emplace("if107", if107);
-	form_.emplace("if108", if108);
-	form_.emplace("if109", if109);
-	form_.emplace("if110", if110);
-	form_.emplace("if111", if111);
-	form_.emplace("if112", if112);
-	form_.emplace("if113", if113);
-	form_.emplace("if114", if114);
-	form_.emplace("if115", if115);
-	form_.emplace("if116", if116);
-	form_.emplace("if117", if117);
-	form_.emplace("if118", if118);
-	form_.emplace("if119", if119);
-	form_.emplace("if120", if120);
-	form_.emplace("if121", if121);
-	form_.emplace("if122", if122);
-	form_.emplace("if123", if123);
-	form_.emplace("if124", if124);
+	{
+		pair<int, int> ind(3, 0);
+		vector<string> val = { "F", "m*g", "F", "g", "m" };
+		string des = "Формула, позволяющая вычислить силу тяжести по массе тела и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if6", f);
+	}
 
+	{
+		pair<int, int> ind(3, 1);
+		vector<string> val = { "m", "F/g", "F", "g", "m" };
+		string des = "Формула, позволяющая вычислить массу тела по силе тяжести и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if7", f);
+	}
+
+	{
+		pair<int, int> ind(4, 0);
+		vector<string> val = { "F", "k*x", "F", "k", "x" };
+		string des = "Формула, позволяющая вычислить силу упругости по коэффициенту жесткости и изменению длины тела";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if8", f);
+	}
+
+	{
+		pair<int, int> ind(4, 1);
+		vector<string> val = { "x", "F/k", "F", "k", "x" };
+		string des = "Формула, позволяющая вычислить изменение длины тела по коэффициенту жесткости и силе упругости";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if9", f);
+	}
+
+	{
+		pair<int, int> ind(5, 0);
+		vector<string> val = { "P", "m*g", "P", "g", "m" };
+		string des = "Формула, позволяющая вычислить вес тела по его массе и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if10", f);
+	}
+
+	{
+		pair<int, int> ind(5, 1);
+		vector<string> val = { "m", "P/g", "P", "g", "m" };
+		string des = "Формула, позволяющая вычислить массу тела по его весу и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if11", f);
+	}
+
+	{
+		pair<int, int> ind(5, 2);
+		vector<string> val = { "P", "Ft-Fa", "Fa", "Ft", "P" };
+		string des = "Формула, позволяющая вычислить вес тела в жидкости по силе тяжести и силе архимеда";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if12", f);
+	}
+
+	{
+		pair<int, int> ind(5, 3);
+		vector<string> val = { "P", "m*g-po*g*V", "P", "V", "g", "m", "po" };
+		string des = "Формула, позволяющая вычислить вес тела в жидкости по его массе, объему, ускорению свободного падения и плотности жидкости";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if13", f);
+	}
+
+	{
+		pair<int, int> ind(6, 0);
+		vector<string> val = { "p", "F/S", "F", "S", "p" };
+		string des = "Формула, позволяющая вычислить давление по силе давления на тело и его площади";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if14", f);
+	}
+
+	{
+		pair<int, int> ind(6, 1);
+		vector<string> val = { "F", "p*S", "F", "S", "p" };
+		string des = "Формула, позволяющая вычислить силу давления на тело по его площади и давлению";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if15", f);
+	}
+
+	{
+		pair<int, int> ind(6, 2);
+		vector<string> val = { "S", "F/p", "F", "S", "p" };
+		string des = "Формула, позволяющая вычислить площадь тела по давлению и силе давления на него";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if16", f);
+	}
+
+	{
+		pair<int, int> ind(7, 0);
+		vector<string> val = { "p", "po*g*h", "g", "h", "p", "po" };
+		string des = "Формула, позволяющая вычислить давление в жидкости(газе) по плотности жидкости, ускорению свободного падения и высоте столба жидкости";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if17", f);
+	}
+
+	{
+		pair<int, int> ind(7, 1);
+		vector<string> val = { "po", "p/(g*h)", "g", "h", "p", "po" };
+		string des = "Формула, позволяющая вычислить плотность жидкости по давлению в жидкости(газе), ускорению свободного падения и высоте столба жидкости";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if18", f);
+	}
+
+	{
+		pair<int, int> ind(7, 2);
+		vector<string> val = { "h", "p/(po*g)", "g", "h", "p", "po" };
+		string des = "Формула, позволяющая вычислить высоту столба жидкости по давлению в жидкости(газе), плотности жидкости и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if19", f);
+	}
+
+	{
+		pair<int, int> ind(7, 3);
+		vector<string> val = { "p", "p0+po*g*h", "g", "h", "p", "p0", "po" };
+		string des = "Формула, позволяющая вычислить давление в жидкости(газе) по плотности жидкости, ускорению свободного падения и высоте столба жидкости и нормальному атомсферному давлению";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if20", f);
+	}
+
+	{
+		pair<int, int> ind(7, 4);
+		vector<string> val = { "po", "(p-p0)/(g*h)", "g", "h", "p", "p0", "po" };
+		string des = "Формула, позволяющая вычислить плотность жидкости по давлению в жидкости(газе), ускорению свободного падения и высоте столба жидкости и нормальному атомсферному давлению";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if21", f);
+	}
+
+	{
+		pair<int, int> ind(7, 5);
+		vector<string> val = { "h", "(p-p0)/(po*g)", "g", "h", "p", "p0", "po" };
+		string des = "Формула, позволяющая вычислить высоту столба жидкости по давлению в жидкости(газе), плотности жидкости и ускорению свободного падения и нормальному атомсферному давлению";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if22", f);
+	}
+
+	{
+		pair<int, int> ind(8, 0);
+		vector<string> val = { "p", "p0-(h/12)", "h", "p", "p0" };
+		string des = "Формула, позволяющая вычислить давление воздуха по высоте и нормальному атмосферному давлению";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if23", f);
+	}
+
+	{
+		pair<int, int> ind(8, 1);
+		vector<string> val = { "h", "12*(p0-p)", "h", "p", "p0" };
+		string des = "Формула, позволяющая вычислить высоту по давлению воздуха и нормальному атмосферному давлению";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if24", f);
+	}
+
+	{
+		pair<int, int> ind(9, 0);
+		vector<string> val = { "S", "l*a", "S", "a", "l" };
+		string des = "Формула, позволяющая вычислить площадь по длине и ширине";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if25", f);
+	}
+
+	{
+		pair<int, int> ind(9, 1);
+		vector<string> val = { "l", "S/a", "S", "a", "l" };
+		string des = "Формула, позволяющая вычислить длину по площади и ширине";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if26", f);
+	}
+
+	{
+		pair<int, int> ind(9, 2);
+		vector<string> val = { "a", "S/l", "S", "a", "l" };
+		string des = "Формула, позволяющая вычислить ширину по площади и длине";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if27", f);
+	}
+
+	{
+		pair<int, int> ind(10, 0);
+		vector<string> val = { "V", "S*h", "S", "V", "h" };
+		string des = "Формула, позволяющая вычислить объем по площади и высоте";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if28", f);
+	}
+
+	{
+		pair<int, int> ind(10, 1);
+		vector<string> val = { "S", "V/h", "S", "V", "h" };
+		string des = "Формула, позволяющая вычислить площадь по объему и высоте";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if29", f);
+	}
+
+	{
+		pair<int, int> ind(10, 2);
+		vector<string> val = { "h", "V/S", "S", "V", "h" };
+		string des = "Формула, позволяющая вычислить высоту по площади и объему";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if30", f);
+	}
+
+	{
+		pair<int, int> ind(11, 0);
+		vector<string> val = { "F", "po*g*V", "F", "V", "g", "po" };
+		string des = "Формула, позволяющая вычислить архимедову силу по плотности жидкости, ускорению свободного падения и объему тела";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if31", f);
+	}
+
+	{
+		pair<int, int> ind(11, 1);
+		vector<string> val = { "po", "F/(g*V)", "F", "V", "g", "po" };
+		string des = "Формула, позволяющая вычислить плотность жидкости по архимедовой силе, ускорению свободного падения и объему тела";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if32", f);
+	}
+
+	{
+		pair<int, int> ind(11, 2);
+		vector<string> val = { "V", "F/(po*d)", "F", "V", "g", "po" };
+		string des = "Формула, позволяющая вычислить объем тела по плотности жидкости, ускорению свободного падения и архимедовой силе";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if33", f);
+	}
+
+	{
+		pair<int, int> ind(12, 0);
+		vector<string> val = { "F", "mu*P", "F", "P", "mu" };
+		string des = "Формула, позволяющая вычислить силу трения по весу тела и коэффициенту трения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if34", f);
+	}
+
+	{
+		pair<int, int> ind(12, 1);
+		vector<string> val = { "F", "mu*m*g", "F", "g", "m", "mu" };
+		string des = "Формула, позволяющая вычислить силу трения по массе тела, ускорению свободного падения и коэффициенту трения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if35", f);
+	}
+
+	{
+		pair<int, int> ind(12, 2);
+		vector<string> val = { "P", "F/mu", "F", "P", "mu" };
+		string des = "Формула, позволяющая вычислить вес тела по силе трения и коэффициенту трения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if36", f);
+	}
+
+	{
+		pair<int, int> ind(12, 3);
+		vector<string> val = { "m", "F/(mu*g)", "F", "g", "m", "mu" };
+		string des = "Формула, позволяющая вычислить массу тела по силе трения, ускорению свободного падения и коэффициенту трения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if37", f);
+	}
+
+	{
+		pair<int, int> ind(13, 0);
+		vector<string> val = { "A", "F*S", "A", "F", "S" };
+		string des = "Формула, позволяющая вычислить работу тела по силе, действующей на тело и его площади";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if38", f);
+	}
+
+	{
+		pair<int, int> ind(13, 1);
+		vector<string> val = { "F", "A/S", "A", "F", "S" };
+		string des = "Формула, позволяющая вычислить силу, действующую на тело по работе тела и его площади";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if39", f);
+	}
+
+	{
+		pair<int, int> ind(13, 2);
+		vector<string> val = { "S", "A/F", "A", "F", "S" };
+		string des = "Формула, позволяющая вычислить площадь тела по работе тела и силе, действующей на тело";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if40", f);
+	}
+
+	{
+		pair<int, int> ind(14, 0);
+		vector<string> val = { "N", "A/t", "A", "N", "t" };
+		string des = "Формула, позволяющая вычислить мощность по работе и времени";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if41", f);
+	}
+
+	{
+		pair<int, int> ind(14, 1);
+		vector<string> val = { "A", "N*t", "A", "N", "t" };
+		string des = "Формула, позволяющая вычислить работу по мощности и времени";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if42", f);
+	}
+
+	{
+		pair<int, int> ind(14, 2);
+		vector<string> val = { "t", "A/N", "A", "N", "t" };
+		string des = "Формула, позволяющая вычислить время по мощности и работе";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if43", f);
+	}
+
+	{
+		pair<int, int> ind(15, 0);
+		vector<string> val = { "M", "F*l", "F", "M", "l" };
+		string des = "Формула, позволяющая вычислить момент силы по силе и плечу силы";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if44", f);
+	}
+
+	{
+		pair<int, int> ind(15, 1);
+		vector<string> val = { "F", "M/l", "F", "M", "l" };
+		string des = "Формула, позволяющая вычислить силу по моменту силы и плечу силы";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if45", f);
+	}
+
+	{
+		pair<int, int> ind(15, 2);
+		vector<string> val = { "l", "M/F", "F", "M", "l" };
+		string des = "Формула, позволяющая вычислить плечо силы по моменту силы и силе";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if46", f);
+	}
+
+	{
+		pair<int, int> ind(16, 0);
+		vector<string> val = { "n", "(Ap/Az)*100%", "Ap", "Az", "n" };
+		string des = "Формула, позволяющая вычислить КПД по полезной и затраченной работе";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if47", f);
+	}
+
+	{
+		pair<int, int> ind(16, 1);
+		vector<string> val = { "Ap", "(n*Az)/100%", "Ap", "Az", "n" };
+		string des = "Формула, позволяющая вычислить полезную работу по КПД и затраченной работе";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if48", f);
+	}
+
+	{
+		pair<int, int> ind(16, 2);
+		vector<string> val = { "Az", "(Ap*100%)/n", "Ap", "Az", "n" };
+		string des = "Формула, позволяющая вычислить затраченную работу по КПД и полезной работе";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if49", f);
+	}
+
+	{
+		pair<int, int> ind(17, 0);
+		vector<string> val = { "N", "F*v", "F", "N", "v" };
+		string des = "Формула, позволяющая вычислить механическую мощность по силе и скорости";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if50", f);
+	}
+
+	{
+		pair<int, int> ind(17, 1);
+		vector<string> val = { "F", "N/v", "F", "N", "v" };
+		string des = "Формула, позволяющая вычислить силу по механической мощности и скорости";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if51", f);
+	}
+
+	{
+		pair<int, int> ind(17, 2);
+		vector<string> val = { "v", "N/F", "F", "N", "v" };
+		string des = "Формула, позволяющая вычислить скорость по механической мощности и силе";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if52", f);
+	}
+
+	{
+		pair<int, int> ind(18, 0);
+		vector<string> val = { "Ek", "(m*v*v)/2", "Ek", "m", "v" };
+		string des = "Формула, позволяющая вычислить кинетическую энергию тела по его массе и скорости";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if53", f);
+	}
+
+	{
+		pair<int, int> ind(18, 1);
+		vector<string> val = { "m", "(2*Ek)/(v*v)", "Ek", "m", "v" };
+		string des = "Формула, позволяющая вычислить массу тела по его кинетической энергии и скорости";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if54", f);
+	}
+
+	{
+		pair<int, int> ind(18, 2);
+		vector<string> val = { "v", "sqrt((2*Ek)/m)", "Ek", "m", "v" };
+		string des = "Формула, позволяющая вычислить скорость тела по его кинетической энергии и массе";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if55", f);
+	}
+
+	{
+		pair<int, int> ind(19, 0);
+		vector<string> val = { "Ep", "m*g*h", "Ep", "g", "h", "m" };
+		string des = "Формула, позволяющая вычислить потенциальную энергию силы тяжести по массе тела, высоте и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if56", f);
+	}
+
+	{
+		pair<int, int> ind(19, 1);
+		vector<string> val = { "m", "Ep/(g*h)", "Ep", "g", "h", "m" };
+		string des = "Формула, позволяющая вычислить массу тела по потенциальной энергии силы тяжести, высоте и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if57", f);
+	}
+
+	{
+		pair<int, int> ind(19, 2);
+		vector<string> val = { "h", "Ep/(m*g)", "Ep", "g", "h", "m" };
+		string des = "Формула, позволяющая вычислить высоту по потенциальной энергии силы тяжести, массе тела и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class7", "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if58", f);
+	}
+
+	{
+		pair<int, int> ind(20, 0);
+		vector<string> val = { "Q", "c*m*(t-t0)", "Q", "c", "m", "t", "t0" };
+		string des = "Формула, позволяющая вычислить кол-во теплоты по удельной теплоёмкости, массе тела и разности температур";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if59", f);
+	}
+
+	{
+		pair<int, int> ind(20, 1);
+		vector<string> val = { "m", "Q/(c*(t-t0))", "Q", "c", "m", "t", "t0" };
+		string des = "Формула, позволяющая вычислить массу тела по кол-ву теплоты, удельной теплоёмкости и разности температур";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if60", f);
+	}
+
+	{
+		pair<int, int> ind(20, 2);
+		vector<string> val = { "t", "Q/(c*m)-t0", "Q", "c", "m", "t", "t0" };
+		string des = "Формула, позволяющая вычислить конечную температуру по кол-ву теплоты, удельной теплоёмкости, массе тела и начальной температуре";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if61", f);
+	}
+
+	{
+		pair<int, int> ind(20, 3);
+		vector<string> val = { "t0", "t-Q/(c*m)t0", "Q", "c", "m", "t" };
+		string des = "Формула, позволяющая вычислить начальную температуру по кол-ву теплоты, удельной теплоёмкости, массе тела и конечной температуре";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if62", f);
+	}
+
+	{
+		pair<int, int> ind(21, 0);
+		vector<string> val = { "Q", "q*m", "Q", "m", "q" };
+		string des = "Формула, позволяющая вычислить кол-во теплоты при сгорании топлива по удельной теплоте сгорания топлива и массе топлива";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if63", f);
+	}
+
+	{
+		pair<int, int> ind(21, 1);
+		vector<string> val = { "m", "Q/q", "Q", "m", "q" };
+		string des = "Формула, позволяющая вычислить массу топлива по кол-ву теплоты при сгорании топлива и удельной теплоте сгорания топлива";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if64", f);
+	}
+
+	{
+		pair<int, int> ind(22, 0);
+		vector<string> val = { "Q", "lambda*m", "Q", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить кол-во теплоты, необходимое для плавления вещества по удельной теплоте плавления и массе вещества";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if65", f);
+	}
+
+	{
+		pair<int, int> ind(22, 1);
+		vector<string> val = { "m", "Q/lambda", "Q", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить массу вещества по кол-ву теплоты, необходимой для плавления вещества и удельной теплоте плавления";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if66", f);
+	}
+
+	{
+		pair<int, int> ind(23, 0);
+		vector<string> val = { "Q", "L*m", "L", "Q", "m" };
+		string des = "Формула, позволяющая вычислить кол-во теплоты при парообразовании и конденсации по удельной теплоте парообразования и конденсации и массе вещества";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if67", f);
+	}
+
+	{
+		pair<int, int> ind(23, 1);
+		vector<string> val = { "m", "Q/L", "L", "Q", "m" };
+		string des = "Формула, позволяющая вычислить массу вещества по кол-ву теплоты при парообразовании и конденсации и удельной теплоте парообразования и конденсации";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if68", f);
+	}
+
+	{
+		pair<int, int> ind(24, 0);
+		vector<string> val = { "po", "m/V", "V", "m", "po" };
+		string des = "Формула, позволяющая вычислить абсолютную влажность воздуха по массе пара и объему воздуха";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if69", f);
+	}
+
+	{
+		pair<int, int> ind(24, 1);
+		vector<string> val = { "m", "po*V", "V", "m", "po" };
+		string des = "Формула, позволяющая вычислить массу пара по абсолютной влажности воздуха и объему воздуха";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if70", f);
+	}
+
+	{
+		pair<int, int> ind(24, 2);
+		vector<string> val = { "V", "m/po", "V", "m", "po" };
+		string des = "Формула, позволяющая вычислить объем воздуха по абсолютной влажности воздуха и массе пара";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if71", f);
+	}
+
+	{
+		pair<int, int> ind(25, 0);
+		vector<string> val = { "fi", "po/pon*100%", "fi", "po", "pon" };
+		string des = "Формула, позволяющая вычислить относительную влажность воздуха по абсолютной влажности и плотности насыщенного пара при данной температуре";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if72", f);
+	}
+
+	{
+		pair<int, int> ind(25, 1);
+		vector<string> val = { "po", "fi*pon/100%", "fi", "po", "pon" };
+		string des = "Формула, позволяющая вычислить абсолютнуюную влажность по относительной влажности воздуха и плотности насыщенного пара при данной температуре";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if73", f);
+	}
+
+	{
+		pair<int, int> ind(26, 0);
+		vector<string> val = { "n", "Ap/Qn*100%", "Ap", "Qn", "n" };
+		string des = "Формула, позволяющая вычислить КПД теплового двигателя по полезной работе, совершенной двигателем и кол-ву теплоты, полученного от нагревателя";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if74", f);
+	}
+
+	{
+		pair<int, int> ind(26, 1);
+		vector<string> val = { "Ap", "n*Qn*100%", "Ap", "Qn", "n" };
+		string des = "Формула, позволяющая вычислить полезную работу, совершенную двигателем по КПД теплового двигателя и кол-ву теплоты, полученного от нагревателя";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if75", f);
+	}
+
+	{
+		pair<int, int> ind(26, 2);
+		vector<string> val = { "Qn", "Ap/(n*100%)", "Ap", "Qn", "n" };
+		string des = "Формула, позволяющая вычислить кол-во теплоты, полученное от нагревателя по КПД теплового двигателя и полезной работе, совершенной двигателем";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if76", f);
+	}
+
+	{
+		pair<int, int> ind(27, 0);
+		vector<string> val = { "I", "U/R", "I", "R", "U" };
+		string des = "Формула, позволяющая вычислить силу тока по напряжению и сопротивлению";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if77", f);
+	}
+
+	{
+		pair<int, int> ind(27, 1);
+		vector<string> val = { "U", "I*R", "I", "R", "U" };
+		string des = "Формула, позволяющая вычислить напряжение по силе тока и сопротивлению";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if78", f);
+	}
+
+	{
+		pair<int, int> ind(27, 2);
+		vector<string> val = { "R", "U/I", "I", "R", "U" };
+		string des = "Формула, позволяющая вычислить спортивление по напряжению и силе тока";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if79", f);
+	}
+
+	{
+		pair<int, int> ind(28, 0);
+		vector<string> val = { "R", "po*L/S", "L", "R", "S", "po" };
+		string des = "Формула, позволяющая вычислить сопротивление по удельному сопротивлению вещества, длине проводника и площади его поперечного сечения";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if80", f);
+	}
+
+	{
+		pair<int, int> ind(28, 1);
+		vector<string> val = { "L", "R*S/po", "L", "R", "S", "po" };
+		string des = "Формула, позволяющая вычислить длину проводника по удельному сопротивлению вещества, сопртивлению и площади поперечного сечения проводника";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if81", f);
+	}
+
+	{
+		pair<int, int> ind(28, 2);
+		vector<string> val = { "S", "po*L/R", "L", "R", "S", "po" };
+		string des = "Формула, позволяющая вычислить площадь поперечного сечения проводника по удельному сопротивлению вещества, длине проводника и сопротивлению";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if82", f);
+	}
+
+	{
+		pair<int, int> ind(28, 3);
+		vector<string> val = { "po", "R*S/L", "L", "R", "S", "po" };
+		string des = "Формула, позволяющая вычислить удельное сопротивление вещества по сопротивлению, длине проводника и площади его поперечного сечения";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if83", f);
+	}
+
+	{
+		pair<int, int> ind(29, 0);
+		vector<string> val = { "q", "I*t", "I", "q", "t" };
+		string des = "Формула, позволяющая вычислить заряд по силе тока и времени, за которое этот заряд протекает по проводнику";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if84", f);
+	}
+
+	{
+		pair<int, int> ind(29, 1);
+		vector<string> val = { "I", "q/t", "I", "q", "t" };
+		string des = "Формула, позволяющая вычислить силу тока по заряду и времени, за которое этот заряд протекает по проводнику";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if85", f);
+	}
+
+	{
+		pair<int, int> ind(29, 2);
+		vector<string> val = { "t", "q/I", "I", "q", "t" };
+		string des = "Формула, позволяющая вычислить время, за которое заряд протекает по проводнику по силе тока и заряду";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if86", f);
+	}
+
+	{
+		pair<int, int> ind(30, 0);
+		vector<string> val = { "A", "U*q", "A", "U", "q" };
+		string des = "Формула, позволяющая вычислить работу электрического тока по напряжению на концах участка и заряду";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if87", f);
+	}
+
+	{
+		pair<int, int> ind(30, 1);
+		vector<string> val = { "U", "A/q", "A", "U", "q" };
+		string des = "Формула, позволяющая вычислить напряжение на концах участка по работе электрического тока и заряду";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if88", f);
+	}
+
+	{
+		pair<int, int> ind(30, 2);
+		vector<string> val = { "q", "A/U", "A", "U", "q" };
+		string des = "Формула, позволяющая вычислить заряд по напряжению на концах участка и работе электрического тока";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if89", f);
+	}
+
+	{
+		pair<int, int> ind(31, 0);
+		vector<string> val = { "A", "U*I*t", "A", "I", "U", "t" };
+		string des = "Формула, позволяющая вычислить работу электрического тока по напряжению на концах участка, силе тока и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if90", f);
+	}
+
+	{
+		pair<int, int> ind(31, 1);
+		vector<string> val = { "U", "A/(I*t)", "A", "I", "U", "t" };
+		string des = "Формула, позволяющая вычислить напряжение на концах участка по работе электрического тока, силе тока и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if91", f);
+	}
+
+	{
+		pair<int, int> ind(31, 2);
+		vector<string> val = { "I", "A/(U*t)", "A", "I", "U", "t" };
+		string des = "Формула, позволяющая вычислить силу тока по работе электрического тока, напряжению на концах участка и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if92", f);
+	}
+
+	{
+		pair<int, int> ind(31, 2);
+		vector<string> val = { "t", "A/(U*I)", "A", "I", "U", "t" };
+		string des = "Формула, позволяющая вычислить время по работе электрического тока, напряжению на концах участка и силе тока";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if93", f);
+	}
+
+	{
+		pair<int, int> ind(32, 0);
+		vector<string> val = { "P", "A/t", "A", "P", "t" };
+		string des = "Формула, позволяющая вычислить электрическую мощность по работе электрического тока и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if94", f);
+	}
+
+	{
+		pair<int, int> ind(32, 1);
+		vector<string> val = { "A", "P*t", "A", "P", "t" };
+		string des = "Формула, позволяющая вычислить работу электрического тока по электрической мощности и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if95", f);
+	}
+
+	{
+		pair<int, int> ind(32, 2);
+		vector<string> val = { "t", "A/P", "A", "P", "t" };
+		string des = "Формула, позволяющая вычислить время по работе электрического тока и электрической мощности";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if96", f);
+	}
+
+	{
+		pair<int, int> ind(33, 0);
+		vector<string> val = { "P", "U*I", "I", "P", "U" };
+		string des = "Формула, позволяющая вычислить электрическую мощность по напряжению на концах участка и силе тока";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if97", f);
+	}
+
+	{
+		pair<int, int> ind(33, 1);
+		vector<string> val = { "U", "P/I", "I", "P", "U" };
+		string des = "Формула, позволяющая вычислить напряжение на концах участка по электрической мощности и силе тока";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if98", f);
+	}
+
+	{
+		pair<int, int> ind(33, 2);
+		vector<string> val = { "I", "P/U", "I", "P", "U" };
+		string des = "Формула, позволяющая вычислить силу тока по напряжению на концах участка и электрической мощности";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if99", f);
+	}
+
+	{
+		pair<int, int> ind(34, 0);
+		vector<string> val = { "P", "U*U/R", "P", "R", "U" };
+		string des = "Формула, позволяющая вычислить электрическую мощность по напряжению на концах участка и сопротивлению";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if100", f);
+	}
+
+	{
+		pair<int, int> ind(34, 1);
+		vector<string> val = { "R", "P/(U*U)", "P", "R", "U" };
+		string des = "Формула, позволяющая вычислить сопротивление по электрической мощности и напряжению на концах участка";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if101", f);
+	}
+
+	{
+		pair<int, int> ind(34, 2);
+		vector<string> val = { "U", "sqrt(P/R)", "P", "R", "U" };
+		string des = "Формула, позволяющая вычислить напряжение на концах участка по электрической мощности и сопротивлению";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if102", f);
+	}
+
+	{
+		pair<int, int> ind(35, 0);
+		vector<string> val = { "P", "I*I*R", "I", "P", "R" };
+		string des = "Формула, позволяющая вычислить электрическую мощность по силе тока и сопротивлению";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if103", f);
+	}
+
+	{
+		pair<int, int> ind(35, 1);
+		vector<string> val = { "R", "P/(I*I)", "I", "P", "R" };
+		string des = "Формула, позволяющая вычислить сопротивление по электрической мощности по силе тока";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if104", f);
+	}
+
+	{
+		pair<int, int> ind(35, 2);
+		vector<string> val = { "I", "sqrt(P/R)", "I", "P", "R" };
+		string des = "Формула, позволяющая вычислить силу тока по электрической мощности и сопротивлению";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if105", f);
+	}
+
+	{
+		pair<int, int> ind(36, 0);
+		vector<string> val = { "Q", "P*t", "P", "Q", "t" };
+		string des = "Формула, позволяющая вычислить кол-во теплоты по электрической мощности и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if106", f);
+	}
+
+	{
+		pair<int, int> ind(36, 1);
+		vector<string> val = { "P", "Q/t", "P", "Q", "t" };
+		string des = "Формула, позволяющая вычислить электрическую мощность по кол-ву теплоты и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if107", f);
+	}
+
+	{
+		pair<int, int> ind(36, 2);
+		vector<string> val = { "t", "Q/P", "P", "Q", "t" };
+		string des = "Формула, позволяющая вычислить время по кол-ву теплоты и электрической мощности";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if108", f);
+	}
+
+	{
+		pair<int, int> ind(37, 0);
+		vector<string> val = { "Q", "I*I*R*t", "I", "Q", "R", "t" };
+		string des = "Формула, позволяющая вычислить кол-во теплоты по силе тока, сопротивлению и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if109", f);
+	}
+
+	{
+		pair<int, int> ind(37, 1);
+		vector<string> val = { "I", "sqrt(Q/(R*t))", "I", "Q", "R", "t" };
+		string des = "Формула, позволяющая вычислить силу тока по кол-ву теплоты, сопротивлению и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if110", f);
+	}
+
+	{
+		pair<int, int> ind(37, 2);
+		vector<string> val = { "R", "Q/(I*I*t)", "I", "Q", "R", "t" };
+		string des = "Формула, позволяющая вычислить сопротивление по кол-ву теплоты, силе тока и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if111", f);
+	}
+
+	{
+		pair<int, int> ind(37, 3);
+		vector<string> val = { "t", "Q/(I*I*R)", "I", "Q", "R", "t" };
+		string des = "Формула, позволяющая вычислить время по кол-ву теплоты, силе тока и сопротивлению";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if112", f);
+	}
+
+	{
+		pair<int, int> ind(38, 0);
+		vector<string> val = { "Q", "U*I*t", "I", "Q", "U", "t" };
+		string des = "Формула, позволяющая вычислить кол-во теплоты по напряжению на концах участка, силе тока и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if113", f);
+	}
+
+	{
+		pair<int, int> ind(38, 1);
+		vector<string> val = { "U", "Q/(I*t)", "I", "Q", "U", "t" };
+		string des = "Формула, позволяющая вычислить напряжение на концах участка по кол-ву теплоты, силе тока и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if114", f);
+	}
+
+	{
+		pair<int, int> ind(38, 2);
+		vector<string> val = { "I", "Q/(U*t)", "I", "Q", "U", "t" };
+		string des = "Формула, позволяющая вычислить силу тока по кол-ву теплоты, напряжению на концах участка и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if115", f);
+	}
+
+	{
+		pair<int, int> ind(38, 3);
+		vector<string> val = { "t", "Q/(U*I)", "I", "Q", "U", "t" };
+		string des = "Формула, позволяющая вычислить время по кол-ву теплоты, напряжению на концах участка и силе тока";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if116", f);
+	}
+
+	{
+		pair<int, int> ind(39, 0);
+		vector<string> val = { "Q", "U*U*t/R", "Q", "R", "U", "t" };
+		string des = "Формула, позволяющая вычислить кол-во теплоты по напряжению на концах участка, сопротивлению и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if117", f);
+	}
+
+	{
+		pair<int, int> ind(39, 1);
+		vector<string> val = { "U", "sqrt(Q*R/t)", "Q", "R", "U", "t" };
+		string des = "Формула, позволяющая вычислить напряжение на концах участка по кол-ву теплоты, сопротивлению и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if118", f);
+	}
+
+	{
+		pair<int, int> ind(39, 2);
+		vector<string> val = { "R", "U*U*t/Q", "Q", "R", "U", "t" };
+		string des = "Формула, позволяющая вычислить сопротивление по кол-ву теплоты, напряжению на концах участка и времени";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if119", f);
+	}
+
+	{
+		pair<int, int> ind(39, 3);
+		vector<string> val = { "t", "Q*R/(U*U)", "Q", "R", "U", "t" };
+		string des = "Формула, позволяющая вычислить время по кол-ву теплоты, напряжению на концах участка и сопротивлению";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if120", f);
+	}
+
+	{
+		pair<int, int> ind(40, 0);
+		vector<string> val = { "n", "c/v", "c", "n", "v" };
+		string des = "Формула, позволяющая вычислить абсолютный показатель преломления вещества по скорости света в вакууме и скорости света в данной среде";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if121", f);
+	}
+
+	{
+		pair<int, int> ind(40, 1);
+		vector<string> val = { "v", "c/n", "c", "n", "v" };
+		string des = "Формула, позволяющая вычислить скорость света в данной среде по абсолютному показателю преломления вещества и скорости света в вакууме";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if122", f);
+	}
+
+	{
+		pair<int, int> ind(41, 0);
+		vector<string> val = { "D", "1/F", "D", "F" };
+		string des = "Формула, позволяющая вычислить оптическую силу линзы по фокусному расстоянию линзы";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if123", f);
+	}
+
+	{
+		pair<int, int> ind(41, 1);
+		vector<string> val = { "F", "1/D", "D", "F" };
+		string des = "Формула, позволяющая вычислить фокусное расстояние линзы по оптической силе линзы";
+		vector<string> tag_cl = { "#Class8", "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if124", f);
+	}
+
+	{
+		pair<int, int> ind(42, 0);
+		vector<string> val = { "Sx", "x2-x1", "Sx", "x1", "x2" };
+		string des = "Формула, позволяющая вычислить перемещение по начальной и конечной координатам";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if125", f);
+	}
+
+	{
+		pair<int, int> ind(42, 1);
+		vector<string> val = { "x2", "Sx+x1", "Sx", "x1", "x2" };
+		string des = "Формула, позволяющая вычислить конечную координату по перемещению и начальной координате";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if126", f);
+	}
+
+	{
+		pair<int, int> ind(42, 2);
+		vector<string> val = { "x1", "x2-Sx", "Sx", "x1", "x2" };
+		string des = "Формула, позволяющая вычислить начальную координату по перемещению и конечной координате";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if127", f);
+	}
+
+	{
+		pair<int, int> ind(43, 0);
+		vector<string> val = { "x", "x0+vx*t", "t", "vx", "x", "x0" };
+		string des = "Формула, позволяющая вычислить конечную координату по начальной координате, скорости и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if128", f);
+	}
+
+	{
+		pair<int, int> ind(43, 1);
+		vector<string> val = { "x0", "x-vx*t", "t", "vx", "x", "x0" };
+		string des = "Формула, позволяющая вычислить начальную координату по конечной координате, скорости и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if129", f);
+	}
+
+	{
+		pair<int, int> ind(43, 2);
+		vector<string> val = { "vx", "(x-x0)/t", "t", "vx", "x", "x0" };
+		string des = "Формула, позволяющая вычислить скорость по конечной и начальной координатам и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if130", f);
+	}
+
+	{
+		pair<int, int> ind(43, 3);
+		vector<string> val = { "t", "(x-x0)/vx", "t", "vx", "x", "x0" };
+		string des = "Формула, позволяющая вычислить время по конечной и начальной координатам и скорости";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if131", f);
+	}
+
+	{
+		pair<int, int> ind(44, 0);
+		vector<string> val = { "v", "~v0+a*t", "a", "t", "v", "~v0" };
+		string des = "Формула, позволяющая вычислить конечную скорость по начальной скорости, ускорению и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if132", f);
+	}
+
+	{
+		pair<int, int> ind(44, 1);
+		vector<string> val = { "~v0", "v-a*t", "a", "t", "v", "~v0" };
+		string des = "Формула, позволяющая вычислить начальную скорость по конечной скорости, ускорению и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if133", f);
+	}
+
+	{
+		pair<int, int> ind(44, 2);
+		vector<string> val = { "a", "(v-~v0)/t", "a", "t", "v", "~v0" };
+		string des = "Формула, позволяющая вычислить ускорение по конечной и начальной скоростям и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if134", f);
+	}
+
+	{
+		pair<int, int> ind(44, 3);
+		vector<string> val = { "t", "(v-~v0)/a", "a", "t", "v", "~v0" };
+		string des = "Формула, позволяющая вычислить время по конечной и начальной скоростям и ускорению";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if135", f);
+	}
+
+	{
+		pair<int, int> ind(45, 0);
+		vector<string> val = { "x", "x0+v0*t+(a*t*t)/2", "a", "t", "v0", "x", "x0" };
+		string des = "Формула, позволяющая вычислить конечную координату по начальной координате, начальной скорости, ускорению и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if136", f);
+	}
+
+	{
+		pair<int, int> ind(45, 1);
+		vector<string> val = { "x0", "x-v0*t-(a*t*t)/2", "a", "t", "v0", "x", "x0" };
+		string des = "Формула, позволяющая вычислить начальную координату по конечной координате, начальной скорости, ускорению и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if137", f);
+	}
+
+	{
+		pair<int, int> ind(45, 2);
+		vector<string> val = { "v0", "(x-x0-(a*t*t)/2)/t", "a", "t", "v0", "x", "x0" };
+		string des = "Формула, позволяющая вычислить начальную скорость по конечной и начальной координатам, ускорению и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if138", f);
+	}
+
+	{
+		pair<int, int> ind(45, 3);
+		vector<string> val = { "a", "2*(x-x0-v0t)/(t*t)", "a", "t", "v0", "x", "x0" };
+		string des = "Формула, позволяющая вычислить ускорение по начальной скорости, конечной и начальной координатам и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if139", f);
+	}
+
+	{
+		pair<int, int> ind(46, 0);
+		vector<string> val = { "F", "m*a", "F", "a", "m" };
+		string des = "Формула, позволяющая вычислить силу, действующую на тело по его массе и ускорению";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if140", f);
+	}
+
+	{
+		pair<int, int> ind(46, 1);
+		vector<string> val = { "m", "F/a", "F", "a", "m" };
+		string des = "Формула, позволяющая вычислить массу тела по силе, действующей на него и его ускорению";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if141", f);
+	}
+
+	{
+		pair<int, int> ind(46, 2);
+		vector<string> val = { "a", "F/m", "F", "a", "m" };
+		string des = "Формула, позволяющая вычислить ускорение тела по силе, действующей на него и его массе";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if142", f);
+	}
+
+	{
+		pair<int, int> ind(47, 0);
+		vector<string> val = { "h", "(g*t*t)/2", "g", "h", "t" };
+		string des = "Формула, позволяющая вычислить высоту, с которой падает тело по времени и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if143", f);
+	}
+
+	{
+		pair<int, int> ind(47, 1);
+		vector<string> val = { "t", "sqrt(2*h/g)", "g", "h", "t" };
+		string des = "Формула, позволяющая вычислить время падения по высоте, с которой падает тело и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if144", f);
+	}
+
+	{
+		pair<int, int> ind(48, 0);
+		vector<string> val = { "h", "v0*t-(g*t*t)/2", "g", "h", "t", "v0" };
+		string des = "Формула, позволяющая вычислить высоту при движении вверх по начальной скорости, времени и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if145", f);
+	}
+
+	{
+		pair<int, int> ind(48, 1);
+		vector<string> val = { "v0", "(h+(g*t*t)/2)/t", "g", "h", "t", "v0" };
+		string des = "Формула, позволяющая вычислить начальную скорость при движении вверх по высоте, времени и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if146", f);
+	}
+
+	{
+		pair<int, int> ind(49, 0);
+		vector<string> val = { "P", "m*(g+a)", "P", "a", "g", "m" };
+		string des = "Формула, позволяющая вычислить вес тела при движении вверх по массе тела, его ускорению и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if147", f);
+	}
+
+	{
+		pair<int, int> ind(49, 1);
+		vector<string> val = { "m", "P/(g+a)", "P", "a", "g", "m" };
+		string des = "Формула, позволяющая вычислить массу тела при движении вверх по весу тела, его ускорению и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if148", f);
+	}
+
+	{
+		pair<int, int> ind(49, 2);
+		vector<string> val = { "a", "P/m-g", "P", "a", "g", "m" };
+		string des = "Формула, позволяющая вычислить ускорение тела при движении вверх по весу тела, его массе и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if149", f);
+	}
+
+	{
+		pair<int, int> ind(50, 0);
+		vector<string> val = { "P", "m*(g-a)", "P", "a", "g", "m" };
+		string des = "Формула, позволяющая вычислить вес тела при движении вниз по массе тела, его ускорению и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if150", f);
+	}
+
+	{
+		pair<int, int> ind(50, 1);
+		vector<string> val = { "m", "P/(g-a)", "P", "a", "g", "m" };
+		string des = "Формула, позволяющая вычислить массу тела при движении вниз по весу тела, его ускорению и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if151", f);
+	}
+
+	{
+		pair<int, int> ind(50, 2);
+		vector<string> val = { "a", "g-P/m", "P", "a", "g", "m" };
+		string des = "Формула, позволяющая вычислить ускорение тела при движении вниз по весу тела, его массе и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if152", f);
+	}
+
+	{
+		pair<int, int> ind(51, 0);
+		vector<string> val = { "F", "G*m1*m2/(r*r)", "F", "G", "m1", "m2", "r" };
+		string des = "Формула, позволяющая вычислить силу притяжения по масссе тел, расстоянию между ними и гравитационной постоянной";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if153", f);
+	}
+
+	{
+		pair<int, int> ind(51, 1);
+		vector<string> val = { "m1", "F*r*r/(G*m2)", "F", "G", "m1", "m2", "r" };
+		string des = "Формула, позволяющая вычислить массу первого тела по силе притяжения, масссе второго тела, расстоянию между ними и гравитационной постоянной";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if154", f);
+	}
+
+	{
+		pair<int, int> ind(51, 2);
+		vector<string> val = { "m2", "F*r*r/(G*m1)", "F", "G", "m1", "m2", "r" };
+		string des = "Формула, позволяющая вычислить массу второго тела по силе притяжения, масссе первого тела, расстоянию между ними и гравитационной постоянной";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if155", f);
+	}
+
+	{
+		pair<int, int> ind(51, 3);
+		vector<string> val = { "r", "G*m1*m2/F", "F", "G", "m1", "m2", "r" };
+		string des = "Формула, позволяющая вычислить рассстояние между телами по силе притяжения, масссе тел и гравитационной постоянной";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if156", f);
+	}
+
+	{
+		pair<int, int> ind(52, 0);
+		vector<string> val = { "g", "G*M/(R*R)", "G", "M", "R", "g" };
+		string des = "Формула, позволяющая вычислить ускорение свободного падения по массе и радиусу планеты и гравитационной постоянной";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if157", f);
+	}
+
+	{
+		pair<int, int> ind(52, 1);
+		vector<string> val = { "M", "g*R*R/G", "G", "M", "R", "g" };
+		string des = "Формула, позволяющая вычислить массу планеты по ускорению свободного падения, радиусу планеты и гравитационной постоянной";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if158", f);
+	}
+
+	{
+		pair<int, int> ind(52, 2);
+		vector<string> val = { "R", "sqrt(G*M/g)", "G", "M", "R", "g" };
+		string des = "Формула, позволяющая вычислить радиус планеты по ускорению свободного падения, массе планеты и гравитационной постоянной";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if159", f);
+	}
+
+	{
+		pair<int, int> ind(53, 0);
+		vector<string> val = { "g", "G*M/(R+H)*(R+H)", "G", "H", "M", "R", "g" };
+		string des = "Формула, позволяющая вычислить ускорение свободного падения по массе и радиусу Земли, высоте тела над Землей и гравитационной постоянной";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if160", f);
+	}
+
+	{
+		pair<int, int> ind(54, 0);
+		vector<string> val = { "a", "v*v/r", "a", "r", "v" };
+		string des = "Формула, позволяющая вычислить центростремительное ускорение по скорости и радиусу окружности";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if161", f);
+	}
+
+	{
+		pair<int, int> ind(54, 1);
+		vector<string> val = { "v", "sqrt(a*r)", "a", "r", "v" };
+		string des = "Формула, позволяющая вычислить скорость по центростремительному ускорению и радиусу окружности";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if162", f);
+	}
+
+	{
+		pair<int, int> ind(54, 2);
+		vector<string> val = { "r", "v*v/a", "a", "r", "v" };
+		string des = "Формула, позволяющая вычислить радиус окружности по центростремительному ускорению и скорости";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if163", f);
+	}
+
+	{
+		pair<int, int> ind(55, 0);
+		vector<string> val = { "T", "1/v", "T", "v" };
+		string des = "Формула, позволяющая вычислить период движения по оркужности по частоте вращения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if164", f);
+	}
+
+	{
+		pair<int, int> ind(55, 1);
+		vector<string> val = { "v", "1/T", "T", "v" };
+		string des = "Формула, позволяющая вычислить частоту вращения по периоду движения по окружности";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if165", f);
+	}
+
+	{
+		pair<int, int> ind(56, 0);
+		vector<string> val = { "T", "2*pi*r/v", "T", "pi", "r", "v" };
+		string des = "Формула, позволяющая вычислить период движения по окружности по радиусу окружности и частоте вращения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if166", f);
+	}
+
+	{
+		pair<int, int> ind(56, 1);
+		vector<string> val = { "r", "T*v/(2*pi)", "T", "pi", "r", "v" };
+		string des = "Формула, позволяющая вычислить радиус окружности по периоду движения по окружности и частоте вращения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if167", f);
+	}
+
+	{
+		pair<int, int> ind(56, 2);
+		vector<string> val = { "v", "2*pi*r/T", "T", "pi", "r", "v" };
+		string des = "Формула, позволяющая вычислить частоту вращения по периоду движения по окружности и радиусу окружности";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if168", f);
+	}
+
+	{
+		pair<int, int> ind(57, 0);
+		vector<string> val = { "T", "t/N", "N", "T", "t" };
+		string des = "Формула, позволяющая вычислить период движения по окружности по времени и числу оборотов";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if169", f);
+	}
+
+	{
+		pair<int, int> ind(57, 1);
+		vector<string> val = { "t", "T*N", "N", "T", "t" };
+		string des = "Формула, позволяющая вычислить время по периоду движения по окружности и числу оборотов";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if170", f);
+	}
+
+	{
+		pair<int, int> ind(57, 2);
+		vector<string> val = { "N", "t/T", "N", "T", "t" };
+		string des = "Формула, позволяющая вычислить число оборотов по периоду движения по окружности и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if171", f);
+	}
+
+	{
+		pair<int, int> ind(58, 0);
+		vector<string> val = { "w", "2*pi/T", "T", "pi", "w" };
+		string des = "Формула, позволяющая вычислить угловую скорость по периоду вращения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if172", f);
+	}
+
+	{
+		pair<int, int> ind(58, 1);
+		vector<string> val = { "T", "2*pi/w", "T", "pi", "w" };
+		string des = "Формула, позволяющая вычислить период вращения по угловой скорости";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if173", f);
+	}
+
+	{
+		pair<int, int> ind(59, 0);
+		vector<string> val = { "w", "2*pi*v", "pi", "v", "w" };
+		string des = "Формула, позволяющая вычислить угловую скорость по частоте вращения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if174", f);
+	}
+
+	{
+		pair<int, int> ind(59, 1);
+		vector<string> val = { "v", "w/(2*pi)", "pi", "v", "w" };
+		string des = "Формула, позволяющая вычислить частоту вращения по угловой скорости";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if175", f);
+	}
+
+	{
+		pair<int, int> ind(60, 0);
+		vector<string> val = { "w", "v*r", "r", "v", "w" };
+		string des = "Формула, позволяющая вычислить угловую скорость по линейной скорости и радиусу окружности";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if176", f);
+	}
+
+	{
+		pair<int, int> ind(60, 1);
+		vector<string> val = { "v", "w/r", "r", "v", "w" };
+		string des = "Формула, позволяющая вычислить линейную скорость по угловой скорости и радиусу окружности";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if177", f);
+	}
+
+	{
+		pair<int, int> ind(60, 2);
+		vector<string> val = { "r", "w/v", "r", "v", "w" };
+		string des = "Формула, позволяющая вычислить радиус окружности по угловой и линейной скоростям";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if178", f);
+	}
+
+	{
+		pair<int, int> ind(61, 0);
+		vector<string> val = { "p", "m*v", "m", "p", "v" };
+		string des = "Формула, позволяющая вычислить импульс тела по массе тела и скорости";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if179", f);
+	}
+
+	{
+		pair<int, int> ind(61, 1);
+		vector<string> val = { "m", "p/v", "m", "p", "v" };
+		string des = "Формула, позволяющая вычислить массу по импульсу тела и скорости";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if180", f);
+	}
+
+	{
+		pair<int, int> ind(61, 2);
+		vector<string> val = { "v", "p/m", "m", "p", "v" };
+		string des = "Формула, позволяющая вычислить скорость по массе и импульсу тела";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if181", f);
+	}
+
+	{
+		pair<int, int> ind(62, 0);
+		vector<string> val = { "p", "F*t", "F", "p", "t" };
+		string des = "Формула, позволяющая вычислить импульс силы по силе и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if182", f);
+	}
+
+	{
+		pair<int, int> ind(62, 1);
+		vector<string> val = { "F", "p/t", "F", "p", "t" };
+		string des = "Формула, позволяющая вычислить силу по импульсу силы и времени";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if183", f);
+	}
+
+	{
+		pair<int, int> ind(62, 2);
+		vector<string> val = { "t", "p/F", "F", "p", "t" };
+		string des = "Формула, позволяющая вычислить время по силе и импульсу силы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if184", f);
+	}
+
+	{
+		pair<int, int> ind(63, 0);
+		vector<string> val = { "x", "x0*cos(w*t+fi0)", "fi0", "t", "w", "x", "x0" };
+		string des = "Формула, позволяющая вычислить смещение по амплитуде колебаний, циклической частоте, времени и начальной фазе";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if185", f);
+	}
+
+	{
+		pair<int, int> ind(63, 1);
+		vector<string> val = { "x0", "x/cos(w*t+fi0)", "fi0", "t", "w", "x", "xo" };
+		string des = "Формула, позволяющая вычислить амплитуду колебаний по смещению, циклической частоте, времени и начальной фазе";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if186", f);
+	}
+
+	{
+		pair<int, int> ind(64, 0);
+		vector<string> val = { "T", "2*pi*sqrt(L/g)", "L", "T", "g", "pi" };
+		string des = "Формула, позволяющая вычислить период математического маятника по длине нити и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if187", f);
+	}
+
+	{
+		pair<int, int> ind(64, 1);
+		vector<string> val = { "L", "g*T*T/(4*pi*pi)", "L", "T", "g", "pi" };
+		string des = "Формула, позволяющая вычислить длину нити по периоду математического маятника и ускорению свободного падения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if188", f);
+	}
+
+	{
+		pair<int, int> ind(65, 0);
+		vector<string> val = { "T", "2*pi*sqrt(m/k)", "T", "k", "m", "pi" };
+		string des = "Формула, позволяющая вычислить период пружинного маятника по массе груза и жесткости пружины";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if189", f);
+	}
+
+	{
+		pair<int, int> ind(65, 1);
+		vector<string> val = { "m", "k*T*T/(4*pi*pi)", "T", "k", "m", "pi" };
+		string des = "Формула, позволяющая вычислить массу груза по периоду пружинного маятника и жесткости пружины";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if190", f);
+	}
+
+	{
+		pair<int, int> ind(65, 2);
+		vector<string> val = { "k", "4*pi*pi*m/(T*T)", "T", "k", "m", "pi" };
+		string des = "Формула, позволяющая вычислить жесткость пружины по периоду пружинного маятника и массе груза";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if191", f);
+	}
+
+	{
+		pair<int, int> ind(66, 0);
+		vector<string> val = { "lambda", "u*T", "T", "lambda", "u" };
+		string des = "Формула, позволяющая вычислить длину волны по ее скорости и периоду";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if192", f);
+	}
+
+	{
+		pair<int, int> ind(66, 1);
+		vector<string> val = { "u", "lambda/T", "T", "lambda", "u" };
+		string des = "Формула, позволяющая вычислить скорость волны по ее длине и периоду";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if193", f);
+	}
+
+	{
+		pair<int, int> ind(66, 2);
+		vector<string> val = { "T", "lambda/u", "T", "lambda", "u" };
+		string des = "Формула, позволяющая вычислить период по длине и скорости волны";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if194", f);
+	}
+
+	{
+		pair<int, int> ind(67, 0);
+		vector<string> val = { "lambda", "u/v", "lambda", "u", "v" };
+		string des = "Формула, позволяющая вычислить длину волны по ее скорости и частоте";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if195", f);
+	}
+
+	{
+		pair<int, int> ind(67, 1);
+		vector<string> val = { "u", "lambda*v", "lambda", "u", "v" };
+		string des = "Формула, позволяющая вычислить скорость волны по ее длине и частоте";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if196", f);
+	}
+
+	{
+		pair<int, int> ind(67, 2);
+		vector<string> val = { "v", "u/lambda", "lambda", "u", "v" };
+		string des = "Формула, позволяющая вычислить частоту по длине и скорости волны";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if197", f);
+	}
+
+	{
+		pair<int, int> ind(68, 0);
+		vector<string> val = { "F", "B*I*L*sin(a)", "B", "F", "I", "L", "a" };
+		string des = "Формула, позволяющая вычислить силу Ампера по магнитной индукции, силе тока, длине проводника и углу между вектором индукции магнитного поля и проводником";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if198", f);
+	}
+
+	{
+		pair<int, int> ind(68, 1);
+		vector<string> val = { "B", "F/(I*L*sin(a))", "B", "F", "I", "L", "a" };
+		string des = "Формула, позволяющая вычислить магнитную индукцию по силе Ампера, силе тока, длине проводника и углу между вектором индукции магнитного поля и проводником";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if199", f);
+	}
+
+	{
+		pair<int, int> ind(68, 2);
+		vector<string> val = { "I", "F/(B*L*sin(a))", "B", "F", "I", "L", "a" };
+		string des = "Формула, позволяющая вычислить силу тока по магнитной индукции, силе Ампера, длине проводника и углу между вектором индукции магнитного поля и проводником";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if200", f);
+	}
+
+	{
+		pair<int, int> ind(68, 3);
+		vector<string> val = { "L", "F/(B*I*sin(a))", "B", "F", "I", "L", "a" };
+		string des = "Формула, позволяющая вычислить длину проводника по силе Ампера, магнитной индукции, силе тока и углу между вектором индукции магнитного поля и проводником";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if201", f);
+	}
+
+	{
+		pair<int, int> ind(69, 0);
+		vector<string> val = { "F", "q*B*v*sin(a)", "B", "F", "a", "q", "v" };
+		string des = "Формула, позволяющая вычислить силу Лоренца по заряду частицы, магнитной индукции, скорости движения частицы и углу между вектором магнитного поля и скоростью движения частицы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if202", f);
+	}
+
+	{
+		pair<int, int> ind(69, 1);
+		vector<string> val = { "q", "F/(B*v*sin(a))", "B", "F", "a", "q", "v" };
+		string des = "Формула, позволяющая вычислить заряд частицы по силе Лоренца, магнитной индукции, скорости движения частицы и углу между вектором магнитного поля и скоростью движения частицы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if203", f);
+	}
+
+	{
+		pair<int, int> ind(69, 2);
+		vector<string> val = { "B", "F/(q*v*sin(a))", "B", "F", "a", "q", "v" };
+		string des = "Формула, позволяющая вычислить магнитную индукцию по силе Лоренца, заряду частицы, скорости движения частицы и углу между вектором магнитного поля и скоростью движения частицы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if204", f);
+	}
+
+	{
+		pair<int, int> ind(69, 3);
+		vector<string> val = { "v", "F/(q*B*sin(a))", "B", "F", "a", "q", "v" };
+		string des = "Формула, позволяющая вычислить скорость движения частицы по силе Лоренца, заряду частицы, магнитной индукции и углу между вектором магнитного поля и скоростью движения частицы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if205", f);
+	}
+
+	{
+		pair<int, int> ind(70, 0);
+		vector<string> val = { "r", "m*v/(q*B)", "B", "m", "q", "r", "v" };
+		string des = "Формула, позволяющая вычислить радиус движения по массе частицы, магнитной индукции, заряду и скорости движения частицы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if206", f);
+	}
+
+	{
+		pair<int, int> ind(70, 1);
+		vector<string> val = { "m", "r*q*B/v", "B", "m", "q", "r", "v" };
+		string des = "Формула, позволяющая вычислить массу частицы по радиусу движения, магнитной индукции, заряду и скорости движения частицы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if207", f);
+	}
+
+	{
+		pair<int, int> ind(70, 2);
+		vector<string> val = { "v", "r*q*B/m", "B", "m", "q", "r", "v" };
+		string des = "Формула, позволяющая вычислить скорость движения частицы по радиусу движения, массе частицы, магнитной индукции и заряду";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if208", f);
+	}
+
+	{
+		pair<int, int> ind(70, 3);
+		vector<string> val = { "q", "m*v/(r*B)", "B", "m", "q", "r", "v" };
+		string des = "Формула, позволяющая вычислить заряд по радиусу движения, массе частицы, магнитной индукции и скорости движения частицы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if209", f);
+	}
+
+	{
+		pair<int, int> ind(70, 4);
+		vector<string> val = { "B", "m*v/(r*q)", "B", "m", "q", "r", "v" };
+		string des = "Формула, позволяющая вычислить магнитную индукцию по радиусу движения, массе частицы, заряду и скорости движения частицы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if210", f);
+	}
+
+	{
+		pair<int, int> ind(71, 0);
+		vector<string> val = { "F", "B*S*cos(a)", "B", "F", "S", "a" };
+		string des = "Формула, позволяющая вычислить магнитный поток по магнитной индукции, площади контура и углу между нормалью к контуру и вектором магнитной индукции";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if211", f);
+	}
+
+	{
+		pair<int, int> ind(71, 1);
+		vector<string> val = { "B", "F/(S*cos(a))", "B", "F", "S", "a" };
+		string des = "Формула, позволяющая вычислить магнитную индукцию по магнитному потоку, площади контура и углу между нормалью к контуру и вектором магнитной индукции";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if212", f);
+	}
+
+	{
+		pair<int, int> ind(71, 2);
+		vector<string> val = { "S", "F/(B*cos(a))", "B", "F", "S", "a" };
+		string des = "Формула, позволяющая вычислить прощадь контура по магнитному потоку, магнитной индукции и углу между нормалью к контуру и вектором магнитной индукции";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electromagnetism" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if213", f);
+	}
+
+	{
+		pair<int, int> ind(72, 0);
+		vector<string> val = { "F", "d*f/(f+d)", "F", "d", "f" };
+		string des = "Формула, позволяющая вычислить фокусное расстояние линзы по расстоянию от предмета до линзы и расстоянию от линзы до изображения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if214", f);
+	}
+
+	{
+		pair<int, int> ind(72, 1);
+		vector<string> val = { "d", "F*f/(f-F)", "F", "d", "f" };
+		string des = "Формула, позволяющая вычислить расстояние от предмета до линзы по фокусному расстоянию и расстоянию от линзы до изображения";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if215", f);
+	}
+
+	{
+		pair<int, int> ind(72, 2);
+		vector<string> val = { "f", "F*d/(d-F)", "F", "d", "f" };
+		string des = "Формула, позволяющая вычислить расстояние от линзы до изображения по фокусному расстоянию и расстоянию от предмета до линзы";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if216", f);
+	}
+
+	{
+		pair<int, int> ind(73, 0);
+		vector<string> val = { "M", "Z+N", "M", "N", "Z" };
+		string des = "Формула, позволяющая вычислить масовое число по числу протонов и числу нейтронов";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if217", f);
+	}
+
+	{
+		pair<int, int> ind(73, 1);
+		vector<string> val = { "Z", "M-N", "M", "N", "Z" };
+		string des = "Формула, позволяющая вычислить число протонов по масовому числу и числу нейтронов";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if218", f);
+	}
+
+	{
+		pair<int, int> ind(73, 2);
+		vector<string> val = { "N", "M-Z", "M", "N", "Z" };
+		string des = "Формула, позволяющая вычислить число нейтронов по масовому числу и числу протонов";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if219", f);
+	}
+
+	{
+		pair<int, int> ind(74, 0);
+		vector<string> val = { "M", "Ma-Z*m", "M", "Ma", "Z", "m" };
+		string des = "Формула, позволяющая вычислить массу ядра по массе изотопа и числу и массе электронов";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if220", f);
+	}
+
+	{
+		pair<int, int> ind(74, 1);
+		vector<string> val = { "Ma", "M+Z*m", "M", "Ma", "Z", "m" };
+		string des = "Формула, позволяющая вычислить массу изотопа по массе ядра и числу и массе электронов";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if221", f);
+	}
+
+	{
+		pair<int, int> ind(74, 2);
+		vector<string> val = { "Z", "(Ma-M)/m", "M", "Ma", "Z", "m" };
+		string des = "Формула, позволяющая вычислить число электронов по массе изотопа, массе ядра и массе электрона";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if222", f);
+	}
+
+	{
+		pair<int, int> ind(75, 0);
+		vector<string> val = { "dm", "Z*mp+N*mn-M", "M", "N", "Z", "dm", "mn", "mp" };
+		string des = "Формула, позволяющая вычислить дефект масс по числу и массе протонов, числу и массе нейтронов и массе ядра";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if223", f);
+	}
+
+	{
+		pair<int, int> ind(75, 1);
+		vector<string> val = { "Z", "(dm-N*mn+M)/mp", "M", "N", "Z", "dm", "mn", "mp" };
+		string des = "Формула, позволяющая вычислить число протонов по дефекту масс, массе протона, числу и массе нейтронов и массе ядра";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if224", f);
+	}
+
+	{
+		pair<int, int> ind(75, 2);
+		vector<string> val = { "N", "(dm-Z*mp+M)/mn", "M", "N", "Z", "dm", "mn", "mp" };
+		string des = "Формула, позволяющая вычислить число нейтронов по дефекту масс, массе нейтрона, числу и массе протонов и массе ядра";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if225", f);
+	}
+
+	{
+		pair<int, int> ind(75, 3);
+		vector<string> val = { "M", "Z*mp+N*mn-dm", "M", "N", "Z", "dm", "mn", "mp" };
+		string des = "Формула, позволяющая вычислить массу ядра по дефекту масс, числу и массе протонов и числу и массе нейтронов";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if226", f);
+	}
+
+	{
+		pair<int, int> ind(76, 0);
+		vector<string> val = { "E", "dm*c*c", "E", "c", "dm" };
+		string des = "Формула, позволяющая вычислить энергию связи по изменению массы ядра и скорости света";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if227", f);
+	}
+
+	{
+		pair<int, int> ind(76, 1);
+		vector<string> val = { "dm", "E/(c*c)", "E", "c", "dm" };
+		string des = "Формула, позволяющая вычислить изменение массы ядра по энергии связи и скорости света";
+		vector<string> tag_cl = { "#Class9", "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if228", f);
+	}
+
+	{
+		pair<int, int> ind(77, 0);
+		vector<string> val = { "E", "k*x*x/2", "E", "k", "x" };
+		string des = "Формула, позволяющая вычислить полную механическую энергию колебательного движения по жесткости пружины и амплитуде колебаний";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if229", f);
+	}
+
+	{
+		pair<int, int> ind(77, 1);
+		vector<string> val = { "k", "2*E/(x*x)", "E", "k", "x" };
+		string des = "Формула, позволяющая вычислить жесткоть пружины по полной механической энергии колебательного движения и амплитуде колебаний";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if230", f);
+	}
+
+	{
+		pair<int, int> ind(77, 2);
+		vector<string> val = { "x", "sqrt(2*E/k)", "E", "k", "x" };
+		string des = "Формула, позволяющая вычислить амплитуду колебаний по полной механической энергии колебательного движения и жесткости пружины";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if231", f);
+	}
+
+	{
+		pair<int, int> ind(78, 0);
+		vector<string> val = { "R", "2*G*M/(c*c)", "G", "M", "R", "c" };
+		string des = "Формула, позволяющая вычислить радиус Шварцшильда по графитвационной постоянной, массе черной дыры и скорости света";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if232", f);
+	}
+
+	{
+		pair<int, int> ind(79, 0);
+		vector<string> val = { "t", "T/(sqrt(1-v*v/(c*c))", "T", "c", "t", "v" };
+		string des = "Формула, позволяющая вычислить собственное время по времени в движущейся системе отсчета, скорости движущейся системы отсчета и скорости света";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if233", f);
+	}
+
+	{
+		pair<int, int> ind(79, 1);
+		vector<string> val = { "T", "t*(sqrt(1-v*v/(c*c))", "T", "c", "t", "v" };
+		string des = "Формула, позволяющая вычислить время в движущейся системе отсчета по собственному времени, скорости движущейся системы отсчета и скорости света";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if234", f);
+	}
+
+	{
+		pair<int, int> ind(79, 2);
+		vector<string> val = { "v", "sqrt(t*t-T*T)/(t*c)", "T", "c", "t", "v" };
+		string des = "Формула, позволяющая вычислить скорость движущейся системы отсчета по собственному времени, времени в движущейся системе отсчета и скорости света";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if235", f);
+	}
+
+	{
+		pair<int, int> ind(80, 0);
+		vector<string> val = { "m", "m0/(sqrt(1-v*v/(c*c))", "c", "m", "m0", "v" };
+		string des = "Формула, позволяющая вычислить массу тела в СО, относительно которой оно покоится по массе тела в подвижной СО, скорости движущейся СО и скорости света";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if236", f);
+	}
+
+	{
+		pair<int, int> ind(80, 1);
+		vector<string> val = { "m0", "m0*(sqrt(1-v*v/(c*c))", "c", "m", "m0", "v" };
+		string des = "Формула, позволяющая вычислить массу тела в подвижной СО по массе тела в СО, относительно которой оно покоится, скорости движущейся СО и скорости света";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if237", f);
+	}
+
+	{
+		pair<int, int> ind(80, 2);
+		vector<string> val = { "v", "sqrt(m*m-m0*m0)/(t*c)", "c", "m", "m0", "v" };
+		string des = "Формула, позволяющая вычислить скорость движущейся СО по массе тела в СО, относительно которой оно покоится, массе тела в подвижной СО и скорости света";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if238", f);
+	}
+
+	{
+		pair<int, int> ind(81, 0);
+		vector<string> val = { "E", "m*c*c", "E", "c", "m" };
+		string des = "Формула, позволяющая вычислить энергию по массе и скорости света";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Relativistic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if239", f);
+	}
+
+	{
+		pair<int, int> ind(81, 1);
+		vector<string> val = { "m", "E/(c*c)", "E", "c", "m" };
+		string des = "Формула, позволяющая вычислить массу по энергии и скорости света";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Mechanics", "#Relativistic" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if240", f);
+	}
+
+	{
+		pair<int, int> ind(82, 0);
+		vector<string> val = { "p", "m*R*T/(M*V)", "M", "R", "T", "V", "m", "p" };
+		string des = "Формула, позволяющая вычислить давление идеального газа по его объему, массе, молярной массе, температуре и молярной газовой постоянной";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if241", f);
+	}
+
+	{
+		pair<int, int> ind(82, 1);
+		vector<string> val = { "m", "p*M*V/(R*T)", "M", "R", "T", "V", "m", "p" };
+		string des = "Формула, позволяющая вычислить массу идеального газа по его объему, давлению, молярной массе, температуре и молярной газовой постоянной";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if242", f);
+	}
+
+	{
+		pair<int, int> ind(82, 2);
+		vector<string> val = { "T", "p*M*V/(m*R)", "M", "R", "T", "V", "m", "p" };
+		string des = "Формула, позволяющая вычислить температуру идеального газа по его объему, массе, молярной массе, давлению и молярной газовой постоянной";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if243", f);
+	}
+
+	{
+		pair<int, int> ind(82, 3);
+		vector<string> val = { "M", "m*R*T/(p*V)", "M", "R", "T", "V", "m", "p" };
+		string des = "Формула, позволяющая вычислить молярную массу идеального газа по его объему, массе, давлению, температуре и молярной газовой постоянной";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if244", f);
+	}
+
+	{
+		pair<int, int> ind(82, 4);
+		vector<string> val = { "V", "m*R*T/(p*M)", "M", "R", "T", "V", "m", "p" };
+		string des = "Формула, позволяющая вычислить объем идеального газа по его давлению, массе, молярной массе, температуре и молярной газовой постоянной";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if245", f);
+	}
+
+	{
+		pair<int, int> ind(83, 0);
+		vector<string> val = { "U", "i*v*R*T/2", "R", "T", "U", "i", "v" };
+		string des = "Формула, позволяющая вычислить внутреннюю энергию идеального газа по количеству моль газа, его температуре, универсальной газовой постоянной и количеству степеней свободы молекулы газа";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if246", f);
+	}
+
+	{
+		pair<int, int> ind(83, 1);
+		vector<string> val = { "v", "2*U/(i*R*T)", "R", "T", "U", "i", "v" };
+		string des = "Формула, позволяющая вычислить количество моль идеального газа по его внутренней энергии, температуре, универсальной газовой постоянной и количеству степеней свободы молекулы газа";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if247", f);
+	}
+
+	{
+		pair<int, int> ind(83, 2);
+		vector<string> val = { "T", "2*U/(i*v*R)", "R", "T", "U", "i", "v" };
+		string des = "Формула, позволяющая вычислить температуру идеального газа по количеству моль газа, его внутренней энергии, универсальной газовой постоянной и количеству степеней свободы молекулы газа";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if248", f);
+	}
+
+	{
+		pair<int, int> ind(84, 0);
+		vector<string> val = { "U", "i*p*V/2", "U", "V", "i", "p" };
+		string des = "Формула, позволяющая вычислить внутреннюю энергию идеального газа по его давлению, объему и количеству степеней свободы молекулы газа";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if249", f);
+	}
+
+	{
+		pair<int, int> ind(84, 1);
+		vector<string> val = { "p", "2*U/(i*V)", "U", "V", "i", "p" };
+		string des = "Формула, позволяющая вычислить давление идеального газа по его внутренней энергии, объему и количеству степеней свободы молекулы газа";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if250", f);
+	}
+
+	{
+		pair<int, int> ind(84, 2);
+		vector<string> val = { "V", "2*U/(i*p)", "U", "V", "i", "p" };
+		string des = "Формула, позволяющая вычислить объем идеального газа по его внутренней энергии, давлению и количеству степеней свободы молекулы газа";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if251", f);
+	}
+
+	{
+		pair<int, int> ind(85, 0);
+		vector<string> val = { "A", "p*dV", "A", "dV", "p" };
+		string des = "Формула, позволяющая вычислить работу, совершаемую газом по его давлению и изменению объема";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if252", f);
+	}
+
+	{
+		pair<int, int> ind(85, 1);
+		vector<string> val = { "p", "A/dV", "A", "dV", "p" };
+		string des = "Формула, позволяющая вычислить давление по работе, совершаемой газом и изменению объема";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if253", f);
+	}
+
+	{
+		pair<int, int> ind(85, 2);
+		vector<string> val = { "dV", "A/p", "A", "dV", "p" };
+		string des = "Формула, позволяющая вычислить изменение объема по работе, совершаемой газом и давлению";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if254", f);
+	}
+
+	{
+		pair<int, int> ind(86, 0);
+		vector<string> val = { "Q", "dU+A", "A", "Q", "dU" };
+		string des = "Формула, позволяющая вычислить количество теплоты по работе газа и изменению его внутренней энергии";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if255", f);
+	}
+
+	{
+		pair<int, int> ind(86, 1);
+		vector<string> val = { "dU", "Q-A", "A", "Q", "dU" };
+		string des = "Формула, позволяющая вычислить изменение внутренней энергии газа по количеству теплоты и работе газа";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if256", f);
+	}
+
+	{
+		pair<int, int> ind(86, 2);
+		vector<string> val = { "A", "Q-dU", "A", "Q", "dU" };
+		string des = "Формула, позволяющая вычислить работу газа по изменению его внутренней энергии и количеству теплоты";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if257", f);
+	}
+
+	{
+		pair<int, int> ind(87, 0);
+		vector<string> val = { "F", "sigma*l", "F", "l", "sigma" };
+		string des = "Формула, позволяющая вычислить силу поверхностного натяжения по поверхностному натяжение и длине участка поверхности слоя";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if258", f);
+	}
+
+	{
+		pair<int, int> ind(87, 1);
+		vector<string> val = { "sigma", "F/l", "F", "l", "sigma" };
+		string des = "Формула, позволяющая вычислить поверхностное натяжение по силе поверхностного натяжения и длине участка поверхности слоя";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if259", f);
+	}
+
+	{
+		pair<int, int> ind(87, 2);
+		vector<string> val = { "l", "F/sigma", "F", "l", "sigma" };
+		string des = "Формула, позволяющая вычислить длину участка поверхности слоя по силе поверхностного натяжения и поверхностному натяжению";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if260", f);
+	}
+
+	{
+		pair<int, int> ind(88, 0);
+		vector<string> val = { "sigma", "E*e", "E", "e", "sigma" };
+		string des = "Формула, позволяющая вычислить механическое напряжение по модулю Юнга и относительному удлинению тела";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if261", f);
+	}
+
+	{
+		pair<int, int> ind(88, 1);
+		vector<string> val = { "E", "sigma/e", "E", "e", "sigma" };
+		string des = "Формула, позволяющая вычислить модуль Юнга по механическому напряжению и относительному удлинению тела";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if262", f);
+	}
+
+	{
+		pair<int, int> ind(88, 2);
+		vector<string> val = { "e", "sigma/E", "E", "e", "sigma" };
+		string des = "Формула, позволяющая вычислить относительное удлинение тела по механическому напряжению и модулю Юнга";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if263", f);
+	}
+
+	{
+		pair<int, int> ind(89, 0);
+		vector<string> val = { "F", "k*q1*q2/(r*r)", "F", "k", "q1", "q2", "r" };
+		string des = "Формула, позволяющая вычислить силу Кулона по величине зарядов, расстоянию между ними и коэффициенту пропорциональности";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if264", f);
+	}
+
+	{
+		pair<int, int> ind(89, 1);
+		vector<string> val = { "q1", "F*r*r/(k*q2)", "F", "k", "q1", "q2", "r" };
+		string des = "Формула, позволяющая вычислить величину первого заряда по силе Кулона, величине второго заряда, расстоянию между ними и коэффициенту пропорциональности";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if265", f);
+	}
+
+	{
+		pair<int, int> ind(89, 2);
+		vector<string> val = { "q2", "F*r*r/(k*q1)", "F", "k", "q1", "q2", "r" };
+		string des = "Формула, позволяющая вычислить величину второго заряда по силе Кулона, величине первого заряда, расстоянию между ними и коэффициенту пропорциональности";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if266", f);
+	}
+
+	{
+		pair<int, int> ind(89, 3);
+		vector<string> val = { "r", "sqrt(k*q1*q2/F)", "F", "k", "q1", "q2", "r" };
+		string des = "Формула, позволяющая вычислить расстояние между зарядами по силе Кулона, величине зарядов и коэффициенту пропорциональности";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if267", f);
+	}
+
+	{
+		pair<int, int> ind(90, 0);
+		vector<string> val = { "E", "F/q", "E", "F", "q" };
+		string des = "Формула, позволяющая вычислить напряженность поля по пробному положительному заряду и силе Кулона";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if268", f);
+	}
+
+	{
+		pair<int, int> ind(90, 1);
+		vector<string> val = { "F", "E*q", "E", "F", "q" };
+		string des = "Формула, позволяющая вычислить силу Кулона по напряженности поля и пробному положительному заряду";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if269", f);
+	}
+
+	{
+		pair<int, int> ind(90, 2);
+		vector<string> val = { "q", "F/E", "E", "F", "q" };
+		string des = "Формула, позволяющая вычислить пробный положительный заряд по напряженности поля и силе Кулона";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if270", f);
+	}
+
+	{
+		pair<int, int> ind(91, 0);
+		vector<string> val = { "E", "k*q/(r*r)", "E", "k", "q", "r" };
+		string des = "Формула, позволяющая вычислить напряженность поля точечного заряда по пробному положительному заряду, расстоянию от заряда до точки поля и коэффициенту пропорциональности";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if271", f);
+	}
+
+	{
+		pair<int, int> ind(91, 1);
+		vector<string> val = { "q", "E*r*r/k", "E", "k", "q", "r" };
+		string des = "Формула, позволяющая вычислить пробный положительный заряд по напряженности поля точечного заряда, расстоянию от заряда до точки поля и коэффициенту пропорциональности";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if272", f);
+	}
+
+	{
+		pair<int, int> ind(91, 2);
+		vector<string> val = { "r", "sqrt(k*q/E)", "E", "k", "q", "r" };
+		string des = "Формула, позволяющая вычислить расстояние от заряда до точки поля по напряженности поля точечного заряда, пробному положительному заряду и коэффициенту пропорциональности";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if273", f);
+	}
+
+	{
+		pair<int, int> ind(92, 0);
+		vector<string> val = { "fi", "W/q", "W", "fi", "q" };
+		string des = "Формула, позволяющая вычислить потенциал электростатического поля по энергии и заряду";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if274", f);
+	}
+
+	{
+		pair<int, int> ind(92, 1);
+		vector<string> val = { "W", "fi*q", "W", "fi", "q" };
+		string des = "Формула, позволяющая вычислить энергию по потенциалу электростатического поля и заряду";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if275", f);
+	}
+
+	{
+		pair<int, int> ind(92, 2);
+		vector<string> val = { "q", "W/fi", "W", "fi", "q" };
+		string des = "Формула, позволяющая вычислить заряд по потенциалу электростатического поля и энергии";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if276", f);
+	}
+
+	{
+		pair<int, int> ind(93, 0);
+		vector<string> val = { "fi", "q/(4*pi*e*r)", "e", "fi", "pi", "q", "r" };
+		string des = "Формула, позволяющая вычислить потенциал поля точечного заряда по заряду, диэлектрической проницаемости и расстоянию от заряда до точки";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if277", f);
+	}
+
+	{
+		pair<int, int> ind(93, 1);
+		vector<string> val = { "q", "fi*4*pi*e*r", "e", "fi", "pi", "q", "r" };
+		string des = "Формула, позволяющая вычислить заряд по потенциалу поля точечного заряда, диэлектрической проницаемости и расстоянию от заряда до точки";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if278", f);
+	}
+
+	{
+		pair<int, int> ind(93, 2);
+		vector<string> val = { "r", "q/(4*pi*e*fi)", "e", "fi", "pi", "q", "r" };
+		string des = "Формула, позволяющая вычислить расстояние от заряда до точки по потенциалу поля точечного заряда, заряду и диэлектрической проницаемости";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if279", f);
+	}
+
+	{
+		pair<int, int> ind(93, 3);
+		vector<string> val = { "e", "q/(4*pi*r*fi)", "e", "fi", "pi", "q", "r" };
+		string des = "Формула, позволяющая вычислить диэлектрическую проницаемость по потенциалу поля точечного заряда, заряду и расстоянию от заряда до точки";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if280", f);
+	}
+
+	{
+		pair<int, int> ind(94, 0);
+		vector<string> val = { "U", "E*d", "E", "U", "d" };
+		string des = "Формула, позволяющая вычислить разность потенциалов по напряженности поля и расстоянию между точками";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if281", f);
+	}
+
+	{
+		pair<int, int> ind(94, 1);
+		vector<string> val = { "E", "U/d", "E", "U", "d" };
+		string des = "Формула, позволяющая вычислить напряженность поля по разности потенциалов и расстоянию между точками";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if282", f);
+	}
+
+	{
+		pair<int, int> ind(94, 2);
+		vector<string> val = { "d", "U/E", "U", "d", "e" };
+		string des = "Формула, позволяющая вычислить расстояние между точками по разности потенциалов и напряженности поля";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if283", f);
+	}
+
+	{
+		pair<int, int> ind(95, 0);
+		vector<string> val = { "C", "q/fi", "C", "fi", "q" };
+		string des = "Формула, позволяющая вычислить электроемкость уединенного проводника по потенциалу и заряду";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if284", f);
+	}
+
+	{
+		pair<int, int> ind(95, 1);
+		vector<string> val = { "q", "C*fi", "C", "fi", "q" };
+		string des = "Формула, позволяющая вычислить заряд по электроемкости уединенного проводника и потенциалу";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if285", f);
+	}
+
+	{
+		pair<int, int> ind(95, 2);
+		vector<string> val = { "fi", "q/C", "C", "fi", "q" };
+		string des = "Формула, позволяющая вычислить потенциал по электроемкости уединенного проводника и заряду";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if286", f);
+	}
+
+	{
+		pair<int, int> ind(96, 0);
+		vector<string> val = { "C", "q/U", "C", "U", "q" };
+		string des = "Формула, позволяющая вычислить электроемкость конденсатора по разности потенциалов и заряду";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if287", f);
+	}
+
+	{
+		pair<int, int> ind(96, 1);
+		vector<string> val = { "q", "C*U", "C", "U", "q" };
+		string des = "Формула, позволяющая вычислить заряд по электроемкости конденсатора и разности потенциалов";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if288", f);
+	}
+
+	{
+		pair<int, int> ind(96, 2);
+		vector<string> val = { "U", "q/C", "C", "U", "q" };
+		string des = "Формула, позволяющая вычислить разность потенциалов по электроемкости конденсатора и заряду";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if289", f);
+	}
+
+	{
+		pair<int, int> ind(97, 0);
+		vector<string> val = { "W", "C*U*U/2", "C", "U", "W" };
+		string des = "Формула, позволяющая вычислить энергию ЭСП по электроемкости и разности потенциалов";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if290", f);
+	}
+
+	{
+		pair<int, int> ind(97, 1);
+		vector<string> val = { "C", "2*W/U*U", "C", "U", "W" };
+		string des = "Формула, позволяющая вычислить электроемкость по энергии ЭСП и разности потенциалов";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if291", f);
+	}
+
+	{
+		pair<int, int> ind(97, 2);
+		vector<string> val = { "U", "sqrt(2*W/C)", "C", "U", "W" };
+		string des = "Формула, позволяющая вычислить разность потенциалов по энергии ЭСП и электроемкости";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if292", f);
+	}
+
+	{
+		pair<int, int> ind(98, 0);
+		vector<string> val = { "b", "a*(n-1)", "a", "b", "n" };
+		string des = "Формула, позволяющая вычислить угол отклонения по углу падения и показателю преломления среды";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if293", f);
+	}
+
+	{
+		pair<int, int> ind(98, 1);
+		vector<string> val = { "a", "b/(n-1)", "a", "b", "n" };
+		string des = "Формула, позволяющая вычислить угол падения по углу отклонения и показателю преломления среды";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if294", f);
+	}
+
+	{
+		pair<int, int> ind(98, 2);
+		vector<string> val = { "n", "b/a+1", "a", "b", "n" };
+		string des = "Формула, позволяющая вычислить показатель преломления среды по углу отклонения и углу падения";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if295", f);
+	}
+
+	{
+		pair<int, int> ind(99, 0);
+		vector<string> val = { "G", "H/h", "G", "H", "h" };
+		string des = "Формула, позволяющая вычислить линейное увеличение оптической системы по размеру изображения и размеру предмета";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if296", f);
+	}
+
+	{
+		pair<int, int> ind(99, 1);
+		vector<string> val = { "H", "G*h", "G", "H", "h" };
+		string des = "Формула, позволяющая вычислить размер изображения по линейному увеличению оптической системы и размеру предмета";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if297", f);
+	}
+
+	{
+		pair<int, int> ind(99, 2);
+		vector<string> val = { "h", "H/G", "G", "H", "h" };
+		string des = "Формула, позволяющая вычислить размер предмета по линейному увеличению оптической системы и размеру изображения";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Optics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if298", f);
+	}
+
+	{
+		pair<int, int> ind(100, 0);
+		vector<string> val = { "dt", "m*T", "T", "dt", "m" };
+		string des = "Формула, позволяющая вычислить максимальную результирующую интенсивность по периоду колебаний";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if299", f);
+	}
+
+	{
+		pair<int, int> ind(100, 1);
+		vector<string> val = { "T", "dt/m", "T", "dt", "m" };
+		string des = "Формула, позволяющая вычислить период колебаний по максимальной результирующей интенсивности";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if300", f);
+	}
+
+	{
+		pair<int, int> ind(101, 0);
+		vector<string> val = { "dt", "(2*m+1)*T/2", "T", "dt", "m" };
+		string des = "Формула, позволяющая вычислить минимальную результирующую интенсивность по периоду колебаний";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if301", f);
+	}
+
+	{
+		pair<int, int> ind(101, 1);
+		vector<string> val = { "T", "2*dt/(2*m+1)", "T", "dt", "m" };
+		string des = "Формула, позволяющая вычислить период колебаний по минимальной результирующей интенсивности";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if302", f);
+	}
+
+	{
+		pair<int, int> ind(102, 0);
+		vector<string> val = { "delta", "m*lambda", "delta", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить геометрическую разность хода интерферирующих волн по длине волны";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if303", f);
+	}
+
+	{
+		pair<int, int> ind(102, 1);
+		vector<string> val = { "lambda", "delta/m", "delta", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить длину волны по геометрической разности хода интерферирующих волн";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if304", f);
+	}
+
+	{
+		pair<int, int> ind(102, 2);
+		vector<string> val = { "delta", "(2*m+1)*lambda/2", "delta", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить геометрическую разность хода интерферирующих волн по длине волны при условии интерференционного минимума";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if305", f);
+	}
+
+	{
+		pair<int, int> ind(102, 3);
+		vector<string> val = { "lambda", "2*delta/(2*m+1)", "delta", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить длину волны по геометрической разности хода интерферирующих волн при условии интерференционного минимума";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if306", f);
+	}
+
+	{
+		pair<int, int> ind(103, 0);
+		vector<string> val = { "A", "m*lambda/sin(a)", "A", "a", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить ширину щели по длине волны";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if307", f);
+	}
+
+	{
+		pair<int, int> ind(103, 1);
+		vector<string> val = { "lambda", "A*sin(a)/m", "A", "a", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить длину волны по ширине щели";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if308", f);
+	}
+
+	{
+		pair<int, int> ind(104, 0);
+		vector<string> val = { "d", "m*lambda/sin(a)", "a", "d", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить период решетки по длине волны";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if309", f);
+	}
+
+	{
+		pair<int, int> ind(104, 1);
+		vector<string> val = { "lambda", "d*sin(a)/m", "a", "d", "lambda", "m" };
+		string des = "Формула, позволяющая вычислить длину волны по периоду решетки";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if310", f);
+	}
+
+	{
+		pair<int, int> ind(105, 0);
+		vector<string> val = { "E", "h*v", "E", "h", "v" };
+		string des = "Формула, позволяющая вычислить энергию кванта излучения по частоте излучения и постоянной Планка";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if311", f);
+	}
+
+	{
+		pair<int, int> ind(105, 1);
+		vector<string> val = { "v", "E/h", "E", "h", "v" };
+		string des = "Формула, позволяющая вычислить частоту излучения по энергии кванта излучения и постоянной Планка";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if312", f);
+	}
+
+	{
+		pair<int, int> ind(106, 0);
+		vector<string> val = { "lambda", "b/T", "T", "b", "lambda" };
+		string des = "Формула, позволяющая вычислить длину волны по постоянной Вина и температуре черного тела";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if313", f);
+	}
+
+	{
+		pair<int, int> ind(106, 1);
+		vector<string> val = { "T", "b/lambda", "T", "b", "lambda" };
+		string des = "Формула, позволяющая вычислить температуру черного тела по длине волны и постоянной Вина";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if314", f);
+	}
+
+	{
+		pair<int, int> ind(107, 0);
+		vector<string> val = { "R", "sigma*pow(T,4)", "R", "T", "sigma" };
+		string des = "Формула, позволяющая вычислить интегральную светимость абсолютно черного тела по постоянной Стефана-Больцмана и абсолютной температуре черного тела";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if315", f);
+	}
+
+	{
+		pair<int, int> ind(108, 0);
+		vector<string> val = { "E", "A+U*e", "A", "E", "U", "e" };
+		string des = "Формула, позволяющая вычислить энергию одного фотона по работе выхода, разности потенциалов и заряду электрона";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if316", f);
+	}
+
+	{
+		pair<int, int> ind(108, 1);
+		vector<string> val = { "A", "E-U*e", "A", "E", "U", "e" };
+		string des = "Формула, позволяющая вычислить работу выхода по энергии одного фотона, разности потенциалов и заряду электрона";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if317", f);
+	}
+
+	{
+		pair<int, int> ind(108, 2);
+		vector<string> val = { "U", "(E-A)/e", "A", "E", "U", "e" };
+		string des = "Формула, позволяющая вычислить разность потенциалов по энергии одного фотона, работе выхода и заряду электрона";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if318", f);
+	}
+
+	{
+		pair<int, int> ind(109, 0);
+		vector<string> val = { "v", "(A+U*e)/h", "A", "U", "e", "h", "v" };
+		string des = "Формула, позволяющая вычислить частоту излучения по работе выхода, разности потенциалов, заряду электрона и постоянной Планка";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if319", f);
+	}
+
+	{
+		pair<int, int> ind(109, 1);
+		vector<string> val = { "A", "h*v-U*e", "A", "U", "e", "h", "v" };
+		string des = "Формула, позволяющая вычислить работу выхода по частоте излучения, разности потенциалов, заряду электрона и постоянной Планка";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if320", f);
+	}
+
+	{
+		pair<int, int> ind(109, 2);
+		vector<string> val = { "U", "(h*v-A)/e", "A", "U", "e", "h", "v" };
+		string des = "Формула, позволяющая вычислить разность потенциалов по частоте излучения, работе выхода, заряду электрона и постоянной Планка";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if321", f);
+	}
+
+	{
+		pair<int, int> ind(110, 0);
+		vector<string> val = { "E", "A+m*v*v/2", "A", "E", "m", "v" };
+		string des = "Формула, позволяющая вычислить энергию фотона по его массе и скорости и работе выхода";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if322", f);
+	}
+
+	{
+		pair<int, int> ind(110, 1);
+		vector<string> val = { "A", "E-m*v*v/2", "A", "E", "m", "v" };
+		string des = "Формула, позволяющая вычислить работу выхода по энергии фотона, его массе и скорости";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if323", f);
+	}
+
+	{
+		pair<int, int> ind(110, 2);
+		vector<string> val = { "m", "2*(E-A)/v*v", "A", "E", "m", "v" };
+		string des = "Формула, позволяющая вычислить массу фотона по его энергии и скорости и работе выхода";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if324", f);
+	}
+
+	{
+		pair<int, int> ind(110, 3);
+		vector<string> val = { "v", "sqrt(2*(E-A)/m)", "A", "E", "m", "v" };
+		string des = "Формула, позволяющая вычислить скорость фотона по его энергии и массе и работе выхода";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if325", f);
+	}
+
+	{
+		pair<int, int> ind(111, 0);
+		vector<string> val = { "v", "(A+m*V*V/2)/h", "A", "V", "h", "m", "v" };
+		string des = "Формула, позволяющая вычислить частоту излучения по энергии фотона, его массе и скорости, работе выхода и постоянной Планка";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if326", f);
+	}
+
+	{
+		pair<int, int> ind(111, 1);
+		vector<string> val = { "A", "h*v-m*V*V/2", "A", "V", "h", "m", "v" };
+		string des = "Формула, позволяющая вычислить работу выхода по частоте излучения, энергии фотона, его массе и скорости и постоянной Планка";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if327", f);
+	}
+
+	{
+		pair<int, int> ind(111, 2);
+		vector<string> val = { "m", "2*(h*v-A)/V*V", "A", "V", "h", "m", "v" };
+		string des = "Формула, позволяющая вычислить массу фотона по частоте излучения, скорости и энергии фотона, работе выхода и постоянной Планка";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if328", f);
+	}
+
+	{
+		pair<int, int> ind(111, 3);
+		vector<string> val = { "V", "sqrt(2*(h*v-A)/m)", "A", "V", "h", "m", "v" };
+		string des = "Формула, позволяющая вычислить скорость фотона по частоте излучения, массе и энергии фотона, работе выхода и постоянной Планка";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if329", f);
+	}
+
+	{
+		pair<int, int> ind(112, 0);
+		vector<string> val = { "D", "E/m", "D", "E", "m" };
+		string des = "Формула, позволяющая вычислить дозу поглощенного излучения по энергии излучения и массе тела";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if330", f);
+	}
+
+	{
+		pair<int, int> ind(112, 1);
+		vector<string> val = { "E", "D*m", "D", "E", "m" };
+		string des = "Формула, позволяющая вычислить энергию излучения по дозе поглощенного излучения и массе тела";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if331", f);
+	}
+
+	{
+		pair<int, int> ind(112, 2);
+		vector<string> val = { "m", "E/D", "D", "E", "m" };
+		string des = "Формула, позволяющая вычислить массу тела по дозе поглощенного излучения и энергии излучения";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if332", f);
+	}
+
+	{
+		pair<int, int> ind(113, 0);
+		vector<string> val = { "H", "D*k", "D", "H", "k" };
+		string des = "Формула, позволяющая вычислить эквивалентную дозу поглощенного излучения по дозе поглощенного излучения и коэффициенту качества";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if333", f);
+	}
+
+	{
+		pair<int, int> ind(113, 1);
+		vector<string> val = { "D", "H/k", "D", "H", "k" };
+		string des = "Формула, позволяющая вычислить дозу поглощенного излучения по эквивалентной дозе поглощенного излучения и коэффициенту качества";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if334", f);
+	}
+
+	{
+		pair<int, int> ind(113, 2);
+		vector<string> val = { "k", "H/D", "D", "H", "k" };
+		string des = "Формула, позволяющая вычислить коэффициент качества по эквивалентной дозе поглощенного излучения и дозе поглощенного излучения";
+		vector<string> tag_cl = { "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Quantum Physics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if335", f);
+	}
+
+	{
+		pair<int, int> ind(114, 0);
+		vector<string> val = { "p", "2*n*E/3", "E", "n", "p" };
+		string des = "Формула, позволяющая вычислить давление идеального газа по средней кинетической энергии и концентрации молекул";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if336", f);
+	}
+
+	{
+		pair<int, int> ind(114, 1);
+		vector<string> val = { "n", "3*p/(2*E)", "E", "n", "p" };
+		string des = "Формула, позволяющая вычислить концентрацию молекул по давлению идеального газа и средней кинетической энергии молекул";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if337", f);
+	}
+
+	{
+		pair<int, int> ind(114, 2);
+		vector<string> val = { "E", "3*p/(2*n)", "E", "n", "p" };
+		string des = "Формула, позволяющая вычислить среднюю кинетическую энергию молекул по давлению идеального газа и концентрации молекул";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if338", f);
+	}
+
+	{
+		pair<int, int> ind(115, 0);
+		vector<string> val = { "E", "3*k*T/2", "E", "T", "k" };
+		string des = "Формула, позволяющая вычислить среднюю кинетическую энергию молекул по абсолютной температуре и постоянной Больцмана";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if339", f);
+	}
+
+	{
+		pair<int, int> ind(115, 1);
+		vector<string> val = { "T", "2*E/(3*k)", "E", "T", "k" };
+		string des = "Формула, позволяющая вычислить абсолютную температуру по средней кинетической энергии молекул и постоянной Больцмана";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if340", f);
+	}
+
+	{
+		pair<int, int> ind(116, 0);
+		vector<string> val = { "p", "n*k*T", "T", "k", "n", "p" };
+		string des = "Формула, позволяющая вычислить давление идеального газа по концентрации молекул, абсолютной температуре и постоянной Больцмана";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if341", f);
+	}
+
+	{
+		pair<int, int> ind(116, 1);
+		vector<string> val = { "n", "p/(k*T)", "T", "k", "n", "p" };
+		string des = "Формула, позволяющая вычислить концентрацию молекул по давлению идеального газа, абсолютной температуре и постоянной Больцмана";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if342", f);
+	}
+
+	{
+		pair<int, int> ind(116, 2);
+		vector<string> val = { "T", "p/(n*k)", "T", "k", "n", "p" };
+		string des = "Формула, позволяющая вычислить абсолютную температуру по давлению идеального газа, концентрации молекул и постоянной Больцмана";
+		vector<string> tag_cl = { "#Class10", "#Class11" };
+		vector <string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, val, des, tag_cl, tag_loc);
+		form_.emplace("if343", f);
+	}
 }
