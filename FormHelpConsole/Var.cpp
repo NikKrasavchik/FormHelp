@@ -2,48 +2,39 @@
 
 using namespace std;
 
-Var::Var(int ind_, string name_, string tag_class_, string tag_subject_, string tag_section_, string tag_subsection_)
+Var::Var(int ind_, string name_, string tag_class_, string tag_subject_, string description_)
 {
 	this->_ind = ind_;
 	this->_name = name_;
 	this->_tag_class = tag_class_;
-	this->_tag_location.push_back(tag_subject_);
-	this->_tag_location.push_back(tag_section_);
-	this->_tag_location.push_back(tag_subsection_);
+	this->_tag_subject = tag_subject_;
+	this->_description = description_;
 }
 
-Var::Var(int ind_, string name_, string tag_class_, string tag_subject_, string tag_section_, string tag_subsection_, string tag_optional_)
+Var::Var()
 {
-	this->_ind = ind_;
-	this->_name = name_;
-	this->_tag_class = tag_class_;
-	this->_tag_location.push_back(tag_subject_);
-	this->_tag_location.push_back(tag_section_);
-	this->_tag_location.push_back(tag_subsection_);
-	this->_tag_location.push_back(tag_optional_);
+	this->_ind = 0;
+	this->_name = "";
+	this->_tag_class = "";
+	this->_tag_subject = "";
+	this->_description = "";
 }
 
-string Var::getVar()
+Var::Var(const Var& v_)
 {
-	return this->_name;
+	this->_ind = v_._ind;
+	this->_name = v_._name;
+	this->_tag_class = v_._tag_class;
+	this->_tag_subject = v_._tag_subject;
+	this->_description = v_._description;
 }
 
-string Var::getVarDescription()
+Var Var::operator= (Var v_)
 {
-	return this->_description;
-}
-
-string Var::getClassTag()
-{
-	return this->_tag_class;
-}
-
-void Var::getLocationTag(vector<string>* tag_)
-{
-	tag_->clear();
-
-	for (int i = 0; i < this->_tag_location.size(); i++)
-	{
-		tag_->push_back(this->_tag_location[i]);
-	}
+	this->_ind = v_._ind;
+	this->_name = v_._name;
+	this->_tag_class = v_._tag_class;
+	this->_tag_subject = v_._tag_subject;
+	this->_description = v_._description;
+	return *this;
 }
