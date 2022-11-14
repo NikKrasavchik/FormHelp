@@ -11,38 +11,98 @@
 
 using namespace std;
 
-void printFormsWithVars(vector<vector<Form>> allCategories)
+vector<pair<int, int>> countFormCategory(vector<vector<pair<Form, bool>>> allCategories)
+{
+	vector<pair<int, int>> counter(4);
+	for (int i = 0; i < 4; i++)
+	{
+		counter[i].first = 0;
+		counter[i].second = 0;
+		for (int j = 0; j < allCategories[i].size(); j++)
+		{
+			if (allCategories[i][j].second)
+				counter[i].first++;
+			else
+				counter[i].second++;
+		}
+	}
+	return counter;
+}
+
+void printFormsWithVars(vector<vector<pair<Form, bool>>> allCategories)
 {
 	if (allCategories.size())
 	{
-		cout << "Количество формул с нулевым разрядом - " << allCategories[0].size() << ":" << endl;
+		vector<pair<int, int>> allCategoriesSize = countFormCategory(allCategories);
+
+		if (allCategoriesSize[0].first == 0)
+			cout << "Количество формул с нулевым разрядом - " << allCategories[0].size() << ":" << endl;
+		else
+			cout << "Количество формул с нулевым разрядом - " << allCategoriesSize[0].first << " (а также выходящих формул - " << allCategoriesSize[0].second << "):" << endl;
 		if (allCategories[0].size())
 			for (int i = 0; i < allCategories[0].size(); i++)
-				cout << "\t" << allCategories[0][i].getFormula() << endl;
+			{
+				if (allCategories[0][i].second && i)
+					cout << endl;
+				if (allCategories[0][i].second)
+					cout << "\t" << allCategories[0][i].first.getFormula() << endl;
+				else
+					cout << "\t|__ " << allCategories[0][i].first.getFormula() << endl;
+			}
 		else
 			cout << "\tНет формул с присутствием всех переменных!" << endl;
 		cout << endl;
 
-		cout << "Количество формул с первым разрядом - " << allCategories[1].size() << ":" << endl;
+		if (allCategoriesSize[1].first == 0)
+			cout << "Количество формул с первым разрядом  - " << allCategories[1].size() << ":" << endl;
+		else
+			cout << "Количество формул с первым разрядом  - " << allCategoriesSize[1].first << " (а также выходящих формул - " << allCategoriesSize[1].second << "):" << endl;
 		if (allCategories[1].size())
 			for (int i = 0; i < allCategories[1].size(); i++)
-				cout << "\t" << allCategories[1][i].getFormula() << endl;
+			{
+				if (allCategories[1][i].second && i)
+					cout << endl;
+				if (allCategories[1][i].second)
+					cout << "\t" << allCategories[1][i].first.getFormula() << endl;
+				else
+					cout << "\t|__ " << allCategories[1][i].first.getFormula() << endl;
+			}
 		else
 			cout << "\tНет формул с единственной отсутствующей переменной!" << endl;
 		cout << endl;
 
-		cout << "Количество формул со вторым разрядом - " << allCategories[2].size() << ":" << endl;
+		if (allCategoriesSize[2].first == 0)
+			cout << "Количество формул со вторым разрядом - " << allCategories[2].size() << ":" << endl;
+		else
+			cout << "Количество формул со вторым разрядом - " << allCategoriesSize[2].first << " (а также выходящих формул - " << allCategoriesSize[2].second << "):" << endl;
 		if (allCategories[2].size())
 			for (int i = 0; i < allCategories[2].size(); i++)
-				cout << "\t" << allCategories[2][i].getFormula() << endl;
+			{
+				if (allCategories[2][i].second && i)
+					cout << endl;
+				if (allCategories[2][i].second)
+					cout << "\t" << allCategories[2][i].first.getFormula() << endl;
+				else
+					cout << "\t|__ " << allCategories[2][i].first.getFormula() << endl;
+			}
 		else
 			cout << "\tНет формул с двумя отсутствующими переменными!" << endl;
 		cout << endl;
 
-		cout << "Количество формул с третьим разрядом - " << allCategories[3].size() << ":" << endl;
+		if (allCategoriesSize[3].first == 0)
+			cout << "Количество формул с третьим разрядом - " << allCategories[3].size() << ":" << endl;
+		else
+			cout << "Количество формул с третьим разрядом - " << allCategoriesSize[3].first << " (а также выходящих формул - " << allCategoriesSize[3].second << "):" << endl;
 		if (allCategories[3].size())
 			for (int i = 0; i < allCategories[3].size(); i++)
-				cout << "\t" << allCategories[3][i].getFormula() << endl;
+			{
+				if (allCategories[3][i].second && i)
+					cout << endl;
+				if (allCategories[3][i].second)
+					cout << "\t" << allCategories[3][i].first.getFormula() << endl;
+				else
+					cout << "\t|__ " << allCategories[3][i].first.getFormula() << endl;
+			}
 		else
 			cout << "\tНет формул с тремя отсутствующими переменными!" << endl;
 	}
@@ -59,15 +119,15 @@ int calcMissVars(Form f, vector<string> v) // вычисление количе�
 	return f.getNumberOfVariables() - count;
 }
 
-bool inVForms(Form f, vector<Form> v)
+bool inVForms(Form f, vector<pair<Form, bool>> v)
 {
 	for (int i = 0; i < v.size(); i++)
-		if (v[i].getFormDescription() == f.getFormDescription()) // костыль, избегающий перегрузки оператора сравнения
+		if (v[i].first.getFormDescription() == f.getFormDescription()) // костыль, избегающий перегрузки оператора сравнения
 			return true;
 	return false;
 }
 
-vector<vector<Form>> findFormsWithVars(map<string, Form> db)
+vector<vector<pair<Form, bool>>> findFormsWithVars(map<string, Form> db)
 {
 	int n;
 	vector<string> vars;
@@ -81,25 +141,33 @@ vector<vector<Form>> findFormsWithVars(map<string, Form> db)
 		vars.push_back(v);
 	}
 
-	vector <Form> forms;
+	vector<pair<Form, bool>> forms;
 	for (int i = 0; i < db.size(); i++)
 	{
 		string sind = "if" + to_string(i);
-		map<string, Form> ::iterator it = db.find(sind);
+		auto it = db.find(sind);
 		for (int j = 0; j < vars.size(); j++) // поиск всех формул, в которых присутствуют переменные
 		{
 			if (it->second.varInForm(vars[j]))
 				if (!inVForms(it->second, forms))
-					forms.push_back(it->second);
+				{
+					bool b;
+					if (it->second.getIndex().second == 0)
+						b = true;
+					else
+						b = false;
+					pair<Form, bool> f = { it->second, b };
+					forms.push_back(f);
+				}
 		}
 		
 	}
 
-	vector <Form> category0, category1, category2, category3;
+	vector <pair<Form, bool>> category0, category1, category2, category3;
 
 	for (int i = 0; i < forms.size(); i++) // распределение формул по разрядам
 	{
-		switch (calcMissVars(forms[i], vars))
+		switch (calcMissVars(forms[i].first, vars))
 		{
 		case 0:
 			category0.push_back(forms[i]);
@@ -116,7 +184,7 @@ vector<vector<Form>> findFormsWithVars(map<string, Form> db)
 		}
 	}
 
-	vector<vector<Form>> allCategories = { category0, category1, category2, category3 };
+	vector<vector<pair<Form, bool>>> allCategories = { category0, category1, category2, category3 };
 	return allCategories;
 }
 
@@ -131,6 +199,6 @@ int main()
 	createMathOperationsDB(dbOperations);
 	createFormsDB(dbForms, dbVariables, dbOperations);
 
-	//vector<vector<Form>> f = findFormsWithVars(dbForms);
+	//vector<vector<pair<Form, bool>>> f = findFormsWithVars(dbForms);
 	//printFormsWithVars(f);
 }
