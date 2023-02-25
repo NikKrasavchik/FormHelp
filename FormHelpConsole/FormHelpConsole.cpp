@@ -110,27 +110,51 @@ void printFormsWithVars(vector<vector<pair<Form, bool>>> allCategories)
 		cout << "Отсутствуют формулы с минимальным количествам отсутствующих переменных!" << endl;
 }
 
-int calcMissVars(Form f, vector<string> v) // вычисление количества недостоющих переменных в формуле
+int calcMissVars(Form f, vector<Var> variables) // вычисление количества недостоющих переменных в формуле
 {
 	int count = 0;
-	for (int i = 0; i < v.size(); i++)
-		if (f.varInForm(v[i]))
+	for (int i = 0; i < variables.size(); i++)
+		if (f.varInForm(variables[i]))
 			count++;
-	return f.getNumberOfVariables() - count;
+	return f.countVariables() - count;
 }
 
-bool inVForms(Form f, vector<pair<Form, bool>> v)
+vector<pair<Form, bool>> addInderectForms(vector<Form> basicForms, map<string, Form> dbForms) // добавление коссвенных переменных
+{
+	vector<pair<Form, bool>> forms;
+
+	int countBasic = 0;
+	int countDB = basicForms[0].getIndex().first - 1 + basicForms[0].getIndex().second;
+
+	while (countDB < dbForms.size() && countBasic < basicForms.size()+basicForms[basicForms.size()-1].getIndex().second)
+	{
+		string its = "if" + to_string(countDB);
+		auto it = dbForms.find(its);
+		if (basicForms[countBasic].getIndex().first == it->second.getIndex().first)
+		{
+			pair<Form, bool> f(it->second, !it->second.getIndex().second);
+			forms.push_back(f);
+		}
+		if (basicForms[countBasic].getIndex().first == it->second.getIndex().first-1)
+			countBasic++;
+		countDB++;
+	}
+
+	return forms;
+}
+
+bool inVForms(Form f, vector<Form> v) // Проверка на присутствие формулы в уже добавленных
 {
 	for (int i = 0; i < v.size(); i++)
-		if (v[i].first.getFormDescription() == f.getFormDescription()) // костыль, избегающий перегрузки оператора сравнения
+		if (v[i] == f) // костыль, избегающий перегрузки оператора сравнения
 			return true;
 	return false;
 }
 
-vector<vector<pair<Form, bool>>> findFormsWithVars(map<string, Form> db)
+vector<vector<pair<Form, bool>>> findFormsWithVars(map<string, Form> dbForms, map<string, Var> dbVariables)
 {
 	int n;
-	vector<string> vars;
+	vector<string> varNames;
 	cout << "Количество переменных: ";
 	cin >> n;
 	cout << "Введите переменные: ";
@@ -138,31 +162,41 @@ vector<vector<pair<Form, bool>>> findFormsWithVars(map<string, Form> db)
 	{
 		string v;
 		cin >> v;
-		vars.push_back(v);
+		varNames.push_back(v);
 	}
 
-	vector<pair<Form, bool>> forms;
-	for (int i = 0; i < db.size(); i++)
+	// Нахождение переменной из string в Var
+	vector<Var> vars;
+	for (int i = 0; i < varNames.size(); i++)
+	{
+		for (int j = 0; j < dbVariables.size(); j++)
+		{
+			string sind = "iv" + to_string(j);
+			auto it = dbVariables.find(sind);
+			if (it->second.getVar() == varNames[i])
+			{
+				vars.push_back(it->second);
+				break;
+			}
+		}
+	}
+
+	vector<Form> basicForms;
+	for (int i = 0; i < dbForms.size(); i++)
 	{
 		string sind = "if" + to_string(i);
-		auto it = db.find(sind);
-		for (int j = 0; j < vars.size(); j++) // поиск всех формул, в которых присутствуют переменные
-		{
-			if (it->second.varInForm(vars[j]))
-				if (!inVForms(it->second, forms))
-				{
-					bool b;
-					if (it->second.getIndex().second == 0)
-						b = true;
-					else
-						b = false;
-					pair<Form, bool> f = { it->second, b };
-					forms.push_back(f);
-				}
-		}
+		auto it = dbForms.find(sind);
+		if (it->second.getIndex().second == 0)
+			for (int j = 0; j < vars.size(); j++) // поиск всех формул, в которых присутствуют переменные
+			{
+				if (it->second.varInForm(vars[j]))
+					if (!inVForms(it->second, basicForms))
+						basicForms.push_back(it->second);
+			}
 		
 	}
 
+	vector<pair<Form, bool>> forms = addInderectForms(basicForms, dbForms);
 	vector <pair<Form, bool>> category0, category1, category2, category3;
 
 	for (int i = 0; i < forms.size(); i++) // распределение формул по разрядам
@@ -199,6 +233,6 @@ int main()
 	createMathOperationsDB(dbOperations);
 	createFormsDB(dbForms, dbVariables, dbOperations);
 
-	//vector<vector<pair<Form, bool>>> f = findFormsWithVars(dbForms);
-	//printFormsWithVars(f);
+	vector<vector<pair<Form, bool>>> f = findFormsWithVars(dbForms, dbVariables);
+	printFormsWithVars(f);
 }

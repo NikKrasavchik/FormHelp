@@ -38,3 +38,10 @@ Var Var::operator= (Var v_)
 	this->_description = v_._description;
 	return *this;
 }
+
+bool operator==(const Var& variable1, const Var& variable2)
+{
+	if (variable1._ind == variable2._ind)
+		return true;
+	return false;
+}

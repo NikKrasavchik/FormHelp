@@ -1,140 +1,5 @@
 #pragma once
-
 #include "database.h"
-
-#define DEMO
-
-int checkAvailableSpace(vector<vector<int>> valuesNum) // определение свободного места для переменной
-{
-	vector<int> resultNum;
-	for (int i = 0; i < 2; i++) // добавление расположений всех матопераций и переменных в формуле
-	{
-		for (int j = 0; j < valuesNum[i].size(); j++)
-			resultNum.push_back(valuesNum[i][j]);
-	}
-
-	sort(resultNum.begin(), resultNum.end());
-
-	if (valuesNum[1].size() == 0) // возврат положения главной переменной
-		return 0;
-
-	for (int i = 1; i < valuesNum[0].size() + valuesNum[1].size(); i++) // возвращает свободное место для переменной
-		if (i != resultNum[i] && resultNum[i] != resultNum[i-1])
-			return i;
-	return int(valuesNum[0].size() + valuesNum[1].size()); // возвращает место для последней переменной
-}
-
-pair<Var, vector<Var>> setVariables(vector<string> val, map<string, Var>& dbVars)
-{
-	Var mainVariable;
-	for (int i = 0; i < dbVars.size(); i++)
-	{
-		string vind = "iv" + to_string(i);
-		auto it = dbVars.find(vind);
-
-		if (it->second.getVar() == val[0])
-			mainVariable = it->second;
-	}
-
-	vector<Var> values;
-	for (int i = 1; i < val.size(); i++)
-	{
-		for (int j = 0; j < dbVars.size(); j++)
-		{
-			string vind = "iv" + to_string(j);
-			auto it = dbVars.find(vind);
-
-			if (it->second.getVar() == val[i])
-				values.push_back(it->second);
-		}
-	}
-	pair<Var, vector<Var>> variables = { mainVariable, values };
-	return variables;
-}
-
-void fillForms(Form& form_, map<string, Var>& dbVars, map<string, string>& dbOperations) // заполняет формулу переменными и матоперациями
-{
-	vector<variant<Var, string>> values, tempValues;
-	vector<vector<int>> valuesNum(2);
-
-	// разделение строкового значения формулы на вектор строковых переменных 
-	vector<string> variables; 
-	stringstream stringStream(form_.getFormula());
-	string line;
-	while (getline(stringStream, line))
-	{
-		size_t prev = 0, pos;
-		while ((pos = line.find_first_of("+-*/()^=", prev)) != string::npos)
-		{
-			if (pos > prev)
-				variables.push_back(line.substr(prev, pos - prev));
-			prev = pos + 1;
-		}
-		if (prev < line.length())
-			variables.push_back(line.substr(prev, string::npos));
-	}
-
-	// определение матопераций
-	for (int i = 0; i < form_.getFormula().length(); i++)
-	{
-		for (int j = 0; j < dbOperations.size(); j++)
-		{
-			string oind = "io" + to_string(j); // создание именного индекса матоперации
-			auto it = dbOperations.find(oind); // выборка матоперации из DB
-
-			string op = "";
-			op += form_.getFormula()[i];
-
-			if (op == it->second)
-			{
-				tempValues.push_back(it->second); // добавление матопераций в отдельный вектор
-				valuesNum[0].push_back(i); // добавление расположения матоперации в отдельный вектор
-			}
-		}
-	}
-
-	// определение переменных
-	for (int i = 0; i < variables.size(); i++)
-	{
-		for (int j = 0; j < dbVars.size(); j++)
-		{
-			string vind = "iv" + to_string(j); // создание именного индекса переменной
-			auto it = dbVars.find(vind); // выборка переменной из DB
-
-			if (it->second.getVar() == variables[i])
-			{
-				tempValues.push_back(it->second); // добавление переменной в отдельный вектор
-				int variableInd = checkAvailableSpace(valuesNum); // переменная с доступным местом для расположения переменной
-				valuesNum[1].push_back(variableInd); // добавление расположения переменной в отдельный вектор
-				for (int k = 0; k < variables[i].length() - 1; k++) // заполнение вектора с местоположением значений, значением первого индекса переменной, если переменная состоит из нескольких символов
-					valuesNum[1].push_back(variableInd);
-			}
-		}
-	}
-
-	// удаление повторяющихся индексов
-	set<int> tempS(valuesNum[1].begin(), valuesNum[1].end());
-	valuesNum[1].assign(tempS.begin(), tempS.end());
-
-	// добавление значений в конечный вектор с правильным местоположением
-	int vCounter = 0;
-	int oCounter = 0;
-	for (int i = 0; i < form_.getFormula().length(); i++)
-	{
-		if (oCounter < valuesNum[0].size() && i == valuesNum[0][oCounter]) // добавление матоперации
-		{
-			values.push_back(tempValues[oCounter]);
-			oCounter++;
-		}
-		else if (vCounter < valuesNum[1].size() && i == valuesNum[1][vCounter]) // добавление переменной
-		{
-			values.push_back(tempValues[vCounter]);
-			vCounter++;
-		}
-	}
-
-	form_.setValues(values); // запись вектора в формулу
-}
 
 void createVarDB(map<string, Var> &var_) // создание DB переменных
 {
@@ -547,4477 +412,3797 @@ void createMathOperationsDB(map<string, string>& op_) // создание DB матопераций
 	op_.emplace("io7", "=");
 }
 
-void createFormsDB(map<string, Form>& form_, map<string, Var>& dbVars, map<string, string>& dbOperations) // создание DB формул
+void createFormsDB(map<string, Form>& form_, map<string, Var>& dbVars, map<string, string>& dbOperations)
 {
+	pair<int, int> ind;
+	vector<string> varNameInd;
+	vector<int> varInd;
+	vector<string> opNameInd;
+	vector<int> opInd;
+	vector<string> tagLocation;
+
 	{
-		pair<int, int> ind(1, 0);
-		string formula = "v*t";
-		vector<string> val = { "S", "S", "t", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить пройденный путь по скорости и времени";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(1, 0);
+		varNameInd = { "iv0", "iv2", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "S=v*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить пройденный путь по скорости и времени", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if0", f);
 	}
 
 	{
-		pair<int, int> ind(1, 1);
-		string formula = "S/t";
-		vector<string> val = { "v", "S", "t", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость по пройденному пути и времени";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(1, 1);
+		varNameInd = { "iv2", "iv0", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=S/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость по пройденному пути и времени", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if1", f);
 	}
 
 	{
-		pair<int, int> ind(1, 2);
-		string formula = "S/v";
-		vector<string> val = { "t", "S", "t", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по пройденному пути и скорости";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(1, 2);
+		varNameInd = { "iv1", "iv0", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "t=S/v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по пройденному пути и скорости", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if2", f);
 	}
 
 	{
-		pair<int, int> ind(2, 0);
-		string formula = "po*V";
-		vector<string> val = { "m", "V", "m", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела по его плотности и объему";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(2, 0);
+		varNameInd = { "iv4", "iv5", "iv3" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=po*V", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела по его плотности и объему", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if3", f);
 	}
 
 	{
-		pair<int, int> ind(2, 1);
-		string formula = "m/V";
-		vector<string> val = { "po", "V", "m", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить плотность тела по его массе и объему";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(2, 1);
+		varNameInd = { "iv5", "iv4", "iv3" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "po=m/V", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить плотность тела по его массе и объему", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if4", f);
 	}
 
 	{
-		pair<int, int> ind(2, 2);
-		string formula = "m/po";
-		vector<string> val = { "V", "V", "m", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить объем тела по его плотности и массе";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(2, 2);
+		varNameInd = { "iv3", "iv4", "iv5" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "V=m/po", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить объем тела по его плотности и массе", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if5", f);
 	}
 
 	{
-		pair<int, int> ind(3, 0);
-		string formula = "m*g";
-		vector<string> val = { "F", "F", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу тяжести по массе тела и ускорению свободного падения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(3, 0);
+		varNameInd = { "iv6", "iv4", "iv7" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=m*g", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу тяжести по массе тела и ускорению свободного падения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if6", f);
 	}
 
 	{
-		pair<int, int> ind(3, 1);
-		string formula = "F/g";
-		vector<string> val = { "m", "F", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела по силе тяжести и ускорению свободного падения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(3, 1);
+		varNameInd = { "iv4", "iv6", "iv7" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=F/g", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела по силе тяжести и ускорению свободного падения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if7", f);
 	}
 
 	{
-		pair<int, int> ind(4, 0);
-		string formula = "k*x";
-		vector<string> val = { "F", "F", "k", "x" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу упругости по коэффициенту жесткости и изменению длины тела";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(4, 0);
+		varNameInd = { "iv6", "iv8", "iv9" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=k*x", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу упругости по коэффициенту жесткости и изменению длины тела", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if8", f);
 	}
 
 	{
-		pair<int, int> ind(4, 1);
-		string formula = "F/k";
-		vector<string> val = { "x", "F", "k", "x" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить изменение длины тела по коэффициенту жесткости и силе упругости";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(4, 1);
+		varNameInd = { "iv9", "iv6", "iv8" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x=F/k", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить изменение длины тела по коэффициенту жесткости и силе упругости", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if9", f);
 	}
 
 	{
-		pair<int, int> ind(5, 0);
-		string formula = "m*g";
-		vector<string> val = { "P", "P", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить вес тела по его массе и ускорению свободного падения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(5, 0);
+		varNameInd = { "iv10", "iv4", "iv7" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "P=m*g", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить вес тела по его массе и ускорению свободного падения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if10", f);
 	}
 
 	{
-		pair<int, int> ind(5, 1);
-		string formula = "P/g";
-		vector<string> val = { "m", "P", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела по его весу и ускорению свободного падения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(5, 1);
+		varNameInd = { "iv4", "iv10", "iv7" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=P/g", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела по его весу и ускорению свободного падения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if11", f);
 	}
 
 	{
-		pair<int, int> ind(5, 2);
-		string formula = "Ft-Fa";
-		vector<string> val = { "P", "Fa", "Ft", "P" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить вес тела в жидкости по силе тяжести и силе архимеда";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(5, 2);
+		varNameInd = { "iv10", "iv12", "iv11" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io1" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "P=Ft-Fa", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить вес тела в жидкости по силе тяжести и силе архимеда", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if12", f);
 	}
 
 	{
-		pair<int, int> ind(5, 3);
-		string formula = "m*g-po*g*V";
-		vector<string> val = { "P", "P", "V", "g", "m", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить вес тела в жидкости по его массе, объему, ускорению свободного падения и плотности жидкости";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(5, 3);
+		varNameInd = { "iv10", "iv4", "iv7", "iv5", "iv7", "iv3" };
+		varInd = { 0, 2, 4, 6, 8, 10 };
+		opNameInd = { "io7", "io2", "io1", "io2", "io2" };
+		opInd = { 1, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "P=m*g-po*g*V", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить вес тела в жидкости по его массе, объему, ускорению свободного падения и плотности жидкости", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if13", f);
 	}
 
 	{
-		pair<int, int> ind(6, 0);
-		string formula = "F/S";
-		vector<string> val = { "p", "F", "S", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить давление по силе давления на тело и его площади";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(6, 0);
+		varNameInd = { "iv13", "iv6", "iv0" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "p=F/S", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить давление по силе давления на тело и его площади", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if14", f);
 	}
 
 	{
-		pair<int, int> ind(6, 1);
-		string formula = "p*S";
-		vector<string> val = { "F", "F", "S", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу давления на тело по его площади и давлению";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(6, 1);
+		varNameInd = { "iv6", "iv13", "iv0" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=p*S", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу давления на тело по его площади и давлению", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if15", f);
 	}
 
 	{
-		pair<int, int> ind(6, 2);
-		string formula = "F/p";
-		vector<string> val = { "S", "F", "S", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить площадь тела по давлению и силе давления на него";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(6, 2);
+		varNameInd = { "iv0", "iv6", "iv13" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "S=F/p", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить площадь тела по давлению и силе давления на него", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if16", f);
 	}
 
 	{
-		pair<int, int> ind(7, 0);
-		string formula = "po*g*h";
-		vector<string> val = { "p", "g", "h", "p", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить давление в жидкости(газе) по плотности жидкости, ускорению свободного падения и высоте столба жидкости";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(7, 0);
+		varNameInd = { "iv13", "iv5", "iv7", "iv14" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "p=po*g*h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить давление в жидкости(газе) по плотности жидкости, ускорению свободного падения и высоте столба жидкости", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if17", f);
 	}
 
 	{
-		pair<int, int> ind(7, 1);
-		string formula = "p/(g*h)";
-		vector<string> val = { "po", "g", "h", "p", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить плотность жидкости по давлению в жидкости(газе), ускорению свободного падения и высоте столба жидкости";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(7, 1);
+		varNameInd = { "iv5", "iv13", "iv7", "iv14" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "po=p/(g*h)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить плотность жидкости по давлению в жидкости(газе), ускорению свободного падения и высоте столба жидкости", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if18", f);
 	}
 
 	{
-		pair<int, int> ind(7, 2);
-		string formula = "p/(po*g)";
-		vector<string> val = { "h", "g", "h", "p", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить высоту столба жидкости по давлению в жидкости(газе), плотности жидкости и ускорению свободного падения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(7, 2);
+		varNameInd = { "iv14", "iv13", "iv5", "iv7" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "h=p/(po*g)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить высоту столба жидкости по давлению в жидкости(газе), плотности жидкости и ускорению свободного падения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if19", f);
 	}
 
 	{
-		pair<int, int> ind(7, 3);
-		string formula = "p0+po*g*h";
-		vector<string> val = { "p", "g", "h", "p", "p0", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить давление в жидкости(газе) по плотности жидкости, ускорению свободного падения и высоте столба жидкости и нормальному атомсферному давлению";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(7, 3);
+		varNameInd = { "iv13", "iv15", "iv5", "iv7", "iv14" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io0", "io2", "io2" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "p=p0+po*g*h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить давление в жидкости(газе) по плотности жидкости, ускорению свободного падения и высоте столба жидкости и нормальному атомсферному давлению", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if20", f);
 	}
 
 	{
-		pair<int, int> ind(7, 4);
-		string formula = "(p-p0)/(g*h)";
-		vector<string> val = { "po", "g", "h", "p", "p0", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить плотность жидкости по давлению в жидкости(газе), ускорению свободного падения и высоте столба жидкости и нормальному атомсферному давлению";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(7, 4);
+		varNameInd = { "iv5", "iv13", "iv15", "iv7", "iv14" };
+		varInd = { 0, 3, 5, 9, 11 };
+		opNameInd = { "io7", "io4", "io1", "io5", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 2, 4, 6, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "po=(p-p0)/(g*h)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить плотность жидкости по давлению в жидкости(газе), ускорению свободного падения и высоте столба жидкости и нормальному атомсферному давлению", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if21", f);
 	}
 
 	{
-		pair<int, int> ind(7, 5);
-		string formula = "(p-p0)/(po*g)";
-		vector<string> val = { "h", "g", "h", "p", "p0", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить высоту столба жидкости по давлению в жидкости(газе), плотности жидкости и ускорению свободного падения и нормальному атомсферному давлению";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(7, 5);
+		varNameInd = { "iv14", "iv13", "iv15", "iv5", "iv7" };
+		varInd = { 0, 3, 5, 9, 11 };
+		opNameInd = { "io7", "io4", "io1", "io5", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 2, 4, 6, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "h=(p-p0)/(po*g)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить высоту столба жидкости по давлению в жидкости(газе), плотности жидкости и ускорению свободного падения и нормальному атомсферному давлению", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if22", f);
 	}
 
 	{
-		pair<int, int> ind(8, 0);
-		string formula = "p0-(h/12)";
-		vector<string> val = { "p", "h", "p", "p0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить давление воздуха по высоте и нормальному атмосферному давлению";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(8, 0);
+		varNameInd = { "iv13", "iv15", "iv14" };
+		varInd = { 0, 2, 5 };
+		opNameInd = { "io7", "io1", "io4", "io3", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "p=p0-(h/12)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить давление воздуха по высоте и нормальному атмосферному давлению", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if23", f);
 	}
 
 	{
-		pair<int, int> ind(8, 1);
-		string formula = "12*(p0-p)";
-		vector<string> val = { "h", "h", "p", "p0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить высоту по давлению воздуха и нормальному атмосферному давлению";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(8, 1);
+		varNameInd = { "iv14", "iv15", "iv13" };
+		varInd = { 0, 5, 7 };
+		opNameInd = { "io7", "io2", "io4", "io1", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "h=12*(p0-p)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить высоту по давлению воздуха и нормальному атмосферному давлению", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if24", f);
 	}
 
 	{
-		pair<int, int> ind(9, 0);
-		string formula = "l*a";
-		vector<string> val = { "S", "S", "a", "l" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить площадь по длине и ширине";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(9, 0);
+		varNameInd = { "iv0", "iv17", "iv16" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "S=l*a", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить площадь по длине и ширине", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if25", f);
 	}
 
 	{
-		pair<int, int> ind(9, 1);
-		string formula = "S/a";
-		vector<string> val = { "l", "S", "a", "l" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину по площади и ширине";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(9, 1);
+		varNameInd = { "iv17", "iv0", "iv16" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "l=S/a", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину по площади и ширине", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if26", f);
 	}
 
 	{
-		pair<int, int> ind(9, 2);
-		string formula = "S/l";
-		vector<string> val = { "a", "S", "a", "l" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить ширину по площади и длине";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(9, 2);
+		varNameInd = { "iv16", "iv0", "iv17" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "a=S/l", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить ширину по площади и длине", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if27", f);
 	}
 
 	{
-		pair<int, int> ind(10, 0);
-		string formula = "S*h";
-		vector<string> val = { "V", "S", "V", "h" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить объем по площади и высоте";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(10, 0);
+		varNameInd = { "iv3", "iv0", "iv14" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "V=S*h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить объем по площади и высоте", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if28", f);
 	}
 
 	{
-		pair<int, int> ind(10, 1);
-		string formula = "V/h";
-		vector<string> val = { "S", "S", "V", "h" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить площадь по объему и высоте";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(10, 1);
+		varNameInd = { "iv0", "iv3", "iv14" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "S=V/h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить площадь по объему и высоте", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if29", f);
 	}
 
 	{
-		pair<int, int> ind(10, 2);
-		string formula = "V/S";
-		vector<string> val = { "h", "S", "V", "h" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить высоту по площади и объему";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(10, 2);
+		varNameInd = { "iv14", "iv3", "iv0" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "h=V/S", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить высоту по площади и объему", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if30", f);
 	}
 
 	{
-		pair<int, int> ind(11, 0);
-		string formula = "po*g*V";
-		vector<string> val = { "F", "F", "V", "g", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить архимедову силу по плотности жидкости, ускорению свободного падения и объему тела";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(11, 0);
+		varNameInd = { "iv6", "iv5", "iv7", "iv3" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=po*g*V", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить архимедову силу по плотности жидкости, ускорению свободного падения и объему тела", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if31", f);
 	}
 
 	{
-		pair<int, int> ind(11, 1);
-		string formula = "F/(g*V)";
-		vector<string> val = { "po", "F", "V", "g", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить плотность жидкости по архимедовой силе, ускорению свободного падения и объему тела";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(11, 1);
+		varNameInd = { "iv5", "iv6", "iv7", "iv3" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "po=F/(g*V)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить плотность жидкости по архимедовой силе, ускорению свободного падения и объему тела", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if32", f);
 	}
 
 	{
-		pair<int, int> ind(11, 2);
-		string formula = "F/(po*d)";
-		vector<string> val = { "V", "F", "V", "g", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить объем тела по плотности жидкости, ускорению свободного падения и архимедовой силе";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(11, 2);
+		varNameInd = { "iv3", "iv6", "iv5", "iv58" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "V=F/(po*d)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить объем тела по плотности жидкости, ускорению свободного падения и архимедовой силе", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if33", f);
 	}
 
 	{
-		pair<int, int> ind(12, 0);
-		string formula = "mu*P";
-		vector<string> val = { "F", "F", "P", "mu" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу трения по весу тела и коэффициенту трения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(12, 0);
+		varNameInd = { "iv6", "iv18", "iv10" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=mu*P", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу трения по весу тела и коэффициенту трения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if34", f);
 	}
 
 	{
-		pair<int, int> ind(12, 1);
-		string formula = "mu*m*g";
-		vector<string> val = { "F", "F", "g", "m", "mu" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу трения по массе тела, ускорению свободного падения и коэффициенту трения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(12, 1);
+		varNameInd = { "iv6", "iv18", "iv4", "iv7" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=mu*m*g", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу трения по массе тела, ускорению свободного падения и коэффициенту трения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if35", f);
 	}
 
 	{
-		pair<int, int> ind(12, 2);
-		string formula = "F/mu";
-		vector<string> val = { "P", "F", "P", "mu" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить вес тела по силе трения и коэффициенту трения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(12, 2);
+		varNameInd = { "iv10", "iv6", "iv18" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "P=F/mu", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить вес тела по силе трения и коэффициенту трения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if36", f);
 	}
 
 	{
-		pair<int, int> ind(12, 3);
-		string formula = "F/(mu*g)";
-		vector<string> val = { "m", "F", "g", "m", "mu" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела по силе трения, ускорению свободного падения и коэффициенту трения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(12, 3);
+		varNameInd = { "iv4", "iv6", "iv18", "iv7" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=F/(mu*g)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела по силе трения, ускорению свободного падения и коэффициенту трения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if37", f);
 	}
 
 	{
-		pair<int, int> ind(13, 0);
-		string formula = "F*S";
-		vector<string> val = { "A", "A", "F", "S" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу тела по силе, действующей на тело и его площади";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(13, 0);
+		varNameInd = { "iv19", "iv6", "iv0" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "A=F*S", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу тела по силе, действующей на тело и его площади", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if38", f);
 	}
 
 	{
-		pair<int, int> ind(13, 1);
-		string formula = "A/S";
-		vector<string> val = { "F", "A", "F", "S" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу, действующую на тело по работе тела и его площади";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(13, 1);
+		varNameInd = { "iv6", "iv19", "iv0" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=A/S", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу, действующую на тело по работе тела и его площади", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if39", f);
 	}
 
 	{
-		pair<int, int> ind(13, 2);
-		string formula = "A/F";
-		vector<string> val = { "S", "A", "F", "S" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить площадь тела по работе тела и силе, действующей на тело";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(13, 2);
+		varNameInd = { "iv0", "iv19", "iv6" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "S=A/F", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить площадь тела по работе тела и силе, действующей на тело", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if40", f);
 	}
 
 	{
-		pair<int, int> ind(14, 0);
-		string formula = "A/t";
-		vector<string> val = { "N", "A", "N", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить мощность по работе и времени";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(14, 0);
+		varNameInd = { "iv20", "iv19", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "N=A/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить мощность по работе и времени", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if41", f);
 	}
 
 	{
-		pair<int, int> ind(14, 1);
-		string formula = "N*t";
-		vector<string> val = { "A", "A", "N", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу по мощности и времени";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(14, 1);
+		varNameInd = { "iv19", "iv20", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "A=N*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу по мощности и времени", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if42", f);
 	}
 
 	{
-		pair<int, int> ind(14, 2);
-		string formula = "A/N";
-		vector<string> val = { "t", "A", "N", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по мощности и работе";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(14, 2);
+		varNameInd = { "iv1", "iv19", "iv20" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "t=A/N", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по мощности и работе", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if43", f);
 	}
 
 	{
-		pair<int, int> ind(15, 0);
-		string formula = "F*l";
-		vector<string> val = { "M", "F", "M", "l" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить момент силы по силе и плечу силы";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(15, 0);
+		varNameInd = { "iv21", "iv6", "iv17" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "M=F*l", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить момент силы по силе и плечу силы", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if44", f);
 	}
 
 	{
-		pair<int, int> ind(15, 1);
-		string formula = "M/l";
-		vector<string> val = { "F", "F", "M", "l" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу по моменту силы и плечу силы";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(15, 1);
+		varNameInd = { "iv6", "iv21", "iv17" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=M/l", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу по моменту силы и плечу силы", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if45", f);
 	}
 
 	{
-		pair<int, int> ind(15, 2);
-		string formula = "M/F";
-		vector<string> val = { "l", "F", "M", "l" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить плечо силы по моменту силы и силе";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(15, 2);
+		varNameInd = { "iv17", "iv21", "iv6" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "l=M/F", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить плечо силы по моменту силы и силе", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if46", f);
 	}
 
 	{
-		pair<int, int> ind(16, 0);
-		string formula = "(Ap/Az)*100%";
-		vector<string> val = { "n", "Ap", "Az", "n" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить КПД по полезной и затраченной работе";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(16, 0);
+		varNameInd = { "iv24", "iv22", "iv23" };
+		varInd = { 0, 3, 5 };
+		opNameInd = { "io7", "io4", "io3", "io5", "io2", "io8" };
+		opInd = { 1, 2, 4, 6, 7, 9 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "n=(Ap/Az)*100%", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить КПД по полезной и затраченной работе", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if47", f);
 	}
 
 	{
-		pair<int, int> ind(16, 1);
-		string formula = "(n*Az)/100%";
-		vector<string> val = { "Ap", "Ap", "Az", "n" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить полезную работу по КПД и затраченной работе";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(16, 1);
+		varNameInd = { "iv22", "iv24", "iv23" };
+		varInd = { 0, 3, 5 };
+		opNameInd = { "io7", "io4", "io2", "io5", "io3", "io8" };
+		opInd = { 1, 2, 4, 6, 7, 9 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "Ap=(n*Az)/100%", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить полезную работу по КПД и затраченной работе", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if48", f);
 	}
 
 	{
-		pair<int, int> ind(16, 2);
-		string formula = "(Ap*100%)/n";
-		vector<string> val = { "Az", "Ap", "Az", "n" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить затраченную работу по КПД и полезной работе";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(16, 2);
+		varNameInd = { "iv23", "iv22", "iv24" };
+		varInd = { 0, 3, 9 };
+		opNameInd = { "io7", "io4", "io2", "io8", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 7, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "Az=(Ap*100%)/n", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить затраченную работу по КПД и полезной работе", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if49", f);
 	}
 
 	{
-		pair<int, int> ind(17, 0);
-		string formula = "F*v";
-		vector<string> val = { "N", "F", "N", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить механическую мощность по силе и скорости";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(17, 0);
+		varNameInd = { "iv20", "iv6", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "N=F*v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить механическую мощность по силе и скорости", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if50", f);
 	}
 
 	{
-		pair<int, int> ind(17, 1);
-		string formula = "N/v";
-		vector<string> val = { "F", "F", "N", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу по механической мощности и скорости";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(17, 1);
+		varNameInd = { "iv6", "iv20", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=N/v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу по механической мощности и скорости", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if51", f);
 	}
 
 	{
-		pair<int, int> ind(17, 2);
-		string formula = "N/F";
-		vector<string> val = { "v", "F", "N", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость по механической мощности и силе";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(17, 2);
+		varNameInd = { "iv2", "iv20", "iv6" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=N/F", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость по механической мощности и силе", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if52", f);
 	}
 
 	{
-		pair<int, int> ind(18, 0);
-		string formula = "(m*v*v)/2";
-		vector<string> val = { "Ek", "Ek", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кинетическую энергию тела по его массе и скорости";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(18, 0);
+		varNameInd = { "iv25", "iv4", "iv2", "iv2" };
+		varInd = { 0, 3, 5, 7 };
+		opNameInd = { "io7", "io4", "io2", "io2", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 8, 9 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "Ek=(m*v*v)/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кинетическую энергию тела по его массе и скорости", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if53", f);
 	}
 
 	{
-		pair<int, int> ind(18, 1);
-		string formula = "(2*Ek)/(v*v)";
-		vector<string> val = { "m", "Ek", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела по его кинетической энергии и скорости";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(18, 1);
+		varNameInd = { "iv4", "iv25", "iv2", "iv2" };
+		varInd = { 0, 5, 9, 11 };
+		opNameInd = { "io7", "io4", "io2", "io5", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 2, 4, 6, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=(2*Ek)/(v*v)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела по его кинетической энергии и скорости", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if54", f);
 	}
 
 	{
-		pair<int, int> ind(18, 2);
-		string formula = "sqrt((2*Ek)/m)";
-		vector<string> val = { "v", "Ek", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость тела по его кинетической энергии и массе";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(18, 2);
+		varNameInd = { "iv2", "iv25", "iv4" };
+		varInd = { 0, 7, 10 };
+		opNameInd = { "io7", "io9", "io4", "io4", "io2", "io5", "io3", "io5" };
+		opInd = { 1, 2, 3, 4, 6, 8, 9, 11 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=sqrt((2*Ek)/m)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость тела по его кинетической энергии и массе", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if55", f);
 	}
 
 	{
-		pair<int, int> ind(19, 0);
-		string formula = "m*g*h";
-		vector<string> val = { "Ep", "Ep", "g", "h", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить потенциальную энергию силы тяжести по массе тела, высоте и ускорению свободного падения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(19, 0);
+		varNameInd = { "iv26", "iv4", "iv7", "iv14" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "Ep=m*g*h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить потенциальную энергию силы тяжести по массе тела, высоте и ускорению свободного падения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if56", f);
 	}
 
 	{
-		pair<int, int> ind(19, 1);
-		string formula = "Ep/(g*h)";
-		vector<string> val = { "m", "Ep", "g", "h", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела по потенциальной энергии силы тяжести, высоте и ускорению свободного падения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(19, 1);
+		varNameInd = { "iv4", "iv26", "iv7", "iv14" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=Ep/(g*h)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела по потенциальной энергии силы тяжести, высоте и ускорению свободного падения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if57", f);
 	}
 
 	{
-		pair<int, int> ind(19, 2);
-		string formula = "Ep/(m*g)";
-		vector<string> val = { "h", "Ep", "g", "h", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить высоту по потенциальной энергии силы тяжести, массе тела и ускорению свободного падения";
-		string tag_cl = "#Class7";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(19, 2);
+		varNameInd = { "iv14", "iv26", "iv4", "iv7" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "h=Ep/(m*g)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить высоту по потенциальной энергии силы тяжести, массе тела и ускорению свободного падения", "#Class7", tagLocation, true, dbVars);
 		form_.emplace("if58", f);
 	}
 
 	{
-		pair<int, int> ind(20, 0);
-		string formula = "c*m*(t-t0)";
-		vector<string> val = { "Q", "Q", "c", "m", "t", "t0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кол-во теплоты по удельной теплоёмкости, массе тела и разности температур";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(20, 0);
+		varNameInd = { "iv27", "iv28", "iv4", "iv1", "iv29" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io2", "io4", "io1", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "Q=c*m*(t-t0)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кол-во теплоты по удельной теплоёмкости, массе тела и разности температур", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if59", f);
 	}
 
 	{
-		pair<int, int> ind(20, 1);
-		string formula = "Q/(c*(t-t0))";
-		vector<string> val = { "m", "Q", "c", "m", "t", "t0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела по кол-ву теплоты, удельной теплоёмкости и разности температур";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(20, 1);
+		varNameInd = { "iv4", "iv27", "iv28", "iv1", "iv29" };
+		varInd = { 0, 2, 5, 8, 10 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io4", "io1", "io5", "io5" };
+		opInd = { 1, 3, 4, 6, 7, 9, 11, 12 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "m=Q/(c*(t-t0))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела по кол-ву теплоты, удельной теплоёмкости и разности температур", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if60", f);
 	}
 
 	{
-		pair<int, int> ind(20, 2);
-		string formula = "Q/(c*m)-t0";
-		vector<string> val = { "t", "Q", "c", "m", "t", "t0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить конечную температуру по кол-ву теплоты, удельной теплоёмкости, массе тела и начальной температуре";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(20, 2);
+		varNameInd = { "iv1", "iv27", "iv28", "iv4", "iv29" };
+		varInd = { 0, 2, 5, 7, 10 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5", "io1" };
+		opInd = { 1, 3, 4, 6, 8, 9 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "t=Q/(c*m)-t0", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить конечную температуру по кол-ву теплоты, удельной теплоёмкости, массе тела и начальной температуре", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if61", f);
 	}
 
 	{
-		pair<int, int> ind(20, 3);
-		string formula = "t-Q/(c*m)t0";
-		vector<string> val = { "t0", "Q", "c", "m", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить начальную температуру по кол-ву теплоты, удельной теплоёмкости, массе тела и конечной температуре";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(20, 3);
+		varNameInd = { "iv29", "iv1", "iv27", "iv28", "iv4", "iv29" };
+		varInd = { 0, 2, 4, 7, 9, 11 };
+		opNameInd = { "io7", "io1", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "t0=t-Q/(c*m)t0", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить начальную температуру по кол-ву теплоты, удельной теплоёмкости, массе тела и конечной температуре", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if62", f);
 	}
 
 	{
-		pair<int, int> ind(21, 0);
-		string formula = "q*m";
-		vector<string> val = { "Q", "Q", "m", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кол-во теплоты при сгорании топлива по удельной теплоте сгорания топлива и массе топлива";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(21, 0);
+		varNameInd = { "iv27", "iv30", "iv4" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "Q=q*m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кол-во теплоты при сгорании топлива по удельной теплоте сгорания топлива и массе топлива", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if63", f);
 	}
 
 	{
-		pair<int, int> ind(21, 1);
-		string formula = "Q/q";
-		vector<string> val = { "m", "Q", "m", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу топлива по кол-ву теплоты при сгорании топлива и удельной теплоте сгорания топлива";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(21, 1);
+		varNameInd = { "iv4", "iv27", "iv30" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "m=Q/q", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу топлива по кол-ву теплоты при сгорании топлива и удельной теплоте сгорания топлива", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if64", f);
 	}
 
 	{
-		pair<int, int> ind(22, 0);
-		string formula = "lambda*m";
-		vector<string> val = { "Q", "Q", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кол-во теплоты, необходимое для плавления вещества по удельной теплоте плавления и массе вещества";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(22, 0);
+		varNameInd = { "iv27", "iv31", "iv4" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "Q=lambda*m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кол-во теплоты, необходимое для плавления вещества по удельной теплоте плавления и массе вещества", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if65", f);
 	}
 
 	{
-		pair<int, int> ind(22, 1);
-		string formula = "Q/lambda";
-		vector<string> val = { "m", "Q", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу вещества по кол-ву теплоты, необходимой для плавления вещества и удельной теплоте плавления";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(22, 1);
+		varNameInd = { "iv4", "iv27", "iv31" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "m=Q/lambda", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу вещества по кол-ву теплоты, необходимой для плавления вещества и удельной теплоте плавления", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if66", f);
 	}
 
 	{
-		pair<int, int> ind(23, 0);
-		string formula = "L*m";
-		vector<string> val = { "Q", "L", "Q", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кол-во теплоты при парообразовании и конденсации по удельной теплоте парообразования и конденсации и массе вещества";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(23, 0);
+		varNameInd = { "iv27", "iv32", "iv4" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "Q=L*m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кол-во теплоты при парообразовании и конденсации по удельной теплоте парообразования и конденсации и массе вещества", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if67", f);
 	}
 
 	{
-		pair<int, int> ind(23, 1);
-		string formula = "Q/L";
-		vector<string> val = { "m", "L", "Q", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу вещества по кол-ву теплоты при парообразовании и конденсации и удельной теплоте парообразования и конденсации";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(23, 1);
+		varNameInd = { "iv4", "iv27", "iv32" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "m=Q/L", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу вещества по кол-ву теплоты при парообразовании и конденсации и удельной теплоте парообразования и конденсации", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if68", f);
 	}
 
 	{
-		pair<int, int> ind(24, 0);
-		string formula = "m/V";
-		vector<string> val = { "po", "V", "m", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить абсолютную влажность воздуха по массе пара и объему воздуха";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(24, 0);
+		varNameInd = { "iv5", "iv4", "iv3" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "po=m/V", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить абсолютную влажность воздуха по массе пара и объему воздуха", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if69", f);
 	}
 
 	{
-		pair<int, int> ind(24, 1);
-		string formula = "po*V";
-		vector<string> val = { "m", "V", "m", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу пара по абсолютной влажности воздуха и объему воздуха";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(24, 1);
+		varNameInd = { "iv4", "iv5", "iv3" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "m=po*V", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу пара по абсолютной влажности воздуха и объему воздуха", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if70", f);
 	}
 
 	{
-		pair<int, int> ind(24, 2);
-		string formula = "m/po";
-		vector<string> val = { "V", "V", "m", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить объем воздуха по абсолютной влажности воздуха и массе пара";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(24, 2);
+		varNameInd = { "iv3", "iv4", "iv5" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "V=m/po", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить объем воздуха по абсолютной влажности воздуха и массе пара", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if71", f);
 	}
 
 	{
-		pair<int, int> ind(25, 0);
-		string formula = "po/pon*100%";
-		vector<string> val = { "fi", "fi", "po", "pon" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить относительную влажность воздуха по абсолютной влажности и плотности насыщенного пара при данной температуре";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(25, 0);
+		varNameInd = { "iv33", "iv5", "iv34" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3", "io2", "io8" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "fi=po/pon*100%", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить относительную влажность воздуха по абсолютной влажности и плотности насыщенного пара при данной температуре", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if72", f);
 	}
 
 	{
-		pair<int, int> ind(25, 1);
-		string formula = "fi*pon/100%";
-		vector<string> val = { "po", "fi", "po", "pon" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить абсолютнуюную влажность по относительной влажности воздуха и плотности насыщенного пара при данной температуре";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(25, 1);
+		varNameInd = { "iv5", "iv33", "iv34" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2", "io3", "io8" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "po=fi*pon/100%", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить абсолютнуюную влажность по относительной влажности воздуха и плотности насыщенного пара при данной температуре", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if73", f);
 	}
 
 	{
-		pair<int, int> ind(26, 0);
-		string formula = "Ap/Qn*100%";
-		vector<string> val = { "n", "Ap", "Qn", "n" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить КПД теплового двигателя по полезной работе, совершенной двигателем и кол-ву теплоты, полученного от нагревателя";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(26, 0);
+		varNameInd = { "iv24", "iv22", "iv35" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3", "io2", "io8" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "n=Ap/Qn*100%", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить КПД теплового двигателя по полезной работе, совершенной двигателем и кол-ву теплоты, полученного от нагревателя", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if74", f);
 	}
 
 	{
-		pair<int, int> ind(26, 1);
-		string formula = "n*Qn*100%";
-		vector<string> val = { "Ap", "Ap", "Qn", "n" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить полезную работу, совершенную двигателем по КПД теплового двигателя и кол-ву теплоты, полученного от нагревателя";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(26, 1);
+		varNameInd = { "iv22", "iv24", "iv35" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2", "io2", "io8" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "Ap=n*Qn*100%", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить полезную работу, совершенную двигателем по КПД теплового двигателя и кол-ву теплоты, полученного от нагревателя", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if75", f);
 	}
 
 	{
-		pair<int, int> ind(26, 2);
-		string formula = "Ap/(n*100%)";
-		vector<string> val = { "Qn", "Ap", "Qn", "n" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кол-во теплоты, полученное от нагревателя по КПД теплового двигателя и полезной работе, совершенной двигателем";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(26, 2);
+		varNameInd = { "iv35", "iv22", "iv24" };
+		varInd = { 0, 2, 5 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io8", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 9 };
+		tagLocation = { "#Physics", "#Thermodynamics" };
+		Form f(ind, "Qn=Ap/(n*100%)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кол-во теплоты, полученное от нагревателя по КПД теплового двигателя и полезной работе, совершенной двигателем", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if76", f);
 	}
 
 	{
-		pair<int, int> ind(27, 0);
-		string formula = "U/R";
-		vector<string> val = { "I", "I", "R", "U" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу тока по напряжению и сопротивлению";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(27, 0);
+		varNameInd = { "iv36", "iv38", "iv37" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "I=U/R", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу тока по напряжению и сопротивлению", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if77", f);
 	}
 
 	{
-		pair<int, int> ind(27, 1);
-		string formula = "I*R";
-		vector<string> val = { "U", "I", "R", "U" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряжение по силе тока и сопротивлению";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(27, 1);
+		varNameInd = { "iv38", "iv36", "iv37" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=I*R", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряжение по силе тока и сопротивлению", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if78", f);
 	}
 
 	{
-		pair<int, int> ind(27, 2);
-		string formula = "U/I";
-		vector<string> val = { "R", "I", "R", "U" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить спортивление по напряжению и силе тока";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(27, 2);
+		varNameInd = { "iv37", "iv38", "iv36" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "R=U/I", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить спортивление по напряжению и силе тока", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if79", f);
 	}
 
 	{
-		pair<int, int> ind(28, 0);
-		string formula = "po*L/S";
-		vector<string> val = { "R", "L", "R", "S", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить сопротивление по удельному сопротивлению вещества, длине проводника и площади его поперечного сечения";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(28, 0);
+		varNameInd = { "iv37", "iv5", "iv32", "iv0" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "R=po*L/S", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить сопротивление по удельному сопротивлению вещества, длине проводника и площади его поперечного сечения", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if80", f);
 	}
 
 	{
-		pair<int, int> ind(28, 1);
-		string formula = "R*S/po";
-		vector<string> val = { "L", "L", "R", "S", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину проводника по удельному сопротивлению вещества, сопртивлению и площади поперечного сечения проводника";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(28, 1);
+		varNameInd = { "iv32", "iv37", "iv0", "iv5" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "L=R*S/po", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину проводника по удельному сопротивлению вещества, сопртивлению и площади поперечного сечения проводника", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if81", f);
 	}
 
 	{
-		pair<int, int> ind(28, 2);
-		string formula = "po*L/R";
-		vector<string> val = { "S", "L", "R", "S", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить площадь поперечного сечения проводника по удельному сопротивлению вещества, длине проводника и сопротивлению";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(28, 2);
+		varNameInd = { "iv0", "iv5", "iv32", "iv37" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "S=po*L/R", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить площадь поперечного сечения проводника по удельному сопротивлению вещества, длине проводника и сопротивлению", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if82", f);
 	}
 
 	{
-		pair<int, int> ind(28, 3);
-		string formula = "R*S/L";
-		vector<string> val = { "po", "L", "R", "S", "po" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить удельное сопротивление вещества по сопротивлению, длине проводника и площади его поперечного сечения";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(28, 3);
+		varNameInd = { "iv5", "iv37", "iv0", "iv32" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "po=R*S/L", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить удельное сопротивление вещества по сопротивлению, длине проводника и площади его поперечного сечения", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if83", f);
 	}
 
 	{
-		pair<int, int> ind(29, 0);
-		string formula = "I*t";
-		vector<string> val = { "q", "I", "q", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить заряд по силе тока и времени, за которое этот заряд протекает по проводнику";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(29, 0);
+		varNameInd = { "iv30", "iv36", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q=I*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить заряд по силе тока и времени, за которое этот заряд протекает по проводнику", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if84", f);
 	}
 
 	{
-		pair<int, int> ind(29, 1);
-		string formula = "q/t";
-		vector<string> val = { "I", "I", "q", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу тока по заряду и времени, за которое этот заряд протекает по проводнику";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(29, 1);
+		varNameInd = { "iv36", "iv30", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "I=q/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу тока по заряду и времени, за которое этот заряд протекает по проводнику", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if85", f);
 	}
 
 	{
-		pair<int, int> ind(29, 2);
-		string formula = "q/I";
-		vector<string> val = { "t", "I", "q", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время, за которое заряд протекает по проводнику по силе тока и заряду";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(29, 2);
+		varNameInd = { "iv1", "iv30", "iv36" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "t=q/I", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время, за которое заряд протекает по проводнику по силе тока и заряду", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if86", f);
 	}
 
 	{
-		pair<int, int> ind(30, 0);
-		string formula = "U*q";
-		vector<string> val = { "A", "A", "U", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу электрического тока по напряжению на концах участка и заряду";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(30, 0);
+		varNameInd = { "iv19", "iv38", "iv30" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "A=U*q", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу электрического тока по напряжению на концах участка и заряду", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if87", f);
 	}
 
 	{
-		pair<int, int> ind(30, 1);
-		string formula = "A/q";
-		vector<string> val = { "U", "A", "U", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряжение на концах участка по работе электрического тока и заряду";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(30, 1);
+		varNameInd = { "iv38", "iv19", "iv30" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=A/q", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряжение на концах участка по работе электрического тока и заряду", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if88", f);
 	}
 
 	{
-		pair<int, int> ind(30, 2);
-		string formula = "A/U";
-		vector<string> val = { "q", "A", "U", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить заряд по напряжению на концах участка и работе электрического тока";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(30, 2);
+		varNameInd = { "iv30", "iv19", "iv38" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q=A/U", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить заряд по напряжению на концах участка и работе электрического тока", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if89", f);
 	}
 
 	{
-		pair<int, int> ind(31, 0);
-		string formula = "U*I*t";
-		vector<string> val = { "A", "A", "I", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу электрического тока по напряжению на концах участка, силе тока и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(31, 0);
+		varNameInd = { "iv19", "iv38", "iv36", "iv1" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "A=U*I*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу электрического тока по напряжению на концах участка, силе тока и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if90", f);
 	}
 
 	{
-		pair<int, int> ind(31, 1);
-		string formula = "A/(I*t)";
-		vector<string> val = { "U", "A", "I", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряжение на концах участка по работе электрического тока, силе тока и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(31, 1);
+		varNameInd = { "iv38", "iv19", "iv36", "iv1" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=A/(I*t)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряжение на концах участка по работе электрического тока, силе тока и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if91", f);
 	}
 
 	{
-		pair<int, int> ind(31, 2);
-		string formula = "A/(U*t)";
-		vector<string> val = { "I", "A", "I", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу тока по работе электрического тока, напряжению на концах участка и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(31, 2);
+		varNameInd = { "iv36", "iv19", "iv38", "iv1" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "I=A/(U*t)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу тока по работе электрического тока, напряжению на концах участка и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if92", f);
 	}
 
 	{
-		pair<int, int> ind(31, 2);
-		string formula = "A/(U*I)";
-		vector<string> val = { "t", "A", "I", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по работе электрического тока, напряжению на концах участка и силе тока";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(31, 2);
+		varNameInd = { "iv1", "iv19", "iv38", "iv36" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "t=A/(U*I)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по работе электрического тока, напряжению на концах участка и силе тока", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if93", f);
 	}
 
 	{
-		pair<int, int> ind(32, 0);
-		string formula = "A/t";
-		vector<string> val = { "P", "A", "P", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить электрическую мощность по работе электрического тока и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(32, 0);
+		varNameInd = { "iv10", "iv19", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "P=A/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить электрическую мощность по работе электрического тока и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if94", f);
 	}
 
 	{
-		pair<int, int> ind(32, 1);
-		string formula = "P*t";
-		vector<string> val = { "A", "A", "P", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу электрического тока по электрической мощности и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(32, 1);
+		varNameInd = { "iv19", "iv10", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "A=P*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу электрического тока по электрической мощности и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if95", f);
 	}
 
 	{
-		pair<int, int> ind(32, 2);
-		string formula = "A/P";
-		vector<string> val = { "t", "A", "P", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по работе электрического тока и электрической мощности";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(32, 2);
+		varNameInd = { "iv1", "iv19", "iv10" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "t=A/P", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по работе электрического тока и электрической мощности", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if96", f);
 	}
 
 	{
-		pair<int, int> ind(33, 0);
-		string formula = "U*I";
-		vector<string> val = { "P", "I", "P", "U" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить электрическую мощность по напряжению на концах участка и силе тока";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(33, 0);
+		varNameInd = { "iv10", "iv38", "iv36" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "P=U*I", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить электрическую мощность по напряжению на концах участка и силе тока", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if97", f);
 	}
 
 	{
-		pair<int, int> ind(33, 1);
-		string formula = "P/I";
-		vector<string> val = { "U", "I", "P", "U" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряжение на концах участка по электрической мощности и силе тока";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(33, 1);
+		varNameInd = { "iv38", "iv10", "iv36" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=P/I", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряжение на концах участка по электрической мощности и силе тока", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if98", f);
 	}
 
 	{
-		pair<int, int> ind(33, 2);
-		string formula = "P/U";
-		vector<string> val = { "I", "I", "P", "U" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу тока по напряжению на концах участка и электрической мощности";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(33, 2);
+		varNameInd = { "iv36", "iv10", "iv38" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "I=P/U", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу тока по напряжению на концах участка и электрической мощности", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if99", f);
 	}
 
 	{
-		pair<int, int> ind(34, 0);
-		string formula = "U*U/R";
-		vector<string> val = { "P", "P", "R", "U" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить электрическую мощность по напряжению на концах участка и сопротивлению";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(34, 0);
+		varNameInd = { "iv10", "iv38", "iv38", "iv37" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "P=U*U/R", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить электрическую мощность по напряжению на концах участка и сопротивлению", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if100", f);
 	}
 
 	{
-		pair<int, int> ind(34, 1);
-		string formula = "P/(U*U)";
-		vector<string> val = { "R", "P", "R", "U" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить сопротивление по электрической мощности и напряжению на концах участка";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(34, 1);
+		varNameInd = { "iv37", "iv10", "iv38", "iv38" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "R=P/(U*U)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить сопротивление по электрической мощности и напряжению на концах участка", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if101", f);
 	}
 
 	{
-		pair<int, int> ind(34, 2);
-		string formula = "sqrt(P/R)";
-		vector<string> val = { "U", "P", "R", "U" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряжение на концах участка по электрической мощности и сопротивлению";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(34, 2);
+		varNameInd = { "iv38", "iv10", "iv37" };
+		varInd = { 0, 4, 6 };
+		opNameInd = { "io7", "io9", "io4", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=sqrt(P/R)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряжение на концах участка по электрической мощности и сопротивлению", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if102", f);
 	}
 
 	{
-		pair<int, int> ind(35, 0);
-		string formula = "I*I*R";
-		vector<string> val = { "P", "I", "P", "R" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить электрическую мощность по силе тока и сопротивлению";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(35, 0);
+		varNameInd = { "iv10", "iv36", "iv36", "iv37" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "P=I*I*R", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить электрическую мощность по силе тока и сопротивлению", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if103", f);
 	}
 
 	{
-		pair<int, int> ind(35, 1);
-		string formula = "P/(I*I)";
-		vector<string> val = { "R", "I", "P", "R" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить сопротивление по электрической мощности по силе тока";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(35, 1);
+		varNameInd = { "iv37", "iv10", "iv36", "iv36" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "R=P/(I*I)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить сопротивление по электрической мощности по силе тока", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if104", f);
 	}
 
 	{
-		pair<int, int> ind(35, 2);
-		string formula = "sqrt(P/R)";
-		vector<string> val = { "I", "I", "P", "R" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу тока по электрической мощности и сопротивлению";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(35, 2);
+		varNameInd = { "iv36", "iv10", "iv37" };
+		varInd = { 0, 4, 6 };
+		opNameInd = { "io7", "io9", "io4", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "I=sqrt(P/R)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу тока по электрической мощности и сопротивлению", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if105", f);
 	}
 
 	{
-		pair<int, int> ind(36, 0);
-		string formula = "P*t";
-		vector<string> val = { "Q", "P", "Q", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кол-во теплоты по электрической мощности и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(36, 0);
+		varNameInd = { "iv27", "iv10", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "Q=P*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кол-во теплоты по электрической мощности и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if106", f);
 	}
 
 	{
-		pair<int, int> ind(36, 1);
-		string formula = "Q/t";
-		vector<string> val = { "P", "P", "Q", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить электрическую мощность по кол-ву теплоты и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(36, 1);
+		varNameInd = { "iv10", "iv27", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "P=Q/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить электрическую мощность по кол-ву теплоты и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if107", f);
 	}
 
 	{
-		pair<int, int> ind(36, 2);
-		string formula = "Q/P";
-		vector<string> val = { "t", "P", "Q", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по кол-ву теплоты и электрической мощности";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(36, 2);
+		varNameInd = { "iv1", "iv27", "iv10" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "t=Q/P", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по кол-ву теплоты и электрической мощности", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if108", f);
 	}
 
 	{
-		pair<int, int> ind(37, 0);
-		string formula = "I*I*R*t";
-		vector<string> val = { "Q", "I", "Q", "R", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кол-во теплоты по силе тока, сопротивлению и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(37, 0);
+		varNameInd = { "iv27", "iv36", "iv36", "iv37", "iv1" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io2" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "Q=I*I*R*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кол-во теплоты по силе тока, сопротивлению и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if109", f);
 	}
 
 	{
-		pair<int, int> ind(37, 1);
-		string formula = "sqrt(Q/(R*t))";
-		vector<string> val = { "I", "I", "Q", "R", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу тока по кол-ву теплоты, сопротивлению и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(37, 1);
+		varNameInd = { "iv36", "iv27", "iv37", "iv1" };
+		varInd = { 0, 4, 7, 9 };
+		opNameInd = { "io7", "io9", "io4", "io3", "io4", "io2", "io5", "io5" };
+		opInd = { 1, 2, 3, 5, 6, 8, 10, 11 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "I=sqrt(Q/(R*t))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу тока по кол-ву теплоты, сопротивлению и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if110", f);
 	}
 
 	{
-		pair<int, int> ind(37, 2);
-		string formula = "Q/(I*I*t)";
-		vector<string> val = { "R", "I", "Q", "R", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить сопротивление по кол-ву теплоты, силе тока и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(37, 2);
+		varNameInd = { "iv37", "iv27", "iv36", "iv36", "iv1" };
+		varInd = { 0, 2, 5, 7, 9 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "R=Q/(I*I*t)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить сопротивление по кол-ву теплоты, силе тока и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if111", f);
 	}
 
 	{
-		pair<int, int> ind(37, 3);
-		string formula = "Q/(I*I*R)";
-		vector<string> val = { "t", "I", "Q", "R", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по кол-ву теплоты, силе тока и сопротивлению";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(37, 3);
+		varNameInd = { "iv1", "iv27", "iv36", "iv36", "iv37" };
+		varInd = { 0, 2, 5, 7, 9 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "t=Q/(I*I*R)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по кол-ву теплоты, силе тока и сопротивлению", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if112", f);
 	}
 
 	{
-		pair<int, int> ind(38, 0);
-		string formula = "U*I*t";
-		vector<string> val = { "Q", "I", "Q", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кол-во теплоты по напряжению на концах участка, силе тока и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(38, 0);
+		varNameInd = { "iv27", "iv38", "iv36", "iv1" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "Q=U*I*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кол-во теплоты по напряжению на концах участка, силе тока и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if113", f);
 	}
 
 	{
-		pair<int, int> ind(38, 1);
-		string formula = "Q/(I*t)";
-		vector<string> val = { "U", "I", "Q", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряжение на концах участка по кол-ву теплоты, силе тока и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(38, 1);
+		varNameInd = { "iv38", "iv27", "iv36", "iv1" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=Q/(I*t)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряжение на концах участка по кол-ву теплоты, силе тока и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if114", f);
 	}
 
 	{
-		pair<int, int> ind(38, 2);
-		string formula = "Q/(U*t)";
-		vector<string> val = { "I", "I", "Q", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу тока по кол-ву теплоты, напряжению на концах участка и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(38, 2);
+		varNameInd = { "iv36", "iv27", "iv38", "iv1" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "I=Q/(U*t)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу тока по кол-ву теплоты, напряжению на концах участка и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if115", f);
 	}
 
 	{
-		pair<int, int> ind(38, 3);
-		string formula = "Q/(U*I)";
-		vector<string> val = { "t", "I", "Q", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по кол-ву теплоты, напряжению на концах участка и силе тока";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(38, 3);
+		varNameInd = { "iv1", "iv27", "iv38", "iv36" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "t=Q/(U*I)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по кол-ву теплоты, напряжению на концах участка и силе тока", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if116", f);
 	}
 
 	{
-		pair<int, int> ind(39, 0);
-		string formula = "U*U*t/R";
-		vector<string> val = { "Q", "Q", "R", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить кол-во теплоты по напряжению на концах участка, сопротивлению и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(39, 0);
+		varNameInd = { "iv27", "iv38", "iv38", "iv1", "iv37" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "Q=U*U*t/R", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить кол-во теплоты по напряжению на концах участка, сопротивлению и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if117", f);
 	}
 
 	{
-		pair<int, int> ind(39, 1);
-		string formula = "sqrt(Q*R/t)";
-		vector<string> val = { "U", "Q", "R", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряжение на концах участка по кол-ву теплоты, сопротивлению и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(39, 1);
+		varNameInd = { "iv38", "iv27", "iv37", "iv1" };
+		varInd = { 0, 4, 6, 8 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=sqrt(Q*R/t)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряжение на концах участка по кол-ву теплоты, сопротивлению и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if118", f);
 	}
 
 	{
-		pair<int, int> ind(39, 2);
-		string formula = "U*U*t/Q";
-		vector<string> val = { "R", "Q", "R", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить сопротивление по кол-ву теплоты, напряжению на концах участка и времени";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(39, 2);
+		varNameInd = { "iv37", "iv38", "iv38", "iv1", "iv27" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "R=U*U*t/Q", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить сопротивление по кол-ву теплоты, напряжению на концах участка и времени", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if119", f);
 	}
 
 	{
-		pair<int, int> ind(39, 3);
-		string formula = "Q*R/(U*U)";
-		vector<string> val = { "t", "Q", "R", "U", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по кол-ву теплоты, напряжению на концах участка и сопротивлению";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(39, 3);
+		varNameInd = { "iv1", "iv27", "iv37", "iv38", "iv38" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "t=Q*R/(U*U)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по кол-ву теплоты, напряжению на концах участка и сопротивлению", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if120", f);
 	}
 
 	{
-		pair<int, int> ind(40, 0);
-		string formula = "c/v";
-		vector<string> val = { "n", "c", "n", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить абсолютный показатель преломления вещества по скорости света в вакууме и скорости света в данной среде";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(40, 0);
+		varNameInd = { "iv24", "iv28", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "n=c/v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить абсолютный показатель преломления вещества по скорости света в вакууме и скорости света в данной среде", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if121", f);
 	}
 
 	{
-		pair<int, int> ind(40, 1);
-		string formula = "c/n";
-		vector<string> val = { "v", "c", "n", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость света в данной среде по абсолютному показателю преломления вещества и скорости света в вакууме";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(40, 1);
+		varNameInd = { "iv2", "iv28", "iv24" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "v=c/n", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость света в данной среде по абсолютному показателю преломления вещества и скорости света в вакууме", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if122", f);
 	}
 
 	{
-		pair<int, int> ind(41, 0);
-		string formula = "1/F";
-		vector<string> val = { "D", "D", "F" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить оптическую силу линзы по фокусному расстоянию линзы";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(41, 0);
+		varNameInd = { "iv39", "iv6" };
+		varInd = { 0, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "D=1/F", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить оптическую силу линзы по фокусному расстоянию линзы", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if123", f);
 	}
 
 	{
-		pair<int, int> ind(41, 1);
-		string formula = "1/D";
-		vector<string> val = { "F", "D", "F" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить фокусное расстояние линзы по оптической силе линзы";
-		string tag_cl = "#Class8";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(41, 1);
+		varNameInd = { "iv6", "iv39" };
+		varInd = { 0, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "F=1/D", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить фокусное расстояние линзы по оптической силе линзы", "#Class8", tagLocation, true, dbVars);
 		form_.emplace("if124", f);
 	}
 
 	{
-		pair<int, int> ind(42, 0);
-		string formula = "x2-x1";
-		vector<string> val = { "Sx", "Sx", "x1", "x2" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить перемещение по начальной и конечной координатам";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(42, 0);
+		varNameInd = { "iv40", "iv42", "iv41" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io1" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "Sx=x2-x1", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить перемещение по начальной и конечной координатам", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if125", f);
 	}
 
 	{
-		pair<int, int> ind(42, 1);
-		string formula = "Sx+x1";
-		vector<string> val = { "x2", "Sx", "x1", "x2" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить конечную координату по перемещению и начальной координате";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(42, 1);
+		varNameInd = { "iv42", "iv40", "iv41" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io0" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x2=Sx+x1", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить конечную координату по перемещению и начальной координате", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if126", f);
 	}
 
 	{
-		pair<int, int> ind(42, 2);
-		string formula = "x2-Sx";
-		vector<string> val = { "x1", "Sx", "x1", "x2" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить начальную координату по перемещению и конечной координате";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(42, 2);
+		varNameInd = { "iv41", "iv42", "iv40" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io1" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x1=x2-Sx", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить начальную координату по перемещению и конечной координате", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if127", f);
 	}
 
 	{
-		pair<int, int> ind(43, 0);
-		string formula = "x0+vx*t";
-		vector<string> val = { "x", "t", "vx", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить конечную координату по начальной координате, скорости и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(43, 0);
+		varNameInd = { "iv9", "iv44", "iv43", "iv1" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io0", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x=x0+vx*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить конечную координату по начальной координате, скорости и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if128", f);
 	}
 
 	{
-		pair<int, int> ind(43, 1);
-		string formula = "x-vx*t";
-		vector<string> val = { "x0", "t", "vx", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить начальную координату по конечной координате, скорости и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(43, 1);
+		varNameInd = { "iv44", "iv9", "iv43", "iv1" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io1", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x0=x-vx*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить начальную координату по конечной координате, скорости и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if129", f);
 	}
 
 	{
-		pair<int, int> ind(43, 2);
-		string formula = "(x-x0)/t";
-		vector<string> val = { "vx", "t", "vx", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость по конечной и начальной координатам и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(43, 2);
+		varNameInd = { "iv43", "iv9", "iv44", "iv1" };
+		varInd = { 0, 3, 5, 8 };
+		opNameInd = { "io7", "io4", "io1", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "vx=(x-x0)/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость по конечной и начальной координатам и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if130", f);
 	}
 
 	{
-		pair<int, int> ind(43, 3);
-		string formula = "(x-x0)/vx";
-		vector<string> val = { "t", "t", "vx", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по конечной и начальной координатам и скорости";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(43, 3);
+		varNameInd = { "iv1", "iv9", "iv44", "iv43" };
+		varInd = { 0, 3, 5, 8 };
+		opNameInd = { "io7", "io4", "io1", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "t=(x-x0)/vx", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по конечной и начальной координатам и скорости", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if131", f);
 	}
 
 	{
-		pair<int, int> ind(44, 0);
-		string formula = "~v0+a*t";
-		vector<string> val = { "v", "a", "t", "v", "~v0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить конечную скорость по начальной скорости, ускорению и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(44, 0);
+		varNameInd = { "iv2", "iv45", "iv16", "iv1" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io0", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=~v0+a*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить конечную скорость по начальной скорости, ускорению и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if132", f);
 	}
 
 	{
-		pair<int, int> ind(44, 1);
-		string formula = "v-a*t";
-		vector<string> val = { "~v0", "a", "t", "v", "~v0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить начальную скорость по конечной скорости, ускорению и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(44, 1);
+		varNameInd = { "iv45", "iv2", "iv16", "iv1" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io1", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "~v0=v-a*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить начальную скорость по конечной скорости, ускорению и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if133", f);
 	}
 
 	{
-		pair<int, int> ind(44, 2);
-		string formula = "(v-~v0)/t";
-		vector<string> val = { "a", "a", "t", "v", "~v0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить ускорение по конечной и начальной скоростям и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(44, 2);
+		varNameInd = { "iv16", "iv2", "iv45", "iv1" };
+		varInd = { 0, 3, 5, 8 };
+		opNameInd = { "io7", "io4", "io1", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "a=(v-~v0)/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить ускорение по конечной и начальной скоростям и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if134", f);
 	}
 
 	{
-		pair<int, int> ind(44, 3);
-		string formula = "(v-~v0)/a";
-		vector<string> val = { "t", "a", "t", "v", "~v0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по конечной и начальной скоростям и ускорению";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(44, 3);
+		varNameInd = { "iv1", "iv2", "iv45", "iv16" };
+		varInd = { 0, 3, 5, 8 };
+		opNameInd = { "io7", "io4", "io1", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "t=(v-~v0)/a", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по конечной и начальной скоростям и ускорению", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if135", f);
 	}
 
 	{
-		pair<int, int> ind(45, 0);
-		string formula = "x0+v0*t+(a*t*t)/2";
-		vector<string> val = { "x", "a", "t", "v0", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить конечную координату по начальной координате, начальной скорости, ускорению и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(45, 0);
+		varNameInd = { "iv9", "iv44", "iv46", "iv1", "iv16", "iv1", "iv1" };
+		varInd = { 0, 2, 4, 6, 9, 11, 13 };
+		opNameInd = { "io7", "io0", "io2", "io0", "io4", "io2", "io2", "io5", "io3" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12, 14, 15 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x=x0+v0*t+(a*t*t)/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить конечную координату по начальной координате, начальной скорости, ускорению и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if136", f);
 	}
 
 	{
-		pair<int, int> ind(45, 1);
-		string formula = "x-v0*t-(a*t*t)/2";
-		vector<string> val = { "x0", "a", "t", "v0", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить начальную координату по конечной координате, начальной скорости, ускорению и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(45, 1);
+		varNameInd = { "iv44", "iv9", "iv46", "iv1", "iv16", "iv1", "iv1" };
+		varInd = { 0, 2, 4, 6, 9, 11, 13 };
+		opNameInd = { "io7", "io1", "io2", "io1", "io4", "io2", "io2", "io5", "io3" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12, 14, 15 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x0=x-v0*t-(a*t*t)/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить начальную координату по конечной координате, начальной скорости, ускорению и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if137", f);
 	}
 
 	{
-		pair<int, int> ind(45, 2);
-		string formula = "(x-x0-(a*t*t)/2)/t";
-		vector<string> val = { "v0", "a", "t", "v0", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить начальную скорость по конечной и начальной координатам, ускорению и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(45, 2);
+		varNameInd = { "iv46", "iv9", "iv44", "iv16", "iv1", "iv1", "iv1" };
+		varInd = { 0, 3, 5, 8, 10, 12, 18 };
+		opNameInd = { "io7", "io4", "io1", "io1", "io4", "io2", "io2", "io5", "io3", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 7, 9, 11, 13, 14, 16, 17 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v0=(x-x0-(a*t*t)/2)/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить начальную скорость по конечной и начальной координатам, ускорению и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if138", f);
 	}
 
 	{
-		pair<int, int> ind(45, 3);
-		string formula = "2*(x-x0-v0t)/(t*t)";
-		vector<string> val = { "a", "a", "t", "v0", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить ускорение по начальной скорости, конечной и начальной координатам и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(45, 3);
+		varNameInd = { "iv16", "iv9", "iv44", "iv46", "iv1", "iv1", "iv1" };
+		varInd = { 0, 5, 7, 9, 10, 14, 16 };
+		opNameInd = { "io7", "io2", "io4", "io1", "io1", "io5", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 11, 12, 13, 15, 17 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "a=2*(x-x0-v0t)/(t*t)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить ускорение по начальной скорости, конечной и начальной координатам и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if139", f);
 	}
 
 	{
-		pair<int, int> ind(46, 0);
-		string formula = "m*a";
-		vector<string> val = { "F", "F", "a", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу, действующую на тело по его массе и ускорению";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(46, 0);
+		varNameInd = { "iv6", "iv4", "iv16" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=m*a", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу, действующую на тело по его массе и ускорению", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if140", f);
 	}
 
 	{
-		pair<int, int> ind(46, 1);
-		string formula = "F/a";
-		vector<string> val = { "m", "F", "a", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела по силе, действующей на него и его ускорению";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(46, 1);
+		varNameInd = { "iv4", "iv6", "iv16" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=F/a", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела по силе, действующей на него и его ускорению", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if141", f);
 	}
 
 	{
-		pair<int, int> ind(46, 2);
-		string formula = "F/m";
-		vector<string> val = { "a", "F", "a", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить ускорение тела по силе, действующей на него и его массе";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(46, 2);
+		varNameInd = { "iv16", "iv6", "iv4" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "a=F/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить ускорение тела по силе, действующей на него и его массе", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if142", f);
 	}
 
 	{
-		pair<int, int> ind(47, 0);
-		string formula = "(g*t*t)/2";
-		vector<string> val = { "h", "g", "h", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить высоту, с которой падает тело по времени и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(47, 0);
+		varNameInd = { "iv14", "iv7", "iv1", "iv1" };
+		varInd = { 0, 3, 5, 7 };
+		opNameInd = { "io7", "io4", "io2", "io2", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 8, 9 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "h=(g*t*t)/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить высоту, с которой падает тело по времени и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if143", f);
 	}
 
 	{
-		pair<int, int> ind(47, 1);
-		string formula = "sqrt(2*h/g)";
-		vector<string> val = { "t", "g", "h", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время падения по высоте, с которой падает тело и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(47, 1);
+		varNameInd = { "iv1", "iv14", "iv7" };
+		varInd = { 0, 6, 8 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "t=sqrt(2*h/g)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время падения по высоте, с которой падает тело и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if144", f);
 	}
 
 	{
-		pair<int, int> ind(48, 0);
-		string formula = "v0*t-(g*t*t)/2";
-		vector<string> val = { "h", "g", "h", "t", "v0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить высоту при движении вверх по начальной скорости, времени и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(48, 0);
+		varNameInd = { "iv14", "iv46", "iv1", "iv7", "iv1", "iv1" };
+		varInd = { 0, 2, 4, 7, 9, 11 };
+		opNameInd = { "io7", "io2", "io1", "io4", "io2", "io2", "io5", "io3" };
+		opInd = { 1, 3, 5, 6, 8, 10, 12, 13 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "h=v0*t-(g*t*t)/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить высоту при движении вверх по начальной скорости, времени и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if145", f);
 	}
 
 	{
-		pair<int, int> ind(48, 1);
-		string formula = "(h+(g*t*t)/2)/t";
-		vector<string> val = { "v0", "g", "h", "t", "v0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить начальную скорость при движении вверх по высоте, времени и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(48, 1);
+		varNameInd = { "iv46", "iv14", "iv7", "iv1", "iv1", "iv1" };
+		varInd = { 0, 3, 6, 8, 10, 16 };
+		opNameInd = { "io7", "io4", "io0", "io4", "io2", "io2", "io5", "io3", "io5", "io3" };
+		opInd = { 1, 2, 4, 5, 7, 9, 11, 12, 14, 15 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v0=(h+(g*t*t)/2)/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить начальную скорость при движении вверх по высоте, времени и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if146", f);
 	}
 
 	{
-		pair<int, int> ind(49, 0);
-		string formula = "m*(g+a)";
-		vector<string> val = { "P", "P", "a", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить вес тела при движении вверх по массе тела, его ускорению и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(49, 0);
+		varNameInd = { "iv10", "iv4", "iv7", "iv16" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io2", "io4", "io0", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "P=m*(g+a)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить вес тела при движении вверх по массе тела, его ускорению и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if147", f);
 	}
 
 	{
-		pair<int, int> ind(49, 1);
-		string formula = "P/(g+a)";
-		vector<string> val = { "m", "P", "a", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела при движении вверх по весу тела, его ускорению и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(49, 1);
+		varNameInd = { "iv4", "iv10", "iv7", "iv16" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io0", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=P/(g+a)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела при движении вверх по весу тела, его ускорению и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if148", f);
 	}
 
 	{
-		pair<int, int> ind(49, 2);
-		string formula = "P/m-g";
-		vector<string> val = { "a", "P", "a", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить ускорение тела при движении вверх по весу тела, его массе и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(49, 2);
+		varNameInd = { "iv16", "iv10", "iv4", "iv7" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io3", "io1" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "a=P/m-g", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить ускорение тела при движении вверх по весу тела, его массе и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if149", f);
 	}
 
 	{
-		pair<int, int> ind(50, 0);
-		string formula = "m*(g-a)";
-		vector<string> val = { "P", "P", "a", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить вес тела при движении вниз по массе тела, его ускорению и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(50, 0);
+		varNameInd = { "iv10", "iv4", "iv7", "iv16" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io2", "io4", "io1", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "P=m*(g-a)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить вес тела при движении вниз по массе тела, его ускорению и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if150", f);
 	}
 
 	{
-		pair<int, int> ind(50, 1);
-		string formula = "P/(g-a)";
-		vector<string> val = { "m", "P", "a", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела при движении вниз по весу тела, его ускорению и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(50, 1);
+		varNameInd = { "iv4", "iv10", "iv7", "iv16" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io1", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=P/(g-a)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела при движении вниз по весу тела, его ускорению и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if151", f);
 	}
 
 	{
-		pair<int, int> ind(50, 2);
-		string formula = "g-P/m";
-		vector<string> val = { "a", "P", "a", "g", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить ускорение тела при движении вниз по весу тела, его массе и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(50, 2);
+		varNameInd = { "iv16", "iv7", "iv10", "iv4" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io1", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "a=g-P/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить ускорение тела при движении вниз по весу тела, его массе и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if152", f);
 	}
 
 	{
-		pair<int, int> ind(51, 0);
-		string formula = "G*m1*m2/(r*r)";
-		vector<string> val = { "F", "F", "G", "m1", "m2", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу притяжения по масссе тел, расстоянию между ними и гравитационной постоянной";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(51, 0);
+		varNameInd = { "iv6", "iv47", "iv48", "iv49", "iv50", "iv50" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=G*m1*m2/(r*r)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу притяжения по масссе тел, расстоянию между ними и гравитационной постоянной", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if153", f);
 	}
 
 	{
-		pair<int, int> ind(51, 1);
-		string formula = "F*r*r/(G*m2)";
-		vector<string> val = { "m1", "F", "G", "m1", "m2", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу первого тела по силе притяжения, масссе второго тела, расстоянию между ними и гравитационной постоянной";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(51, 1);
+		varNameInd = { "iv48", "iv6", "iv50", "iv50", "iv47", "iv49" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m1=F*r*r/(G*m2)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу первого тела по силе притяжения, масссе второго тела, расстоянию между ними и гравитационной постоянной", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if154", f);
 	}
 
 	{
-		pair<int, int> ind(51, 2);
-		string formula = "F*r*r/(G*m1)";
-		vector<string> val = { "m2", "F", "G", "m1", "m2", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу второго тела по силе притяжения, масссе первого тела, расстоянию между ними и гравитационной постоянной";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(51, 2);
+		varNameInd = { "iv49", "iv6", "iv50", "iv50", "iv47", "iv48" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m2=F*r*r/(G*m1)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу второго тела по силе притяжения, масссе первого тела, расстоянию между ними и гравитационной постоянной", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if155", f);
 	}
 
 	{
-		pair<int, int> ind(51, 3);
-		string formula = "G*m1*m2/F";
-		vector<string> val = { "r", "F", "G", "m1", "m2", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить рассстояние между телами по силе притяжения, масссе тел и гравитационной постоянной";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(51, 3);
+		varNameInd = { "iv50", "iv47", "iv48", "iv49", "iv6" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "r=G*m1*m2/F", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить рассстояние между телами по силе притяжения, масссе тел и гравитационной постоянной", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if156", f);
 	}
 
 	{
-		pair<int, int> ind(52, 0);
-		string formula = "G*M/(R*R)";
-		vector<string> val = { "g", "G", "M", "R", "g" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить ускорение свободного падения по массе и радиусу планеты и гравитационной постоянной";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(52, 0);
+		varNameInd = { "iv7", "iv47", "iv21", "iv37", "iv37" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "g=G*M/(R*R)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить ускорение свободного падения по массе и радиусу планеты и гравитационной постоянной", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if157", f);
 	}
 
 	{
-		pair<int, int> ind(52, 1);
-		string formula = "g*R*R/G";
-		vector<string> val = { "M", "G", "M", "R", "g" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу планеты по ускорению свободного падения, радиусу планеты и гравитационной постоянной";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(52, 1);
+		varNameInd = { "iv21", "iv7", "iv37", "iv37", "iv47" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "M=g*R*R/G", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу планеты по ускорению свободного падения, радиусу планеты и гравитационной постоянной", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if158", f);
 	}
 
 	{
-		pair<int, int> ind(52, 2);
-		string formula = "sqrt(G*M/g)";
-		vector<string> val = { "R", "G", "M", "R", "g" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить радиус планеты по ускорению свободного падения, массе планеты и гравитационной постоянной";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(52, 2);
+		varNameInd = { "iv37", "iv47", "iv21", "iv7" };
+		varInd = { 0, 4, 6, 8 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "R=sqrt(G*M/g)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить радиус планеты по ускорению свободного падения, массе планеты и гравитационной постоянной", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if159", f);
 	}
 
 	{
-		pair<int, int> ind(53, 0);
-		string formula = "G*M/(R+H)*(R+H)";
-		vector<string> val = { "g", "G", "H", "M", "R", "g" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить ускорение свободного падения по массе и радиусу Земли, высоте тела над Землей и гравитационной постоянной";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(53, 0);
+		varNameInd = { "iv7", "iv47", "iv21", "iv37", "iv51", "iv37", "iv51" };
+		varInd = { 0, 2, 4, 7, 9, 13, 15 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io0", "io5", "io2", "io4", "io0", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10, 11, 12, 14, 16 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "g=G*M/(R+H)*(R+H)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить ускорение свободного падения по массе и радиусу Земли, высоте тела над Землей и гравитационной постоянной", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if160", f);
 	}
 
 	{
-		pair<int, int> ind(54, 0);
-		string formula = "v*v/r";
-		vector<string> val = { "a", "a", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить центростремительное ускорение по скорости и радиусу окружности";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(54, 0);
+		varNameInd = { "iv16", "iv2", "iv2", "iv50" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "a=v*v/r", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить центростремительное ускорение по скорости и радиусу окружности", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if161", f);
 	}
 
 	{
-		pair<int, int> ind(54, 1);
-		string formula = "sqrt(a*r)";
-		vector<string> val = { "v", "a", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость по центростремительному ускорению и радиусу окружности";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(54, 1);
+		varNameInd = { "iv2", "iv16", "iv50" };
+		varInd = { 0, 4, 6 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io5" };
+		opInd = { 1, 2, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=sqrt(a*r)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость по центростремительному ускорению и радиусу окружности", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if162", f);
 	}
 
 	{
-		pair<int, int> ind(54, 2);
-		string formula = "v*v/a";
-		vector<string> val = { "r", "a", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить радиус окружности по центростремительному ускорению и скорости";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(54, 2);
+		varNameInd = { "iv50", "iv2", "iv2", "iv16" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "r=v*v/a", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить радиус окружности по центростремительному ускорению и скорости", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if163", f);
 	}
 
 	{
-		pair<int, int> ind(55, 0);
-		string formula = "1/v";
-		vector<string> val = { "T", "T", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период движения по оркужности по частоте вращения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(55, 0);
+		varNameInd = { "iv52", "iv2" };
+		varInd = { 0, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "T=1/v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период движения по оркужности по частоте вращения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if164", f);
 	}
 
 	{
-		pair<int, int> ind(55, 1);
-		string formula = "1/T";
-		vector<string> val = { "v", "T", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить частоту вращения по периоду движения по окружности";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(55, 1);
+		varNameInd = { "iv2", "iv52" };
+		varInd = { 0, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=1/T", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить частоту вращения по периоду движения по окружности", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if165", f);
 	}
 
 	{
-		pair<int, int> ind(56, 0);
-		string formula = "2*pi*r/v";
-		vector<string> val = { "T", "T", "pi", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период движения по окружности по радиусу окружности и частоте вращения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(56, 0);
+		varNameInd = { "iv52", "iv53", "iv50", "iv2" };
+		varInd = { 0, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "T=2*pi*r/v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период движения по окружности по радиусу окружности и частоте вращения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if166", f);
 	}
 
 	{
-		pair<int, int> ind(56, 1);
-		string formula = "T*v/(2*pi)";
-		vector<string> val = { "r", "T", "pi", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить радиус окружности по периоду движения по окружности и частоте вращения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(56, 1);
+		varNameInd = { "iv50", "iv52", "iv2", "iv53" };
+		varInd = { 0, 2, 4, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "r=T*v/(2*pi)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить радиус окружности по периоду движения по окружности и частоте вращения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if167", f);
 	}
 
 	{
-		pair<int, int> ind(56, 2);
-		string formula = "2*pi*r/T";
-		vector<string> val = { "v", "T", "pi", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить частоту вращения по периоду движения по окружности и радиусу окружности";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(56, 2);
+		varNameInd = { "iv2", "iv53", "iv50", "iv52" };
+		varInd = { 0, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=2*pi*r/T", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить частоту вращения по периоду движения по окружности и радиусу окружности", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if168", f);
 	}
 
 	{
-		pair<int, int> ind(57, 0);
-		string formula = "t/N";
-		vector<string> val = { "T", "N", "T", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период движения по окружности по времени и числу оборотов";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(57, 0);
+		varNameInd = { "iv52", "iv1", "iv20" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "T=t/N", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период движения по окружности по времени и числу оборотов", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if169", f);
 	}
 
 	{
-		pair<int, int> ind(57, 1);
-		string formula = "T*N";
-		vector<string> val = { "t", "N", "T", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по периоду движения по окружности и числу оборотов";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(57, 1);
+		varNameInd = { "iv1", "iv52", "iv20" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "t=T*N", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по периоду движения по окружности и числу оборотов", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if170", f);
 	}
 
 	{
-		pair<int, int> ind(57, 2);
-		string formula = "t/T";
-		vector<string> val = { "N", "N", "T", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить число оборотов по периоду движения по окружности и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(57, 2);
+		varNameInd = { "iv20", "iv1", "iv52" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "N=t/T", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить число оборотов по периоду движения по окружности и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if171", f);
 	}
 
 	{
-		pair<int, int> ind(58, 0);
-		string formula = "2*pi/T";
-		vector<string> val = { "w", "T", "pi", "w" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить угловую скорость по периоду вращения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(58, 0);
+		varNameInd = { "iv54", "iv53", "iv52" };
+		varInd = { 0, 4, 6 };
+		opNameInd = { "io7", "io2", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "w=2*pi/T", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить угловую скорость по периоду вращения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if172", f);
 	}
 
 	{
-		pair<int, int> ind(58, 1);
-		string formula = "2*pi/w";
-		vector<string> val = { "T", "T", "pi", "w" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период вращения по угловой скорости";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(58, 1);
+		varNameInd = { "iv52", "iv53", "iv54" };
+		varInd = { 0, 4, 6 };
+		opNameInd = { "io7", "io2", "io3" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "T=2*pi/w", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период вращения по угловой скорости", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if173", f);
 	}
 
 	{
-		pair<int, int> ind(59, 0);
-		string formula = "2*pi*v";
-		vector<string> val = { "w", "pi", "v", "w" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить угловую скорость по частоте вращения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(59, 0);
+		varNameInd = { "iv54", "iv53", "iv2" };
+		varInd = { 0, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "w=2*pi*v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить угловую скорость по частоте вращения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if174", f);
 	}
 
 	{
-		pair<int, int> ind(59, 1);
-		string formula = "w/(2*pi)";
-		vector<string> val = { "v", "pi", "v", "w" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить частоту вращения по угловой скорости";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(59, 1);
+		varNameInd = { "iv2", "iv54", "iv53" };
+		varInd = { 0, 2, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=w/(2*pi)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить частоту вращения по угловой скорости", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if175", f);
 	}
 
 	{
-		pair<int, int> ind(60, 0);
-		string formula = "v*r";
-		vector<string> val = { "w", "r", "v", "w" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить угловую скорость по линейной скорости и радиусу окружности";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(60, 0);
+		varNameInd = { "iv54", "iv2", "iv50" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "w=v*r", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить угловую скорость по линейной скорости и радиусу окружности", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if176", f);
 	}
 
 	{
-		pair<int, int> ind(60, 1);
-		string formula = "w/r";
-		vector<string> val = { "v", "r", "v", "w" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить линейную скорость по угловой скорости и радиусу окружности";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(60, 1);
+		varNameInd = { "iv2", "iv54", "iv50" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=w/r", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить линейную скорость по угловой скорости и радиусу окружности", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if177", f);
 	}
 
 	{
-		pair<int, int> ind(60, 2);
-		string formula = "w/v";
-		vector<string> val = { "r", "r", "v", "w" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить радиус окружности по угловой и линейной скоростям";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(60, 2);
+		varNameInd = { "iv50", "iv54", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "r=w/v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить радиус окружности по угловой и линейной скоростям", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if178", f);
 	}
 
 	{
-		pair<int, int> ind(61, 0);
-		string formula = "m*v";
-		vector<string> val = { "p", "m", "p", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить импульс тела по массе тела и скорости";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(61, 0);
+		varNameInd = { "iv13", "iv4", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "p=m*v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить импульс тела по массе тела и скорости", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if179", f);
 	}
 
 	{
-		pair<int, int> ind(61, 1);
-		string formula = "p/v";
-		vector<string> val = { "m", "m", "p", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу по импульсу тела и скорости";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(61, 1);
+		varNameInd = { "iv4", "iv13", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=p/v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу по импульсу тела и скорости", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if180", f);
 	}
 
 	{
-		pair<int, int> ind(61, 2);
-		string formula = "p/m";
-		vector<string> val = { "v", "m", "p", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость по массе и импульсу тела";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(61, 2);
+		varNameInd = { "iv2", "iv13", "iv4" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=p/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость по массе и импульсу тела", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if181", f);
 	}
 
 	{
-		pair<int, int> ind(62, 0);
-		string formula = "F*t";
-		vector<string> val = { "p", "F", "p", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить импульс силы по силе и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(62, 0);
+		varNameInd = { "iv13", "iv6", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "p=F*t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить импульс силы по силе и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if182", f);
 	}
 
 	{
-		pair<int, int> ind(62, 1);
-		string formula = "p/t";
-		vector<string> val = { "F", "F", "p", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу по импульсу силы и времени";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(62, 1);
+		varNameInd = { "iv6", "iv13", "iv1" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "F=p/t", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу по импульсу силы и времени", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if183", f);
 	}
 
 	{
-		pair<int, int> ind(62, 2);
-		string formula = "p/F";
-		vector<string> val = { "t", "F", "p", "t" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время по силе и импульсу силы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(62, 2);
+		varNameInd = { "iv1", "iv13", "iv6" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "t=p/F", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время по силе и импульсу силы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if184", f);
 	}
 
 	{
-		pair<int, int> ind(63, 0);
-		string formula = "x0*cos(w*t+fi0)";
-		vector<string> val = { "x", "fi0", "t", "w", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить смещение по амплитуде колебаний, циклической частоте, времени и начальной фазе";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(63, 0);
+		varNameInd = { "iv9", "iv44", "iv28", "iv54", "iv1", "iv55" };
+		varInd = { 0, 2, 5, 7, 9 };
+		opNameInd = { "io7", "io2", "io10", "io2", "io0", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x=x0*cos(w*t+fi0)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить смещение по амплитуде колебаний, циклической частоте, времени и начальной фазе", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if185", f);
 	}
 
 	{
-		pair<int, int> ind(63, 1);
-		string formula = "x/cos(w*t+fi0)";
-		vector<string> val = { "x0", "fi0", "t", "w", "x", "x0" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить амплитуду колебаний по смещению, циклической частоте, времени и начальной фазе";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(63, 1);
+		varNameInd = { "iv44", "iv9", "iv28", "iv54", "iv1", "iv55" };
+		varInd = { 0, 2, 5, 7, 9 };
+		opNameInd = { "io7", "io3", "io10", "io2", "io0", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x0=x/cos(w*t+fi0)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить амплитуду колебаний по смещению, циклической частоте, времени и начальной фазе", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if186", f);
 	}
 
 	{
-		pair<int, int> ind(64, 0);
-		string formula = "2*pi*sqrt(L/g)";
-		vector<string> val = { "T", "L", "T", "g", "pi" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период математического маятника по длине нити и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(64, 0);
+		varNameInd = { "iv52", "iv53", "iv32", "iv7" };
+		varInd = { 0, 4, 8, 10 };
+		opNameInd = { "io7", "io2", "io2", "io9", "io4", "io3", "io5" };
+		opInd = { 1, 3, 5, 6, 7, 9, 11 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "T=2*pi*sqrt(L/g)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период математического маятника по длине нити и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if187", f);
 	}
 
 	{
-		pair<int, int> ind(64, 1);
-		string formula = "g*T*T/(4*pi*pi)";
-		vector<string> val = { "L", "L", "T", "g", "pi" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину нити по периоду математического маятника и ускорению свободного падения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(64, 1);
+		varNameInd = { "iv32", "iv7", "iv52", "iv52", "iv53", "iv53" };
+		varInd = { 0, 2, 4, 6, 11, 13 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12, 14 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "L=g*T*T/(4*pi*pi)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину нити по периоду математического маятника и ускорению свободного падения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if188", f);
 	}
 
 	{
-		pair<int, int> ind(65, 0);
-		string formula = "2*pi*sqrt(m/k)";
-		vector<string> val = { "T", "T", "k", "m", "pi" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период пружинного маятника по массе груза и жесткости пружины";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(65, 0);
+		varNameInd = { "iv52", "iv53", "iv4", "iv8" };
+		varInd = { 0, 4, 8, 10 };
+		opNameInd = { "io7", "io2", "io2", "io9", "io4", "io3", "io5" };
+		opInd = { 1, 3, 5, 6, 7, 9, 11 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "T=2*pi*sqrt(m/k)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период пружинного маятника по массе груза и жесткости пружины", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if189", f);
 	}
 
 	{
-		pair<int, int> ind(65, 1);
-		string formula = "k*T*T/(4*pi*pi)";
-		vector<string> val = { "m", "T", "k", "m", "pi" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу груза по периоду пружинного маятника и жесткости пружины";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(65, 1);
+		varNameInd = { "iv4", "iv8", "iv52", "iv52", "iv53", "iv53" };
+		varInd = { 0, 2, 4, 6, 11, 13 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12, 14 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=k*T*T/(4*pi*pi)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу груза по периоду пружинного маятника и жесткости пружины", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if190", f);
 	}
 
 	{
-		pair<int, int> ind(65, 2);
-		string formula = "4*pi*pi*m/(T*T)";
-		vector<string> val = { "k", "T", "k", "m", "pi" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить жесткость пружины по периоду пружинного маятника и массе груза";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(65, 2);
+		varNameInd = { "iv8", "iv53", "iv53", "iv4", "iv52", "iv52" };
+		varInd = { 0, 4, 6, 8, 11, 13 };
+		opNameInd = { "io7", "io2", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 9, 10, 12, 14 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "k=4*pi*pi*m/(T*T)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить жесткость пружины по периоду пружинного маятника и массе груза", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if191", f);
 	}
 
 	{
-		pair<int, int> ind(66, 0);
-		string formula = "u*T";
-		vector<string> val = { "lambda", "T", "lambda", "u" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину волны по ее скорости и периоду";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(66, 0);
+		varNameInd = { "iv31", "iv56", "iv52" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "lambda=u*T", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину волны по ее скорости и периоду", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if192", f);
 	}
 
 	{
-		pair<int, int> ind(66, 1);
-		string formula = "lambda/T";
-		vector<string> val = { "u", "T", "lambda", "u" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость волны по ее длине и периоду";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(66, 1);
+		varNameInd = { "iv56", "iv31", "iv52" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "u=lambda/T", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость волны по ее длине и периоду", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if193", f);
 	}
 
 	{
-		pair<int, int> ind(66, 2);
-		string formula = "lambda/u";
-		vector<string> val = { "T", "T", "lambda", "u" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период по длине и скорости волны";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(66, 2);
+		varNameInd = { "iv52", "iv31", "iv56" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "T=lambda/u", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период по длине и скорости волны", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if194", f);
 	}
 
 	{
-		pair<int, int> ind(67, 0);
-		string formula = "u/v";
-		vector<string> val = { "lambda", "lambda", "u", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину волны по ее скорости и частоте";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(67, 0);
+		varNameInd = { "iv31", "iv56", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "lambda=u/v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину волны по ее скорости и частоте", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if195", f);
 	}
 
 	{
-		pair<int, int> ind(67, 1);
-		string formula = "lambda*v";
-		vector<string> val = { "u", "lambda", "u", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость волны по ее длине и частоте";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(67, 1);
+		varNameInd = { "iv56", "iv31", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "u=lambda*v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость волны по ее длине и частоте", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if196", f);
 	}
 
 	{
-		pair<int, int> ind(67, 2);
-		string formula = "u/lambda";
-		vector<string> val = { "v", "lambda", "u", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить частоту по длине и скорости волны";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(67, 2);
+		varNameInd = { "iv2", "iv56", "iv31" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=u/lambda", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить частоту по длине и скорости волны", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if197", f);
 	}
 
 	{
-		pair<int, int> ind(68, 0);
-		string formula = "B*I*L*sin(a)";
-		vector<string> val = { "F", "B", "F", "I", "L", "a" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу Ампера по магнитной индукции, силе тока, длине проводника и углу между вектором индукции магнитного поля и проводником";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(68, 0);
+		varNameInd = { "iv6", "iv57", "iv36", "iv32", "iv16" };
+		varInd = { 0, 2, 4, 6, 10 };
+		opNameInd = { "io7", "io2", "io2", "io2", "io11", "io4", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 9, 11 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "F=B*I*L*sin(a)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу Ампера по магнитной индукции, силе тока, длине проводника и углу между вектором индукции магнитного поля и проводником", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if198", f);
 	}
 
 	{
-		pair<int, int> ind(68, 1);
-		string formula = "F/(I*L*sin(a))";
-		vector<string> val = { "B", "B", "F", "I", "L", "a" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить магнитную индукцию по силе Ампера, силе тока, длине проводника и углу между вектором индукции магнитного поля и проводником";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(68, 1);
+		varNameInd = { "iv57", "iv6", "iv36", "iv32", "iv16" };
+		varInd = { 0, 2, 5, 7, 11 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io11", "io4", "io5", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 9, 10, 12, 13 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "B=F/(I*L*sin(a))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить магнитную индукцию по силе Ампера, силе тока, длине проводника и углу между вектором индукции магнитного поля и проводником", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if199", f);
 	}
 
 	{
-		pair<int, int> ind(68, 2);
-		string formula = "F/(B*L*sin(a))";
-		vector<string> val = { "I", "B", "F", "I", "L", "a" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу тока по магнитной индукции, силе Ампера, длине проводника и углу между вектором индукции магнитного поля и проводником";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(68, 2);
+		varNameInd = { "iv36", "iv6", "iv57", "iv32", "iv16" };
+		varInd = { 0, 2, 5, 7, 11 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io11", "io4", "io5", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 9, 10, 12, 13 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "I=F/(B*L*sin(a))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу тока по магнитной индукции, силе Ампера, длине проводника и углу между вектором индукции магнитного поля и проводником", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if200", f);
 	}
 
 	{
-		pair<int, int> ind(68, 3);
-		string formula = "F/(B*I*sin(a))";
-		vector<string> val = { "L", "B", "F", "I", "L", "a" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину проводника по силе Ампера, магнитной индукции, силе тока и углу между вектором индукции магнитного поля и проводником";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(68, 3);
+		varNameInd = { "iv32", "iv6", "iv57", "iv36", "iv16" };
+		varInd = { 0, 2, 5, 7, 11 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io11", "io4", "io5", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 9, 10, 12, 13 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "L=F/(B*I*sin(a))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину проводника по силе Ампера, магнитной индукции, силе тока и углу между вектором индукции магнитного поля и проводником", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if201", f);
 	}
 
 	{
-		pair<int, int> ind(69, 0);
-		string formula = "q*B*v*sin(a)";
-		vector<string> val = { "F", "B", "F", "a", "q", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу Лоренца по заряду частицы, магнитной индукции, скорости движения частицы и углу между вектором магнитного поля и скоростью движения частицы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(69, 0);
+		varNameInd = { "iv6", "iv30", "iv57", "iv2", "iv16" };
+		varInd = { 0, 2, 4, 6, 10 };
+		opNameInd = { "io7", "io2", "io2", "io2", "io11", "io4", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 9, 11 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "F=q*B*v*sin(a)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу Лоренца по заряду частицы, магнитной индукции, скорости движения частицы и углу между вектором магнитного поля и скоростью движения частицы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if202", f);
 	}
 
 	{
-		pair<int, int> ind(69, 1);
-		string formula = "F/(B*v*sin(a))";
-		vector<string> val = { "q", "B", "F", "a", "q", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить заряд частицы по силе Лоренца, магнитной индукции, скорости движения частицы и углу между вектором магнитного поля и скоростью движения частицы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(69, 1);
+		varNameInd = { "iv30", "iv6", "iv57", "iv2", "iv16" };
+		varInd = { 0, 2, 5, 7, 11 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io11", "io4", "io5", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 9, 10, 12, 13 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "q=F/(B*v*sin(a))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить заряд частицы по силе Лоренца, магнитной индукции, скорости движения частицы и углу между вектором магнитного поля и скоростью движения частицы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if203", f);
 	}
 
 	{
-		pair<int, int> ind(69, 2);
-		string formula = "F/(q*v*sin(a))";
-		vector<string> val = { "B", "B", "F", "a", "q", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить магнитную индукцию по силе Лоренца, заряду частицы, скорости движения частицы и углу между вектором магнитного поля и скоростью движения частицы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(69, 2);
+		varNameInd = { "iv57", "iv6", "iv30", "iv2", "iv16" };
+		varInd = { 0, 2, 5, 7, 11 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io11", "io4", "io5", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 9, 10, 12, 13 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "B=F/(q*v*sin(a))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить магнитную индукцию по силе Лоренца, заряду частицы, скорости движения частицы и углу между вектором магнитного поля и скоростью движения частицы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if204", f);
 	}
 
 	{
-		pair<int, int> ind(69, 3);
-		string formula = "F/(q*B*sin(a))";
-		vector<string> val = { "v", "B", "F", "a", "q", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость движения частицы по силе Лоренца, заряду частицы, магнитной индукции и углу между вектором магнитного поля и скоростью движения частицы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(69, 3);
+		varNameInd = { "iv2", "iv6", "iv30", "iv57", "iv16" };
+		varInd = { 0, 2, 5, 7, 11 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io11", "io4", "io5", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 9, 10, 12, 13 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "v=F/(q*B*sin(a))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость движения частицы по силе Лоренца, заряду частицы, магнитной индукции и углу между вектором магнитного поля и скоростью движения частицы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if205", f);
 	}
 
 	{
-		pair<int, int> ind(70, 0);
-		string formula = "m*v/(q*B)";
-		vector<string> val = { "r", "B", "m", "q", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить радиус движения по массе частицы, магнитной индукции, заряду и скорости движения частицы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(70, 0);
+		varNameInd = { "iv50", "iv4", "iv2", "iv30", "iv57" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "r=m*v/(q*B)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить радиус движения по массе частицы, магнитной индукции, заряду и скорости движения частицы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if206", f);
 	}
 
 	{
-		pair<int, int> ind(70, 1);
-		string formula = "r*q*B/v";
-		vector<string> val = { "m", "B", "m", "q", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу частицы по радиусу движения, магнитной индукции, заряду и скорости движения частицы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(70, 1);
+		varNameInd = { "iv4", "iv50", "iv30", "iv57", "iv2" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "m=r*q*B/v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу частицы по радиусу движения, магнитной индукции, заряду и скорости движения частицы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if207", f);
 	}
 
 	{
-		pair<int, int> ind(70, 2);
-		string formula = "r*q*B/m";
-		vector<string> val = { "v", "B", "m", "q", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость движения частицы по радиусу движения, массе частицы, магнитной индукции и заряду";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(70, 2);
+		varNameInd = { "iv2", "iv50", "iv30", "iv57", "iv4" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "v=r*q*B/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость движения частицы по радиусу движения, массе частицы, магнитной индукции и заряду", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if208", f);
 	}
 
 	{
-		pair<int, int> ind(70, 3);
-		string formula = "m*v/(r*B)";
-		vector<string> val = { "q", "B", "m", "q", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить заряд по радиусу движения, массе частицы, магнитной индукции и скорости движения частицы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(70, 3);
+		varNameInd = { "iv30", "iv4", "iv2", "iv50", "iv57" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "q=m*v/(r*B)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить заряд по радиусу движения, массе частицы, магнитной индукции и скорости движения частицы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if209", f);
 	}
 
 	{
-		pair<int, int> ind(70, 4);
-		string formula = "m*v/(r*q)";
-		vector<string> val = { "B", "B", "m", "q", "r", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить магнитную индукцию по радиусу движения, массе частицы, заряду и скорости движения частицы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(70, 4);
+		varNameInd = { "iv57", "iv4", "iv2", "iv50", "iv30" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "B=m*v/(r*q)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить магнитную индукцию по радиусу движения, массе частицы, заряду и скорости движения частицы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if210", f);
 	}
 
 	{
-		pair<int, int> ind(71, 0);
-		string formula = "B*S*cos(a)";
-		vector<string> val = { "F", "B", "F", "S", "a" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить магнитный поток по магнитной индукции, площади контура и углу между нормалью к контуру и вектором магнитной индукции";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(71, 0);
+		varNameInd = { "iv6", "iv57", "iv0", "iv28", "iv16" };
+		varInd = { 0, 2, 4, 7 };
+		opNameInd = { "io7", "io2", "io2", "io10", "io5" };
+		opInd = { 1, 3, 5, 6, 8 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "F=B*S*cos(a)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить магнитный поток по магнитной индукции, площади контура и углу между нормалью к контуру и вектором магнитной индукции", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if211", f);
 	}
 
 	{
-		pair<int, int> ind(71, 1);
-		string formula = "F/(S*cos(a))";
-		vector<string> val = { "B", "B", "F", "S", "a" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить магнитную индукцию по магнитному потоку, площади контура и углу между нормалью к контуру и вектором магнитной индукции";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(71, 1);
+		varNameInd = { "iv57", "iv6", "iv0", "iv28", "iv16" };
+		varInd = { 0, 2, 5, 8 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io10", "io5", "io5" };
+		opInd = { 1, 3, 4, 6, 7, 9, 10 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "B=F/(S*cos(a))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить магнитную индукцию по магнитному потоку, площади контура и углу между нормалью к контуру и вектором магнитной индукции", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if212", f);
 	}
 
 	{
-		pair<int, int> ind(71, 2);
-		string formula = "F/(B*cos(a))";
-		vector<string> val = { "S", "B", "F", "S", "a" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить прощадь контура по магнитному потоку, магнитной индукции и углу между нормалью к контуру и вектором магнитной индукции";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Electromagnetism" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(71, 2);
+		varNameInd = { "iv0", "iv6", "iv57", "iv28", "iv16" };
+		varInd = { 0, 2, 5, 8 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io10", "io5", "io5" };
+		opInd = { 1, 3, 4, 6, 7, 9, 10 };
+		tagLocation = { "#Physics", "#Electromagnetism" };
+		Form f(ind, "S=F/(B*cos(a))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить прощадь контура по магнитному потоку, магнитной индукции и углу между нормалью к контуру и вектором магнитной индукции", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if213", f);
 	}
 
 	{
-		pair<int, int> ind(72, 0);
-		string formula = "d*f/(f+d)";
-		vector<string> val = { "F", "F", "d", "f" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить фокусное расстояние линзы по расстоянию от предмета до линзы и расстоянию от линзы до изображения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(72, 0);
+		varNameInd = { "iv6", "iv58", "iv59", "iv59", "iv58" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io0", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "F=d*f/(f+d)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить фокусное расстояние линзы по расстоянию от предмета до линзы и расстоянию от линзы до изображения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if214", f);
 	}
 
 	{
-		pair<int, int> ind(72, 1);
-		string formula = "F*f/(f-F)";
-		vector<string> val = { "d", "F", "d", "f" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить расстояние от предмета до линзы по фокусному расстоянию и расстоянию от линзы до изображения";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(72, 1);
+		varNameInd = { "iv58", "iv6", "iv59", "iv59", "iv6" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io1", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "d=F*f/(f-F)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить расстояние от предмета до линзы по фокусному расстоянию и расстоянию от линзы до изображения", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if215", f);
 	}
 
 	{
-		pair<int, int> ind(72, 2);
-		string formula = "F*d/(d-F)";
-		vector<string> val = { "f", "F", "d", "f" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить расстояние от линзы до изображения по фокусному расстоянию и расстоянию от предмета до линзы";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(72, 2);
+		varNameInd = { "iv59", "iv6", "iv58", "iv58", "iv6" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io1", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "f=F*d/(d-F)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить расстояние от линзы до изображения по фокусному расстоянию и расстоянию от предмета до линзы", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if216", f);
 	}
 
 	{
-		pair<int, int> ind(73, 0);
-		string formula = "Z+N";
-		vector<string> val = { "M", "M", "N", "Z" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить масовое число по числу протонов и числу нейтронов";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(73, 0);
+		varNameInd = { "iv21", "iv60", "iv20" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io0" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "M=Z+N", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить масовое число по числу протонов и числу нейтронов", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if217", f);
 	}
 
 	{
-		pair<int, int> ind(73, 1);
-		string formula = "M-N";
-		vector<string> val = { "Z", "M", "N", "Z" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить число протонов по масовому числу и числу нейтронов";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(73, 1);
+		varNameInd = { "iv60", "iv21", "iv20" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io1" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "Z=M-N", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить число протонов по масовому числу и числу нейтронов", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if218", f);
 	}
 
 	{
-		pair<int, int> ind(73, 2);
-		string formula = "M-Z";
-		vector<string> val = { "N", "M", "N", "Z" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить число нейтронов по масовому числу и числу протонов";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(73, 2);
+		varNameInd = { "iv20", "iv21", "iv60" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io1" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "N=M-Z", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить число нейтронов по масовому числу и числу протонов", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if219", f);
 	}
 
 	{
-		pair<int, int> ind(74, 0);
-		string formula = "Ma-Z*m";
-		vector<string> val = { "M", "M", "Ma", "Z", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу ядра по массе изотопа и числу и массе электронов";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(74, 0);
+		varNameInd = { "iv21", "iv61", "iv60", "iv4" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io1", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "M=Ma-Z*m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу ядра по массе изотопа и числу и массе электронов", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if220", f);
 	}
 
 	{
-		pair<int, int> ind(74, 1);
-		string formula = "M+Z*m";
-		vector<string> val = { "Ma", "M", "Ma", "Z", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу изотопа по массе ядра и числу и массе электронов";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(74, 1);
+		varNameInd = { "iv61", "iv21", "iv60", "iv4" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io0", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "Ma=M+Z*m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу изотопа по массе ядра и числу и массе электронов", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if221", f);
 	}
 
 	{
-		pair<int, int> ind(74, 2);
-		string formula = "(Ma-M)/m";
-		vector<string> val = { "Z", "M", "Ma", "Z", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить число электронов по массе изотопа, массе ядра и массе электрона";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(74, 2);
+		varNameInd = { "iv60", "iv61", "iv21", "iv4" };
+		varInd = { 0, 3, 5, 8 };
+		opNameInd = { "io7", "io4", "io1", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 7 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "Z=(Ma-M)/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить число электронов по массе изотопа, массе ядра и массе электрона", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if222", f);
 	}
 
 	{
-		pair<int, int> ind(75, 0);
-		string formula = "Z*mp+N*mn-M";
-		vector<string> val = { "dm", "M", "N", "Z", "dm", "mn", "mp" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить дефект масс по числу и массе протонов, числу и массе нейтронов и массе ядра";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(75, 0);
+		varNameInd = { "iv62", "iv60", "iv64", "iv20", "iv63", "iv21" };
+		varInd = { 0, 2, 4, 6, 8, 10 };
+		opNameInd = { "io7", "io2", "io0", "io2", "io1" };
+		opInd = { 1, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "dm=Z*mp+N*mn-M", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить дефект масс по числу и массе протонов, числу и массе нейтронов и массе ядра", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if223", f);
 	}
 
 	{
-		pair<int, int> ind(75, 1);
-		string formula = "(dm-N*mn+M)/mp";
-		vector<string> val = { "Z", "M", "N", "Z", "dm", "mn", "mp" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить число протонов по дефекту масс, массе протона, числу и массе нейтронов и массе ядра";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(75, 1);
+		varNameInd = { "iv60", "iv62", "iv20", "iv63", "iv21", "iv64" };
+		varInd = { 0, 3, 5, 7, 9, 12 };
+		opNameInd = { "io7", "io4", "io1", "io2", "io0", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 8, 10, 11 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "Z=(dm-N*mn+M)/mp", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить число протонов по дефекту масс, массе протона, числу и массе нейтронов и массе ядра", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if224", f);
 	}
 
 	{
-		pair<int, int> ind(75, 2);
-		string formula = "(dm-Z*mp+M)/mn";
-		vector<string> val = { "N", "M", "N", "Z", "dm", "mn", "mp" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить число нейтронов по дефекту масс, массе нейтрона, числу и массе протонов и массе ядра";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(75, 2);
+		varNameInd = { "iv20", "iv62", "iv60", "iv64", "iv21", "iv63" };
+		varInd = { 0, 3, 5, 7, 9, 12 };
+		opNameInd = { "io7", "io4", "io1", "io2", "io0", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 8, 10, 11 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "N=(dm-Z*mp+M)/mn", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить число нейтронов по дефекту масс, массе нейтрона, числу и массе протонов и массе ядра", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if225", f);
 	}
 
 	{
-		pair<int, int> ind(75, 3);
-		string formula = "Z*mp+N*mn-dm";
-		vector<string> val = { "M", "M", "N", "Z", "dm", "mn", "mp" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу ядра по дефекту масс, числу и массе протонов и числу и массе нейтронов";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(75, 3);
+		varNameInd = { "iv21", "iv60", "iv64", "iv20", "iv63", "iv62" };
+		varInd = { 0, 2, 4, 6, 8, 10 };
+		opNameInd = { "io7", "io2", "io0", "io2", "io1" };
+		opInd = { 1, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "M=Z*mp+N*mn-dm", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу ядра по дефекту масс, числу и массе протонов и числу и массе нейтронов", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if226", f);
 	}
 
 	{
-		pair<int, int> ind(76, 0);
-		string formula = "dm*c*c";
-		vector<string> val = { "E", "E", "c", "dm" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить энергию связи по изменению массы ядра и скорости света";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(76, 0);
+		varNameInd = { "iv65", "iv62", "iv28", "iv28" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "E=dm*c*c", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить энергию связи по изменению массы ядра и скорости света", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if227", f);
 	}
 
 	{
-		pair<int, int> ind(76, 1);
-		string formula = "E/(c*c)";
-		vector<string> val = { "dm", "E", "c", "dm" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить изменение массы ядра по энергии связи и скорости света";
-		string tag_cl = "#Class9";
-		vector<string> tag_loc = { "#Physics", "#Physics of the atom and atomic nucleus" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(76, 1);
+		varNameInd = { "iv62", "iv65", "iv28", "iv28" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Physics of the atom and atomic nucleus" };
+		Form f(ind, "dm=E/(c*c)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить изменение массы ядра по энергии связи и скорости света", "#Class9", tagLocation, true, dbVars);
 		form_.emplace("if228", f);
 	}
 
 	{
-		pair<int, int> ind(77, 0);
-		string formula = "k*x*x/2";
-		vector<string> val = { "E", "E", "k", "x" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить полную механическую энергию колебательного движения по жесткости пружины и амплитуде колебаний";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(77, 0);
+		varNameInd = { "iv65", "iv8", "iv9", "iv9" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "E=k*x*x/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить полную механическую энергию колебательного движения по жесткости пружины и амплитуде колебаний", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if229", f);
 	}
 
 	{
-		pair<int, int> ind(77, 1);
-		string formula = "2*E/(x*x)";
-		vector<string> val = { "k", "E", "k", "x" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить жесткоть пружины по полной механической энергии колебательного движения и амплитуде колебаний";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(77, 1);
+		varNameInd = { "iv8", "iv65", "iv9", "iv9" };
+		varInd = { 0, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "k=2*E/(x*x)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить жесткоть пружины по полной механической энергии колебательного движения и амплитуде колебаний", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if230", f);
 	}
 
 	{
-		pair<int, int> ind(77, 2);
-		string formula = "sqrt(2*E/k)";
-		vector<string> val = { "x", "E", "k", "x" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить амплитуду колебаний по полной механической энергии колебательного движения и жесткости пружины";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(77, 2);
+		varNameInd = { "iv9", "iv65", "iv8" };
+		varInd = { 0, 6, 8 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "x=sqrt(2*E/k)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить амплитуду колебаний по полной механической энергии колебательного движения и жесткости пружины", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if231", f);
 	}
 
 	{
-		pair<int, int> ind(78, 0);
-		string formula = "2*G*M/(c*c)";
-		vector<string> val = { "R", "G", "M", "R", "c" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить радиус Шварцшильда по графитвационной постоянной, массе черной дыры и скорости света";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(78, 0);
+		varNameInd = { "iv37", "iv47", "iv21", "iv28", "iv28" };
+		varInd = { 0, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "R=2*G*M/(c*c)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить радиус Шварцшильда по графитвационной постоянной, массе черной дыры и скорости света", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if232", f);
 	}
 
 	{
-		pair<int, int> ind(79, 0);
-		string formula = "T/(sqrt(1-v*v/(c*c))";
-		vector<string> val = { "t", "T", "c", "t", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить собственное время по времени в движущейся системе отсчета, скорости движущейся системы отсчета и скорости света";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(79, 0);
+		varNameInd = { "iv1", "iv52", "iv2", "iv2", "iv28", "iv28" };
+		varInd = { 0, 2, 9, 11, 14, 16 };
+		opNameInd = { "io7", "io3", "io4", "io9", "io4", "io1", "io2", "io3", "io4", "io2", "io5", "io5" };
+		opInd = { 1, 3, 4, 5, 6, 8, 10, 12, 13, 15, 17, 18 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "t=T/(sqrt(1-v*v/(c*c))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить собственное время по времени в движущейся системе отсчета, скорости движущейся системы отсчета и скорости света", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if233", f);
 	}
 
 	{
-		pair<int, int> ind(79, 1);
-		string formula = "t*(sqrt(1-v*v/(c*c))";
-		vector<string> val = { "T", "T", "c", "t", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить время в движущейся системе отсчета по собственному времени, скорости движущейся системы отсчета и скорости света";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(79, 1);
+		varNameInd = { "iv52", "iv1", "iv2", "iv2", "iv28", "iv28" };
+		varInd = { 0, 2, 9, 11, 14, 16 };
+		opNameInd = { "io7", "io2", "io4", "io9", "io4", "io1", "io2", "io3", "io4", "io2", "io5", "io5" };
+		opInd = { 1, 3, 4, 5, 6, 8, 10, 12, 13, 15, 17, 18 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "T=t*(sqrt(1-v*v/(c*c))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить время в движущейся системе отсчета по собственному времени, скорости движущейся системы отсчета и скорости света", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if234", f);
 	}
 
 	{
-		pair<int, int> ind(79, 2);
-		string formula = "sqrt(t*t-T*T)/(t*c)";
-		vector<string> val = { "v", "T", "c", "t", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость движущейся системы отсчета по собственному времени, времени в движущейся системе отсчета и скорости света";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(79, 2);
+		varNameInd = { "iv2", "iv1", "iv1", "iv52", "iv52", "iv1", "iv28" };
+		varInd = { 0, 4, 6, 8, 10, 14, 16 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io1", "io2", "io5", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 2, 3, 5, 7, 9, 11, 12, 13, 15, 17 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=sqrt(t*t-T*T)/(t*c)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость движущейся системы отсчета по собственному времени, времени в движущейся системе отсчета и скорости света", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if235", f);
 	}
 
 	{
-		pair<int, int> ind(80, 0);
-		string formula = "m0/(sqrt(1-v*v/(c*c))";
-		vector<string> val = { "m", "c", "m", "m0", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела в СО, относительно которой оно покоится по массе тела в подвижной СО, скорости движущейся СО и скорости света";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(80, 0);
+		varNameInd = { "iv4", "iv66", "iv2", "iv2", "iv28", "iv28" };
+		varInd = { 0, 2, 9, 11, 14, 16 };
+		opNameInd = { "io7", "io3", "io4", "io9", "io4", "io1", "io2", "io3", "io4", "io2", "io5", "io5" };
+		opInd = { 1, 3, 4, 5, 6, 8, 10, 12, 13, 15, 17, 18 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m=m0/(sqrt(1-v*v/(c*c))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела в СО, относительно которой оно покоится по массе тела в подвижной СО, скорости движущейся СО и скорости света", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if236", f);
 	}
 
 	{
-		pair<int, int> ind(80, 1);
-		string formula = "m0*(sqrt(1-v*v/(c*c))";
-		vector<string> val = { "m0", "c", "m", "m0", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела в подвижной СО по массе тела в СО, относительно которой оно покоится, скорости движущейся СО и скорости света";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(80, 1);
+		varNameInd = { "iv66", "iv66", "iv2", "iv2", "iv28", "iv28" };
+		varInd = { 0, 2, 9, 11, 14, 16 };
+		opNameInd = { "io7", "io2", "io4", "io9", "io4", "io1", "io2", "io3", "io4", "io2", "io5", "io5" };
+		opInd = { 1, 3, 4, 5, 6, 8, 10, 12, 13, 15, 17, 18 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "m0=m0*(sqrt(1-v*v/(c*c))", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела в подвижной СО по массе тела в СО, относительно которой оно покоится, скорости движущейся СО и скорости света", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if237", f);
 	}
 
 	{
-		pair<int, int> ind(80, 2);
-		string formula = "sqrt(m*m-m0*m0)/(t*c)";
-		vector<string> val = { "v", "c", "m", "m0", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость движущейся СО по массе тела в СО, относительно которой оно покоится, массе тела в подвижной СО и скорости света";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Classic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(80, 2);
+		varNameInd = { "iv2", "iv4", "iv4", "iv66", "iv66", "iv1", "iv28" };
+		varInd = { 0, 4, 6, 8, 10, 14, 16 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io1", "io2", "io5", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 2, 3, 5, 7, 9, 11, 12, 13, 15, 17 };
+		tagLocation = { "#Physics", "#Mechanics", "#Classic" };
+		Form f(ind, "v=sqrt(m*m-m0*m0)/(t*c)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость движущейся СО по массе тела в СО, относительно которой оно покоится, массе тела в подвижной СО и скорости света", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if238", f);
 	}
 
 	{
-		pair<int, int> ind(81, 0);
-		string formula = "m*c*c";
-		vector<string> val = { "E", "E", "c", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить энергию по массе и скорости света";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Relativistic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(81, 0);
+		varNameInd = { "iv65", "iv4", "iv28", "iv28" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Mechanics", "#Relativistic" };
+		Form f(ind, "E=m*c*c", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить энергию по массе и скорости света", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if239", f);
 	}
 
 	{
-		pair<int, int> ind(81, 1);
-		string formula = "E/(c*c)";
-		vector<string> val = { "m", "E", "c", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу по энергии и скорости света";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Mechanics", "#Relativistic" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(81, 1);
+		varNameInd = { "iv4", "iv65", "iv28", "iv28" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Mechanics", "#Relativistic" };
+		Form f(ind, "m=E/(c*c)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу по энергии и скорости света", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if240", f);
 	}
 
 	{
-		pair<int, int> ind(82, 0);
-		string formula = "m*R*T/(M*V)";
-		vector<string> val = { "p", "M", "R", "T", "V", "m", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить давление идеального газа по его объему, массе, молярной массе, температуре и молярной газовой постоянной";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(82, 0);
+		varNameInd = { "iv13", "iv4", "iv37", "iv52", "iv21", "iv3" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "p=m*R*T/(M*V)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить давление идеального газа по его объему, массе, молярной массе, температуре и молярной газовой постоянной", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if241", f);
 	}
 
 	{
-		pair<int, int> ind(82, 1);
-		string formula = "p*M*V/(R*T)";
-		vector<string> val = { "m", "M", "R", "T", "V", "m", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу идеального газа по его объему, давлению, молярной массе, температуре и молярной газовой постоянной";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(82, 1);
+		varNameInd = { "iv4", "iv13", "iv21", "iv3", "iv37", "iv52" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "m=p*M*V/(R*T)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу идеального газа по его объему, давлению, молярной массе, температуре и молярной газовой постоянной", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if242", f);
 	}
 
 	{
-		pair<int, int> ind(82, 2);
-		string formula = "p*M*V/(m*R)";
-		vector<string> val = { "T", "M", "R", "T", "V", "m", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить температуру идеального газа по его объему, массе, молярной массе, давлению и молярной газовой постоянной";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(82, 2);
+		varNameInd = { "iv52", "iv13", "iv21", "iv3", "iv4", "iv37" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "T=p*M*V/(m*R)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить температуру идеального газа по его объему, массе, молярной массе, давлению и молярной газовой постоянной", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if243", f);
 	}
 
 	{
-		pair<int, int> ind(82, 3);
-		string formula = "m*R*T/(p*V)";
-		vector<string> val = { "M", "M", "R", "T", "V", "m", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить молярную массу идеального газа по его объему, массе, давлению, температуре и молярной газовой постоянной";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(82, 3);
+		varNameInd = { "iv21", "iv4", "iv37", "iv52", "iv13", "iv3" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "M=m*R*T/(p*V)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить молярную массу идеального газа по его объему, массе, давлению, температуре и молярной газовой постоянной", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if244", f);
 	}
 
 	{
-		pair<int, int> ind(82, 4);
-		string formula = "m*R*T/(p*M)";
-		vector<string> val = { "V", "M", "R", "T", "V", "m", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить объем идеального газа по его давлению, массе, молярной массе, температуре и молярной газовой постоянной";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(82, 4);
+		varNameInd = { "iv3", "iv4", "iv37", "iv52", "iv13", "iv21" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "V=m*R*T/(p*M)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить объем идеального газа по его давлению, массе, молярной массе, температуре и молярной газовой постоянной", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if245", f);
 	}
 
 	{
-		pair<int, int> ind(83, 0);
-		string formula = "i*v*R*T/2";
-		vector<string> val = { "U", "R", "T", "U", "i", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить внутреннюю энергию идеального газа по количеству моль газа, его температуре, универсальной газовой постоянной и количеству степеней свободы молекулы газа";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(83, 0);
+		varNameInd = { "iv38", "iv67", "iv2", "iv37", "iv52" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "U=i*v*R*T/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить внутреннюю энергию идеального газа по количеству моль газа, его температуре, универсальной газовой постоянной и количеству степеней свободы молекулы газа", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if246", f);
 	}
 
 	{
-		pair<int, int> ind(83, 1);
-		string formula = "2*U/(i*R*T)";
-		vector<string> val = { "v", "R", "T", "U", "i", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить количество моль идеального газа по его внутренней энергии, температуре, универсальной газовой постоянной и количеству степеней свободы молекулы газа";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(83, 1);
+		varNameInd = { "iv2", "iv38", "iv67", "iv37", "iv52" };
+		varInd = { 0, 4, 7, 9, 11 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "v=2*U/(i*R*T)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить количество моль идеального газа по его внутренней энергии, температуре, универсальной газовой постоянной и количеству степеней свободы молекулы газа", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if247", f);
 	}
 
 	{
-		pair<int, int> ind(83, 2);
-		string formula = "2*U/(i*v*R)";
-		vector<string> val = { "T", "R", "T", "U", "i", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить температуру идеального газа по количеству моль газа, его внутренней энергии, универсальной газовой постоянной и количеству степеней свободы молекулы газа";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(83, 2);
+		varNameInd = { "iv52", "iv38", "iv67", "iv2", "iv37" };
+		varInd = { 0, 4, 7, 9, 11 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "T=2*U/(i*v*R)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить температуру идеального газа по количеству моль газа, его внутренней энергии, универсальной газовой постоянной и количеству степеней свободы молекулы газа", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if248", f);
 	}
 
 	{
-		pair<int, int> ind(84, 0);
-		string formula = "i*p*V/2";
-		vector<string> val = { "U", "U", "V", "i", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить внутреннюю энергию идеального газа по его давлению, объему и количеству степеней свободы молекулы газа";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(84, 0);
+		varNameInd = { "iv38", "iv67", "iv13", "iv3" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "U=i*p*V/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить внутреннюю энергию идеального газа по его давлению, объему и количеству степеней свободы молекулы газа", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if249", f);
 	}
 
 	{
-		pair<int, int> ind(84, 1);
-		string formula = "2*U/(i*V)";
-		vector<string> val = { "p", "U", "V", "i", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить давление идеального газа по его внутренней энергии, объему и количеству степеней свободы молекулы газа";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(84, 1);
+		varNameInd = { "iv13", "iv38", "iv67", "iv3" };
+		varInd = { 0, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "p=2*U/(i*V)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить давление идеального газа по его внутренней энергии, объему и количеству степеней свободы молекулы газа", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if250", f);
 	}
 
 	{
-		pair<int, int> ind(84, 2);
-		string formula = "2*U/(i*p)";
-		vector<string> val = { "V", "U", "V", "i", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить объем идеального газа по его внутренней энергии, давлению и количеству степеней свободы молекулы газа";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(84, 2);
+		varNameInd = { "iv3", "iv38", "iv67", "iv13" };
+		varInd = { 0, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "V=2*U/(i*p)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить объем идеального газа по его внутренней энергии, давлению и количеству степеней свободы молекулы газа", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if251", f);
 	}
 
 	{
-		pair<int, int> ind(85, 0);
-		string formula = "p*dV";
-		vector<string> val = { "A", "A", "dV", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу, совершаемую газом по его давлению и изменению объема";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(85, 0);
+		varNameInd = { "iv19", "iv13", "iv68" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "A=p*dV", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу, совершаемую газом по его давлению и изменению объема", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if252", f);
 	}
 
 	{
-		pair<int, int> ind(85, 1);
-		string formula = "A/dV";
-		vector<string> val = { "p", "A", "dV", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить давление по работе, совершаемой газом и изменению объема";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(85, 1);
+		varNameInd = { "iv13", "iv19", "iv68" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "p=A/dV", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить давление по работе, совершаемой газом и изменению объема", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if253", f);
 	}
 
 	{
-		pair<int, int> ind(85, 2);
-		string formula = "A/p";
-		vector<string> val = { "dV", "A", "dV", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить изменение объема по работе, совершаемой газом и давлению";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(85, 2);
+		varNameInd = { "iv68", "iv19", "iv13" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "dV=A/p", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить изменение объема по работе, совершаемой газом и давлению", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if254", f);
 	}
 
 	{
-		pair<int, int> ind(86, 0);
-		string formula = "dU+A";
-		vector<string> val = { "Q", "A", "Q", "dU" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить количество теплоты по работе газа и изменению его внутренней энергии";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(86, 0);
+		varNameInd = { "iv27", "iv69", "iv19" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io0" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "Q=dU+A", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить количество теплоты по работе газа и изменению его внутренней энергии", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if255", f);
 	}
 
 	{
-		pair<int, int> ind(86, 1);
-		string formula = "Q-A";
-		vector<string> val = { "dU", "A", "Q", "dU" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить изменение внутренней энергии газа по количеству теплоты и работе газа";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(86, 1);
+		varNameInd = { "iv69", "iv27", "iv19" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io1" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "dU=Q-A", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить изменение внутренней энергии газа по количеству теплоты и работе газа", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if256", f);
 	}
 
 	{
-		pair<int, int> ind(86, 2);
-		string formula = "Q-dU";
-		vector<string> val = { "A", "A", "Q", "dU" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу газа по изменению его внутренней энергии и количеству теплоты";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(86, 2);
+		varNameInd = { "iv19", "iv27", "iv69" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io1" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "A=Q-dU", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу газа по изменению его внутренней энергии и количеству теплоты", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if257", f);
 	}
 
 	{
-		pair<int, int> ind(87, 0);
-		string formula = "sigma*l";
-		vector<string> val = { "F", "F", "l", "sigma" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу поверхностного натяжения по поверхностному натяжение и длине участка поверхности слоя";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(87, 0);
+		varNameInd = { "iv6", "iv70", "iv17" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "F=sigma*l", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу поверхностного натяжения по поверхностному натяжение и длине участка поверхности слоя", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if258", f);
 	}
 
 	{
-		pair<int, int> ind(87, 1);
-		string formula = "F/l";
-		vector<string> val = { "sigma", "F", "l", "sigma" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить поверхностное натяжение по силе поверхностного натяжения и длине участка поверхности слоя";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(87, 1);
+		varNameInd = { "iv70", "iv6", "iv17" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "sigma=F/l", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить поверхностное натяжение по силе поверхностного натяжения и длине участка поверхности слоя", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if259", f);
 	}
 
 	{
-		pair<int, int> ind(87, 2);
-		string formula = "F/sigma";
-		vector<string> val = { "l", "F", "l", "sigma" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину участка поверхности слоя по силе поверхностного натяжения и поверхностному натяжению";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(87, 2);
+		varNameInd = { "iv17", "iv6", "iv70" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "l=F/sigma", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину участка поверхности слоя по силе поверхностного натяжения и поверхностному натяжению", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if260", f);
 	}
 
 	{
-		pair<int, int> ind(88, 0);
-		string formula = "E*e";
-		vector<string> val = { "sigma", "E", "e", "sigma" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить механическое напряжение по модулю Юнга и относительному удлинению тела";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(88, 0);
+		varNameInd = { "iv70", "iv65", "iv71" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "sigma=E*e", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить механическое напряжение по модулю Юнга и относительному удлинению тела", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if261", f);
 	}
 
 	{
-		pair<int, int> ind(88, 1);
-		string formula = "sigma/e";
-		vector<string> val = { "E", "E", "e", "sigma" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить модуль Юнга по механическому напряжению и относительному удлинению тела";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(88, 1);
+		varNameInd = { "iv65", "iv70", "iv71" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "E=sigma/e", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить модуль Юнга по механическому напряжению и относительному удлинению тела", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if262", f);
 	}
 
 	{
-		pair<int, int> ind(88, 2);
-		string formula = "sigma/E";
-		vector<string> val = { "e", "E", "e", "sigma" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить относительное удлинение тела по механическому напряжению и модулю Юнга";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(88, 2);
+		varNameInd = { "iv71", "iv70", "iv65" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "e=sigma/E", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить относительное удлинение тела по механическому напряжению и модулю Юнга", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if263", f);
 	}
 
 	{
-		pair<int, int> ind(89, 0);
-		string formula = "k*q1*q2/(r*r)";
-		vector<string> val = { "F", "F", "k", "q1", "q2", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу Кулона по величине зарядов, расстоянию между ними и коэффициенту пропорциональности";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(89, 0);
+		varNameInd = { "iv6", "iv8", "iv72", "iv73", "iv50", "iv50" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "F=k*q1*q2/(r*r)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу Кулона по величине зарядов, расстоянию между ними и коэффициенту пропорциональности", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if264", f);
 	}
 
 	{
-		pair<int, int> ind(89, 1);
-		string formula = "F*r*r/(k*q2)";
-		vector<string> val = { "q1", "F", "k", "q1", "q2", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить величину первого заряда по силе Кулона, величине второго заряда, расстоянию между ними и коэффициенту пропорциональности";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(89, 1);
+		varNameInd = { "iv72", "iv6", "iv50", "iv50", "iv8", "iv73" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q1=F*r*r/(k*q2)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить величину первого заряда по силе Кулона, величине второго заряда, расстоянию между ними и коэффициенту пропорциональности", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if265", f);
 	}
 
 	{
-		pair<int, int> ind(89, 2);
-		string formula = "F*r*r/(k*q1)";
-		vector<string> val = { "q2", "F", "k", "q1", "q2", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить величину второго заряда по силе Кулона, величине первого заряда, расстоянию между ними и коэффициенту пропорциональности";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(89, 2);
+		varNameInd = { "iv73", "iv6", "iv50", "iv50", "iv8", "iv72" };
+		varInd = { 0, 2, 4, 6, 9, 11 };
+		opNameInd = { "io7", "io2", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 7, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q2=F*r*r/(k*q1)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить величину второго заряда по силе Кулона, величине первого заряда, расстоянию между ними и коэффициенту пропорциональности", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if266", f);
 	}
 
 	{
-		pair<int, int> ind(89, 3);
-		string formula = "sqrt(k*q1*q2/F)";
-		vector<string> val = { "r", "F", "k", "q1", "q2", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить расстояние между зарядами по силе Кулона, величине зарядов и коэффициенту пропорциональности";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(89, 3);
+		varNameInd = { "iv50", "iv8", "iv72", "iv73", "iv6" };
+		varInd = { 0, 4, 6, 8, 10 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io2", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 7, 9, 11 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "r=sqrt(k*q1*q2/F)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить расстояние между зарядами по силе Кулона, величине зарядов и коэффициенту пропорциональности", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if267", f);
 	}
 
 	{
-		pair<int, int> ind(90, 0);
-		string formula = "F/q";
-		vector<string> val = { "E", "E", "F", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряженность поля по пробному положительному заряду и силе Кулона";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(90, 0);
+		varNameInd = { "iv65", "iv6", "iv30" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "E=F/q", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряженность поля по пробному положительному заряду и силе Кулона", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if268", f);
 	}
 
 	{
-		pair<int, int> ind(90, 1);
-		string formula = "E*q";
-		vector<string> val = { "F", "E", "F", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить силу Кулона по напряженности поля и пробному положительному заряду";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(90, 1);
+		varNameInd = { "iv6", "iv65", "iv30" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "F=E*q", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить силу Кулона по напряженности поля и пробному положительному заряду", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if269", f);
 	}
 
 	{
-		pair<int, int> ind(90, 2);
-		string formula = "F/E";
-		vector<string> val = { "q", "E", "F", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить пробный положительный заряд по напряженности поля и силе Кулона";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(90, 2);
+		varNameInd = { "iv30", "iv6", "iv65" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q=F/E", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить пробный положительный заряд по напряженности поля и силе Кулона", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if270", f);
 	}
 
 	{
-		pair<int, int> ind(91, 0);
-		string formula = "k*q/(r*r)";
-		vector<string> val = { "E", "E", "k", "q", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряженность поля точечного заряда по пробному положительному заряду, расстоянию от заряда до точки поля и коэффициенту пропорциональности";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(91, 0);
+		varNameInd = { "iv65", "iv8", "iv30", "iv50", "iv50" };
+		varInd = { 0, 2, 4, 7, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "E=k*q/(r*r)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряженность поля точечного заряда по пробному положительному заряду, расстоянию от заряда до точки поля и коэффициенту пропорциональности", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if271", f);
 	}
 
 	{
-		pair<int, int> ind(91, 1);
-		string formula = "E*r*r/k";
-		vector<string> val = { "q", "E", "k", "q", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить пробный положительный заряд по напряженности поля точечного заряда, расстоянию от заряда до точки поля и коэффициенту пропорциональности";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(91, 1);
+		varNameInd = { "iv30", "iv65", "iv50", "iv50", "iv8" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q=E*r*r/k", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить пробный положительный заряд по напряженности поля точечного заряда, расстоянию от заряда до точки поля и коэффициенту пропорциональности", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if272", f);
 	}
 
 	{
-		pair<int, int> ind(91, 2);
-		string formula = "sqrt(k*q/E)";
-		vector<string> val = { "r", "E", "k", "q", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить расстояние от заряда до точки поля по напряженности поля точечного заряда, пробному положительному заряду и коэффициенту пропорциональности";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(91, 2);
+		varNameInd = { "iv50", "iv8", "iv30", "iv65" };
+		varInd = { 0, 4, 6, 8 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "r=sqrt(k*q/E)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить расстояние от заряда до точки поля по напряженности поля точечного заряда, пробному положительному заряду и коэффициенту пропорциональности", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if273", f);
 	}
 
 	{
-		pair<int, int> ind(92, 0);
-		string formula = "W/q";
-		vector<string> val = { "fi", "W", "fi", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить потенциал электростатического поля по энергии и заряду";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(92, 0);
+		varNameInd = { "iv33", "iv74", "iv30" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "fi=W/q", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить потенциал электростатического поля по энергии и заряду", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if274", f);
 	}
 
 	{
-		pair<int, int> ind(92, 1);
-		string formula = "fi*q";
-		vector<string> val = { "W", "W", "fi", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить энергию по потенциалу электростатического поля и заряду";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(92, 1);
+		varNameInd = { "iv74", "iv33", "iv30" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "W=fi*q", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить энергию по потенциалу электростатического поля и заряду", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if275", f);
 	}
 
 	{
-		pair<int, int> ind(92, 2);
-		string formula = "W/fi";
-		vector<string> val = { "q", "W", "fi", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить заряд по потенциалу электростатического поля и энергии";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(92, 2);
+		varNameInd = { "iv30", "iv74", "iv33" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q=W/fi", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить заряд по потенциалу электростатического поля и энергии", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if276", f);
 	}
 
 	{
-		pair<int, int> ind(93, 0);
-		string formula = "q/(4*pi*e*r)";
-		vector<string> val = { "fi", "e", "fi", "pi", "q", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить потенциал поля точечного заряда по заряду, диэлектрической проницаемости и расстоянию от заряда до точки";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(93, 0);
+		varNameInd = { "iv33", "iv30", "iv53", "iv71", "iv50" };
+		varInd = { 0, 2, 7, 9, 11 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "fi=q/(4*pi*e*r)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить потенциал поля точечного заряда по заряду, диэлектрической проницаемости и расстоянию от заряда до точки", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if277", f);
 	}
 
 	{
-		pair<int, int> ind(93, 1);
-		string formula = "fi*4*pi*e*r";
-		vector<string> val = { "q", "e", "fi", "pi", "q", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить заряд по потенциалу поля точечного заряда, диэлектрической проницаемости и расстоянию от заряда до точки";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(93, 1);
+		varNameInd = { "iv30", "iv33", "iv53", "iv71", "iv50" };
+		varInd = { 0, 2, 6, 8, 10 };
+		opNameInd = { "io7", "io2", "io2", "io2", "io2" };
+		opInd = { 1, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q=fi*4*pi*e*r", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить заряд по потенциалу поля точечного заряда, диэлектрической проницаемости и расстоянию от заряда до точки", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if278", f);
 	}
 
 	{
-		pair<int, int> ind(93, 2);
-		string formula = "q/(4*pi*e*fi)";
-		vector<string> val = { "r", "e", "fi", "pi", "q", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить расстояние от заряда до точки по потенциалу поля точечного заряда, заряду и диэлектрической проницаемости";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(93, 2);
+		varNameInd = { "iv50", "iv30", "iv53", "iv71", "iv33" };
+		varInd = { 0, 2, 7, 9, 11 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "r=q/(4*pi*e*fi)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить расстояние от заряда до точки по потенциалу поля точечного заряда, заряду и диэлектрической проницаемости", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if279", f);
 	}
 
 	{
-		pair<int, int> ind(93, 3);
-		string formula = "q/(4*pi*r*fi)";
-		vector<string> val = { "e", "e", "fi", "pi", "q", "r" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить диэлектрическую проницаемость по потенциалу поля точечного заряда, заряду и расстоянию от заряда до точки";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(93, 3);
+		varNameInd = { "iv71", "iv30", "iv53", "iv50", "iv33" };
+		varInd = { 0, 2, 7, 9, 11 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io2", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "e=q/(4*pi*r*fi)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить диэлектрическую проницаемость по потенциалу поля точечного заряда, заряду и расстоянию от заряда до точки", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if280", f);
 	}
 
 	{
-		pair<int, int> ind(94, 0);
-		string formula = "E*d";
-		vector<string> val = { "U", "E", "U", "d" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить разность потенциалов по напряженности поля и расстоянию между точками";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(94, 0);
+		varNameInd = { "iv38", "iv65", "iv58" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=E*d", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить разность потенциалов по напряженности поля и расстоянию между точками", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if281", f);
 	}
 
 	{
-		pair<int, int> ind(94, 1);
-		string formula = "U/d";
-		vector<string> val = { "E", "E", "U", "d" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить напряженность поля по разности потенциалов и расстоянию между точками";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(94, 1);
+		varNameInd = { "iv65", "iv38", "iv58" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "E=U/d", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить напряженность поля по разности потенциалов и расстоянию между точками", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if282", f);
 	}
 
 	{
-		pair<int, int> ind(94, 2);
-		string formula = "U/E";
-		vector<string> val = { "d", "U", "d", "e" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить расстояние между точками по разности потенциалов и напряженности поля";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(94, 2);
+		varNameInd = { "iv58", "iv38", "iv65" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "d=U/E", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить расстояние между точками по разности потенциалов и напряженности поля", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if283", f);
 	}
 
 	{
-		pair<int, int> ind(95, 0);
-		string formula = "q/fi";
-		vector<string> val = { "C", "C", "fi", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить электроемкость уединенного проводника по потенциалу и заряду";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(95, 0);
+		varNameInd = { "iv75", "iv30", "iv33" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "C=q/fi", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить электроемкость уединенного проводника по потенциалу и заряду", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if284", f);
 	}
 
 	{
-		pair<int, int> ind(95, 1);
-		string formula = "C*fi";
-		vector<string> val = { "q", "C", "fi", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить заряд по электроемкости уединенного проводника и потенциалу";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(95, 1);
+		varNameInd = { "iv30", "iv75", "iv33" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q=C*fi", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить заряд по электроемкости уединенного проводника и потенциалу", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if285", f);
 	}
 
 	{
-		pair<int, int> ind(95, 2);
-		string formula = "q/C";
-		vector<string> val = { "fi", "C", "fi", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить потенциал по электроемкости уединенного проводника и заряду";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(95, 2);
+		varNameInd = { "iv33", "iv30", "iv75" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "fi=q/C", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить потенциал по электроемкости уединенного проводника и заряду", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if286", f);
 	}
 
 	{
-		pair<int, int> ind(96, 0);
-		string formula = "q/U";
-		vector<string> val = { "C", "C", "U", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить электроемкость конденсатора по разности потенциалов и заряду";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(96, 0);
+		varNameInd = { "iv75", "iv30", "iv38" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "C=q/U", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить электроемкость конденсатора по разности потенциалов и заряду", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if287", f);
 	}
 
 	{
-		pair<int, int> ind(96, 1);
-		string formula = "C*U";
-		vector<string> val = { "q", "C", "U", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить заряд по электроемкости конденсатора и разности потенциалов";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(96, 1);
+		varNameInd = { "iv30", "iv75", "iv38" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "q=C*U", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить заряд по электроемкости конденсатора и разности потенциалов", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if288", f);
 	}
 
 	{
-		pair<int, int> ind(96, 2);
-		string formula = "q/C";
-		vector<string> val = { "U", "C", "U", "q" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить разность потенциалов по электроемкости конденсатора и заряду";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(96, 2);
+		varNameInd = { "iv38", "iv30", "iv75" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=q/C", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить разность потенциалов по электроемкости конденсатора и заряду", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if289", f);
 	}
 
 	{
-		pair<int, int> ind(97, 0);
-		string formula = "C*U*U/2";
-		vector<string> val = { "W", "C", "U", "W" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить энергию ЭСП по электроемкости и разности потенциалов";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(97, 0);
+		varNameInd = { "iv74", "iv75", "iv38", "iv38" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "W=C*U*U/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить энергию ЭСП по электроемкости и разности потенциалов", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if290", f);
 	}
 
 	{
-		pair<int, int> ind(97, 1);
-		string formula = "2*W/U*U";
-		vector<string> val = { "C", "C", "U", "W" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить электроемкость по энергии ЭСП и разности потенциалов";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(97, 1);
+		varNameInd = { "iv75", "iv74", "iv38", "iv38" };
+		varInd = { 0, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io3", "io2" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "C=2*W/U*U", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить электроемкость по энергии ЭСП и разности потенциалов", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if291", f);
-}
+	}
 
 	{
-		pair<int, int> ind(97, 2);
-		string formula = "sqrt(2*W/C)";
-		vector<string> val = { "U", "C", "U", "W" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить разность потенциалов по энергии ЭСП и электроемкости";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Electrostatics and electrodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(97, 2);
+		varNameInd = { "iv38", "iv74", "iv75" };
+		varInd = { 0, 6, 8 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Electrostatics and electrodynamics" };
+		Form f(ind, "U=sqrt(2*W/C)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить разность потенциалов по энергии ЭСП и электроемкости", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if292", f);
 	}
 
 	{
-		pair<int, int> ind(98, 0);
-		string formula = "a*(n-1)";
-		vector<string> val = { "b", "a", "b", "n" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить угол отклонения по углу падения и показателю преломления среды";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(98, 0);
+		varNameInd = { "iv76", "iv16", "iv24" };
+		varInd = { 0, 2, 5 };
+		opNameInd = { "io7", "io2", "io4", "io1", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "b=a*(n-1)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить угол отклонения по углу падения и показателю преломления среды", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if293", f);
 	}
 
 	{
-		pair<int, int> ind(98, 1);
-		string formula = "b/(n-1)";
-		vector<string> val = { "a", "a", "b", "n" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить угол падения по углу отклонения и показателю преломления среды";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(98, 1);
+		varNameInd = { "iv16", "iv76", "iv24" };
+		varInd = { 0, 2, 5 };
+		opNameInd = { "io7", "io3", "io4", "io1", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "a=b/(n-1)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить угол падения по углу отклонения и показателю преломления среды", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if294", f);
 	}
 
 	{
-		pair<int, int> ind(98, 2);
-		string formula = "b/a+1";
-		vector<string> val = { "n", "a", "b", "n" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить показатель преломления среды по углу отклонения и углу падения";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(98, 2);
+		varNameInd = { "iv24", "iv76", "iv16" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3", "io0" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "n=b/a+1", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить показатель преломления среды по углу отклонения и углу падения", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if295", f);
 	}
 
 	{
-		pair<int, int> ind(99, 0);
-		string formula = "H/h";
-		vector<string> val = { "G", "G", "H", "h" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить линейное увеличение оптической системы по размеру изображения и размеру предмета";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(99, 0);
+		varNameInd = { "iv47", "iv51", "iv14" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "G=H/h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить линейное увеличение оптической системы по размеру изображения и размеру предмета", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if296", f);
 	}
 
 	{
-		pair<int, int> ind(99, 1);
-		string formula = "G*h";
-		vector<string> val = { "H", "G", "H", "h" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить размер изображения по линейному увеличению оптической системы и размеру предмета";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(99, 1);
+		varNameInd = { "iv51", "iv47", "iv14" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "H=G*h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить размер изображения по линейному увеличению оптической системы и размеру предмета", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if297", f);
 	}
 
 	{
-		pair<int, int> ind(99, 2);
-		string formula = "H/G";
-		vector<string> val = { "h", "G", "H", "h" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить размер предмета по линейному увеличению оптической системы и размеру изображения";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Optics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(99, 2);
+		varNameInd = { "iv14", "iv51", "iv47" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Optics" };
+		Form f(ind, "h=H/G", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить размер предмета по линейному увеличению оптической системы и размеру изображения", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if298", f);
 	}
 
 	{
-		pair<int, int> ind(100, 0);
-		string formula = "m*T";
-		vector<string> val = { "dt", "T", "dt", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить максимальную результирующую интенсивность по периоду колебаний";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(100, 0);
+		varNameInd = { "iv77", "iv4", "iv52" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "dt=m*T", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить максимальную результирующую интенсивность по периоду колебаний", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if299", f);
 	}
 
 	{
-		pair<int, int> ind(100, 1);
-		string formula = "dt/m";
-		vector<string> val = { "T", "T", "dt", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период колебаний по максимальной результирующей интенсивности";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(100, 1);
+		varNameInd = { "iv52", "iv77", "iv4" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "T=dt/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период колебаний по максимальной результирующей интенсивности", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if300", f);
 	}
 
 	{
-		pair<int, int> ind(101, 0);
-		string formula = "(2*m+1)*T/2";
-		vector<string> val = { "dt", "T", "dt", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить минимальную результирующую интенсивность по периоду колебаний";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(101, 0);
+		varNameInd = { "iv77", "iv4", "iv52" };
+		varInd = { 0, 5, 10 };
+		opNameInd = { "io7", "io4", "io2", "io0", "io5", "io2", "io3" };
+		opInd = { 1, 2, 4, 6, 8, 9, 11 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "dt=(2*m+1)*T/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить минимальную результирующую интенсивность по периоду колебаний", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if301", f);
 	}
 
 	{
-		pair<int, int> ind(101, 1);
-		string formula = "2*dt/(2*m+1)";
-		vector<string> val = { "T", "T", "dt", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период колебаний по минимальной результирующей интенсивности";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(101, 1);
+		varNameInd = { "iv52", "iv77", "iv4" };
+		varInd = { 0, 4, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io0", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "T=2*dt/(2*m+1)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период колебаний по минимальной результирующей интенсивности", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if302", f);
 	}
 
 	{
-		pair<int, int> ind(102, 0);
-		string formula = "m*lambda";
-		vector<string> val = { "delta", "delta", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить геометрическую разность хода интерферирующих волн по длине волны";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(102, 0);
+		varNameInd = { "iv78", "iv4", "iv31" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "delta=m*lambda", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить геометрическую разность хода интерферирующих волн по длине волны", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if303", f);
 	}
 
 	{
-		pair<int, int> ind(102, 1);
-		string formula = "delta/m";
-		vector<string> val = { "lambda", "delta", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину волны по геометрической разности хода интерферирующих волн";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(102, 1);
+		varNameInd = { "iv31", "iv78", "iv4" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "lambda=delta/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину волны по геометрической разности хода интерферирующих волн", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if304", f);
 	}
 
 	{
-		pair<int, int> ind(102, 2);
-		string formula = "(2*m+1)*lambda/2";
-		vector<string> val = { "delta", "delta", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить геометрическую разность хода интерферирующих волн по длине волны при условии интерференционного минимума";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(102, 2);
+		varNameInd = { "iv78", "iv4", "iv31" };
+		varInd = { 0, 5, 10 };
+		opNameInd = { "io7", "io4", "io2", "io0", "io5", "io2", "io3" };
+		opInd = { 1, 2, 4, 6, 8, 9, 11 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "delta=(2*m+1)*lambda/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить геометрическую разность хода интерферирующих волн по длине волны при условии интерференционного минимума", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if305", f);
 	}
 
 	{
-		pair<int, int> ind(102, 3);
-		string formula = "2*delta/(2*m+1)";
-		vector<string> val = { "lambda", "delta", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину волны по геометрической разности хода интерферирующих волн при условии интерференционного минимума";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(102, 3);
+		varNameInd = { "iv31", "iv78", "iv4" };
+		varInd = { 0, 4, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io0", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10, 12 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "lambda=2*delta/(2*m+1)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину волны по геометрической разности хода интерферирующих волн при условии интерференционного минимума", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if306", f);
 	}
 
 	{
-		pair<int, int> ind(103, 0);
-		string formula = "m*lambda/sin(a)";
-		vector<string> val = { "A", "A", "a", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить ширину щели по длине волны";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(103, 0);
+		varNameInd = { "iv19", "iv4", "iv31", "iv16" };
+		varInd = { 0, 2, 4, 8 };
+		opNameInd = { "io7", "io2", "io3", "io11", "io4", "io5" };
+		opInd = { 1, 3, 5, 6, 7, 9 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "A=m*lambda/sin(a)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить ширину щели по длине волны", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if307", f);
 	}
 
 	{
-		pair<int, int> ind(103, 1);
-		string formula = "A*sin(a)/m";
-		vector<string> val = { "lambda", "A", "a", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину волны по ширине щели";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(103, 1);
+		varNameInd = { "iv31", "iv19", "iv16", "iv4" };
+		varInd = { 0, 2, 6, 9 };
+		opNameInd = { "io7", "io2", "io11", "io4", "io5", "io3" };
+		opInd = { 1, 3, 4, 5, 7, 8 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "lambda=A*sin(a)/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину волны по ширине щели", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if308", f);
 	}
 
 	{
-		pair<int, int> ind(104, 0);
-		string formula = "m*lambda/sin(a)";
-		vector<string> val = { "d", "a", "d", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить период решетки по длине волны";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(104, 0);
+		varNameInd = { "iv58", "iv4", "iv31", "iv16" };
+		varInd = { 0, 2, 4, 8 };
+		opNameInd = { "io7", "io2", "io3", "io11", "io4", "io5" };
+		opInd = { 1, 3, 5, 6, 7, 9 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "d=m*lambda/sin(a)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить период решетки по длине волны", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if309", f);
 	}
 
 	{
-		pair<int, int> ind(104, 1);
-		string formula = "d*sin(a)/m";
-		vector<string> val = { "lambda", "a", "d", "lambda", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину волны по периоду решетки";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Vibrations and waves" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(104, 1);
+		varNameInd = { "iv31", "iv58", "iv16", "iv4" };
+		varInd = { 0, 2, 6, 9 };
+		opNameInd = { "io7", "io2", "io11", "io4", "io5", "io3" };
+		opInd = { 1, 3, 4, 5, 7, 8 };
+		tagLocation = { "#Physics", "#Vibrations and waves" };
+		Form f(ind, "lambda=d*sin(a)/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину волны по периоду решетки", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if310", f);
 	}
 
 	{
-		pair<int, int> ind(105, 0);
-		string formula = "h*v";
-		vector<string> val = { "E", "E", "h", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить энергию кванта излучения по частоте излучения и постоянной Планка";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(105, 0);
+		varNameInd = { "iv65", "iv14", "iv2" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "E=h*v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить энергию кванта излучения по частоте излучения и постоянной Планка", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if311", f);
 	}
 
 	{
-		pair<int, int> ind(105, 1);
-		string formula = "E/h";
-		vector<string> val = { "v", "E", "h", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить частоту излучения по энергии кванта излучения и постоянной Планка";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(105, 1);
+		varNameInd = { "iv2", "iv65", "iv14" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "v=E/h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить частоту излучения по энергии кванта излучения и постоянной Планка", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if312", f);
 	}
 
 	{
-		pair<int, int> ind(106, 0);
-		string formula = "b/T";
-		vector<string> val = { "lambda", "T", "b", "lambda" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить длину волны по постоянной Вина и температуре черного тела";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(106, 0);
+		varNameInd = { "iv31", "iv76", "iv52" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "lambda=b/T", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить длину волны по постоянной Вина и температуре черного тела", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if313", f);
 	}
 
 	{
-		pair<int, int> ind(106, 1);
-		string formula = "b/lambda";
-		vector<string> val = { "T", "T", "b", "lambda" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить температуру черного тела по длине волны и постоянной Вина";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(106, 1);
+		varNameInd = { "iv52", "iv76", "iv31" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "T=b/lambda", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить температуру черного тела по длине волны и постоянной Вина", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if314", f);
 	}
 
 	{
-		pair<int, int> ind(107, 0);
-		string formula = "sigma*pow(T,4)";
-		vector<string> val = { "R", "R", "T", "sigma" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить интегральную светимость абсолютно черного тела по постоянной Стефана-Больцмана и абсолютной температуре черного тела";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(107, 0);
+		varNameInd = { "iv37", "iv70", "iv52" };
+		varInd = { 0, 2, 5 };
+		opNameInd = { "io7", "io2", "io4", "io6", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "R=sigma*(T^4)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить интегральную светимость абсолютно черного тела по постоянной Стефана-Больцмана и абсолютной температуре черного тела", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if315", f);
 	}
 
 	{
-		pair<int, int> ind(108, 0);
-		string formula = "A+U*e";
-		vector<string> val = { "E", "A", "E", "U", "e" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить энергию одного фотона по работе выхода, разности потенциалов и заряду электрона";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(108, 0);
+		varNameInd = { "iv65", "iv19", "iv38", "iv71" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io0", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "E=A+U*e", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить энергию одного фотона по работе выхода, разности потенциалов и заряду электрона", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if316", f);
 	}
 
 	{
-		pair<int, int> ind(108, 1);
-		string formula = "E-U*e";
-		vector<string> val = { "A", "A", "E", "U", "e" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу выхода по энергии одного фотона, разности потенциалов и заряду электрона";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(108, 1);
+		varNameInd = { "iv19", "iv65", "iv38", "iv71" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io1", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "A=E-U*e", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу выхода по энергии одного фотона, разности потенциалов и заряду электрона", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if317", f);
 	}
 
 	{
-		pair<int, int> ind(108, 2);
-		string formula = "(E-A)/e";
-		vector<string> val = { "U", "A", "E", "U", "e" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить разность потенциалов по энергии одного фотона, работе выхода и заряду электрона";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(108, 2);
+		varNameInd = { "iv38", "iv65", "iv19", "iv71" };
+		varInd = { 0, 3, 5, 8 };
+		opNameInd = { "io7", "io4", "io1", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 7 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "U=(E-A)/e", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить разность потенциалов по энергии одного фотона, работе выхода и заряду электрона", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if318", f);
 	}
 
 	{
-		pair<int, int> ind(109, 0);
-		string formula = "(A+U*e)/h";
-		vector<string> val = { "v", "A", "U", "e", "h", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить частоту излучения по работе выхода, разности потенциалов, заряду электрона и постоянной Планка";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(109, 0);
+		varNameInd = { "iv2", "iv19", "iv38", "iv71", "iv14" };
+		varInd = { 0, 3, 5, 7, 10 };
+		opNameInd = { "io7", "io4", "io0", "io2", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 8, 9 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "v=(A+U*e)/h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить частоту излучения по работе выхода, разности потенциалов, заряду электрона и постоянной Планка", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if319", f);
 	}
 
 	{
-		pair<int, int> ind(109, 1);
-		string formula = "h*v-U*e";
-		vector<string> val = { "A", "A", "U", "e", "h", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу выхода по частоте излучения, разности потенциалов, заряду электрона и постоянной Планка";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(109, 1);
+		varNameInd = { "iv19", "iv14", "iv2", "iv38", "iv71" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io2", "io1", "io2" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "A=h*v-U*e", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу выхода по частоте излучения, разности потенциалов, заряду электрона и постоянной Планка", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if320", f);
 	}
 
 	{
-		pair<int, int> ind(109, 2);
-		string formula = "(h*v-A)/e";
-		vector<string> val = { "U", "A", "U", "e", "h", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить разность потенциалов по частоте излучения, работе выхода, заряду электрона и постоянной Планка";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(109, 2);
+		varNameInd = { "iv38", "iv14", "iv2", "iv19", "iv71" };
+		varInd = { 0, 3, 5, 7, 10 };
+		opNameInd = { "io7", "io4", "io2", "io1", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 8, 9 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "U=(h*v-A)/e", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить разность потенциалов по частоте излучения, работе выхода, заряду электрона и постоянной Планка", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if321", f);
 	}
 
 	{
-		pair<int, int> ind(110, 0);
-		string formula = "A+m*v*v/2";
-		vector<string> val = { "E", "A", "E", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить энергию фотона по его массе и скорости и работе выхода";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(110, 0);
+		varNameInd = { "iv65", "iv19", "iv4", "iv2", "iv2" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io0", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "E=A+m*v*v/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить энергию фотона по его массе и скорости и работе выхода", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if322", f);
 	}
 
 	{
-		pair<int, int> ind(110, 1);
-		string formula = "E-m*v*v/2";
-		vector<string> val = { "A", "A", "E", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу выхода по энергии фотона, его массе и скорости";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(110, 1);
+		varNameInd = { "iv19", "iv65", "iv4", "iv2", "iv2" };
+		varInd = { 0, 2, 4, 6, 8 };
+		opNameInd = { "io7", "io1", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7, 9 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "A=E-m*v*v/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу выхода по энергии фотона, его массе и скорости", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if323", f);
 	}
 
 	{
-		pair<int, int> ind(110, 2);
-		string formula = "2*(E-A)/v*v";
-		vector<string> val = { "m", "A", "E", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу фотона по его энергии и скорости и работе выхода";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(110, 2);
+		varNameInd = { "iv4", "iv65", "iv19", "iv2", "iv2" };
+		varInd = { 0, 5, 7, 10, 12 };
+		opNameInd = { "io7", "io2", "io4", "io1", "io5", "io3", "io2" };
+		opInd = { 1, 3, 4, 6, 8, 9, 11 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "m=2*(E-A)/v*v", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу фотона по его энергии и скорости и работе выхода", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if324", f);
 	}
 
 	{
-		pair<int, int> ind(110, 3);
-		string formula = "sqrt(2*(E-A)/m)";
-		vector<string> val = { "v", "A", "E", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость фотона по его энергии и массе и работе выхода";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(110, 3);
+		varNameInd = { "iv2", "iv65", "iv19", "iv4" };
+		varInd = { 0, 7, 9, 12 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io4", "io1", "io5", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 6, 8, 10, 11, 13 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "v=sqrt(2*(E-A)/m)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость фотона по его энергии и массе и работе выхода", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if325", f);
 	}
 
 	{
-		pair<int, int> ind(111, 0);
-		string formula = "(A+m*V*V/2)/h";
-		vector<string> val = { "v", "A", "V", "h", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить частоту излучения по энергии фотона, его массе и скорости, работе выхода и постоянной Планка";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(111, 0);
+		varNameInd = { "iv2", "iv19", "iv4", "iv3", "iv3", "iv14" };
+		varInd = { 0, 3, 5, 7, 9, 14 };
+		opNameInd = { "io7", "io4", "io0", "io2", "io2", "io3", "io5", "io3" };
+		opInd = { 1, 2, 4, 6, 8, 10, 12, 13 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "v=(A+m*V*V/2)/h", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить частоту излучения по энергии фотона, его массе и скорости, работе выхода и постоянной Планка", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if326", f);
 	}
 
 	{
-		pair<int, int> ind(111, 1);
-		string formula = "h*v-m*V*V/2";
-		vector<string> val = { "A", "A", "V", "h", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить работу выхода по частоте излучения, энергии фотона, его массе и скорости и постоянной Планка";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(111, 1);
+		varNameInd = { "iv19", "iv14", "iv2", "iv4", "iv3", "iv3" };
+		varInd = { 0, 2, 4, 6, 8, 10 };
+		opNameInd = { "io7", "io2", "io1", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7, 9, 11 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "A=h*v-m*V*V/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить работу выхода по частоте излучения, энергии фотона, его массе и скорости и постоянной Планка", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if327", f);
 	}
 
 	{
-		pair<int, int> ind(111, 2);
-		string formula = "2*(h*v-A)/V*V";
-		vector<string> val = { "m", "A", "V", "h", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу фотона по частоте излучения, скорости и энергии фотона, работе выхода и постоянной Планка";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(111, 2);
+		varNameInd = { "iv4", "iv14", "iv2", "iv19", "iv3", "iv3" };
+		varInd = { 0, 5, 7, 9, 12, 14 };
+		opNameInd = { "io7", "io2", "io4", "io2", "io1", "io5", "io3", "io2" };
+		opInd = { 1, 3, 4, 6, 8, 10, 11, 13 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "m=2*(h*v-A)/V*V", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу фотона по частоте излучения, скорости и энергии фотона, работе выхода и постоянной Планка", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if328", f);
 	}
 
 	{
-		pair<int, int> ind(111, 3);
-		string formula = "sqrt(2*(h*v-A)/m)";
-		vector<string> val = { "V", "A", "V", "h", "m", "v" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить скорость фотона по частоте излучения, массе и энергии фотона, работе выхода и постоянной Планка";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(111, 3);
+		varNameInd = { "iv3", "iv14", "iv2", "iv19", "iv4" };
+		varInd = { 0, 7, 9, 11, 14 };
+		opNameInd = { "io7", "io9", "io4", "io2", "io4", "io2", "io1", "io5", "io3", "io5" };
+		opInd = { 1, 2, 3, 5, 6, 8, 10, 12, 13, 15 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "V=sqrt(2*(h*v-A)/m)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить скорость фотона по частоте излучения, массе и энергии фотона, работе выхода и постоянной Планка", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if329", f);
 	}
 
 	{
-		pair<int, int> ind(112, 0);
-		string formula = "E/m";
-		vector<string> val = { "D", "D", "E", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить дозу поглощенного излучения по энергии излучения и массе тела";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(112, 0);
+		varNameInd = { "iv39", "iv65", "iv4" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "D=E/m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить дозу поглощенного излучения по энергии излучения и массе тела", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if330", f);
 	}
 
 	{
-		pair<int, int> ind(112, 1);
-		string formula = "D*m";
-		vector<string> val = { "E", "D", "E", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить энергию излучения по дозе поглощенного излучения и массе тела";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(112, 1);
+		varNameInd = { "iv65", "iv39", "iv4" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "E=D*m", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить энергию излучения по дозе поглощенного излучения и массе тела", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if331", f);
 	}
 
 	{
-		pair<int, int> ind(112, 2);
-		string formula = "E/D";
-		vector<string> val = { "m", "D", "E", "m" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить массу тела по дозе поглощенного излучения и энергии излучения";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(112, 2);
+		varNameInd = { "iv4", "iv65", "iv39" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "m=E/D", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить массу тела по дозе поглощенного излучения и энергии излучения", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if332", f);
 	}
 
 	{
-		pair<int, int> ind(113, 0);
-		string formula = "D*k";
-		vector<string> val = { "H", "D", "H", "k" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить эквивалентную дозу поглощенного излучения по дозе поглощенного излучения и коэффициенту качества";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(113, 0);
+		varNameInd = { "iv51", "iv39", "iv8" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io2" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "H=D*k", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить эквивалентную дозу поглощенного излучения по дозе поглощенного излучения и коэффициенту качества", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if333", f);
 	}
 
 	{
-		pair<int, int> ind(113, 1);
-		string formula = "H/k";
-		vector<string> val = { "D", "D", "H", "k" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить дозу поглощенного излучения по эквивалентной дозе поглощенного излучения и коэффициенту качества";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(113, 1);
+		varNameInd = { "iv39", "iv51", "iv8" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "D=H/k", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить дозу поглощенного излучения по эквивалентной дозе поглощенного излучения и коэффициенту качества", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if334", f);
 	}
 
 	{
-		pair<int, int> ind(113, 2);
-		string formula = "H/D";
-		vector<string> val = { "k", "D", "H", "k" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить коэффициент качества по эквивалентной дозе поглощенного излучения и дозе поглощенного излучения";
-		string tag_cl = "#Class11";
-		vector<string> tag_loc = { "#Physics", "#Quantum Physics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(113, 2);
+		varNameInd = { "iv8", "iv51", "iv39" };
+		varInd = { 0, 2, 4 };
+		opNameInd = { "io7", "io3" };
+		opInd = { 1, 3 };
+		tagLocation = { "#Physics", "#Quantum Physics" };
+		Form f(ind, "k=H/D", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить коэффициент качества по эквивалентной дозе поглощенного излучения и дозе поглощенного излучения", "#Class11", tagLocation, true, dbVars);
 		form_.emplace("if335", f);
 	}
 
 	{
-		pair<int, int> ind(114, 0);
-		string formula = "2*n*E/3";
-		vector<string> val = { "p", "E", "n", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить давление идеального газа по средней кинетической энергии и концентрации молекул";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(114, 0);
+		varNameInd = { "iv13", "iv24", "iv65" };
+		varInd = { 0, 4, 6 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "p=2*n*E/3", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить давление идеального газа по средней кинетической энергии и концентрации молекул", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if336", f);
 	}
 
 	{
-		pair<int, int> ind(114, 1);
-		string formula = "3*p/(2*E)";
-		vector<string> val = { "n", "E", "n", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить концентрацию молекул по давлению идеального газа и средней кинетической энергии молекул";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(114, 1);
+		varNameInd = { "iv24", "iv13", "iv65" };
+		varInd = { 0, 4, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "n=3*p/(2*E)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить концентрацию молекул по давлению идеального газа и средней кинетической энергии молекул", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if337", f);
 	}
 
 	{
-		pair<int, int> ind(114, 2);
-		string formula = "3*p/(2*n)";
-		vector<string> val = { "E", "E", "n", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить среднюю кинетическую энергию молекул по давлению идеального газа и концентрации молекул";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(114, 2);
+		varNameInd = { "iv65", "iv13", "iv24" };
+		varInd = { 0, 4, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "E=3*p/(2*n)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить среднюю кинетическую энергию молекул по давлению идеального газа и концентрации молекул", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if338", f);
 	}
 
 	{
-		pair<int, int> ind(115, 0);
-		string formula = "3*k*T/2";
-		vector<string> val = { "E", "E", "T", "k" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить среднюю кинетическую энергию молекул по абсолютной температуре и постоянной Больцмана";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(115, 0);
+		varNameInd = { "iv65", "iv8", "iv52" };
+		varInd = { 0, 4, 6 };
+		opNameInd = { "io7", "io2", "io2", "io3" };
+		opInd = { 1, 3, 5, 7 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "E=3*k*T/2", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить среднюю кинетическую энергию молекул по абсолютной температуре и постоянной Больцмана", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if339", f);
 	}
 
 	{
-		pair<int, int> ind(115, 1);
-		string formula = "2*E/(3*k)";
-		vector<string> val = { "T", "E", "T", "k" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить абсолютную температуру по средней кинетической энергии молекул и постоянной Больцмана";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(115, 1);
+		varNameInd = { "iv52", "iv65", "iv8" };
+		varInd = { 0, 4, 9 };
+		opNameInd = { "io7", "io2", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 5, 6, 8, 10 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "T=2*E/(3*k)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить абсолютную температуру по средней кинетической энергии молекул и постоянной Больцмана", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if340", f);
 	}
 
 	{
-		pair<int, int> ind(116, 0);
-		string formula = "n*k*T";
-		vector<string> val = { "p", "T", "k", "n", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить давление идеального газа по концентрации молекул, абсолютной температуре и постоянной Больцмана";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(116, 0);
+		varNameInd = { "iv13", "iv24", "iv8", "iv52" };
+		varInd = { 0, 2, 4, 6 };
+		opNameInd = { "io7", "io2", "io2" };
+		opInd = { 1, 3, 5 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "p=n*k*T", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить давление идеального газа по концентрации молекул, абсолютной температуре и постоянной Больцмана", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if341", f);
 	}
 
 	{
-		pair<int, int> ind(116, 1);
-		string formula = "p/(k*T)";
-		vector<string> val = { "n", "T", "k", "n", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить концентрацию молекул по давлению идеального газа, абсолютной температуре и постоянной Больцмана";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(116, 1);
+		varNameInd = { "iv24", "iv13", "iv8", "iv52" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "n=p/(k*T)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить концентрацию молекул по давлению идеального газа, абсолютной температуре и постоянной Больцмана", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if342", f);
 	}
 
 	{
-		pair<int, int> ind(116, 2);
-		string formula = "p/(n*k)";
-		vector<string> val = { "T", "T", "k", "n", "p" };
-		pair<Var, vector<Var>> vars = setVariables(val, dbVars);
-		string des = "Формула, позволяющая вычислить абсолютную температуру по давлению идеального газа, концентрации молекул и постоянной Больцмана";
-		string tag_cl = "#Class10";
-		vector<string> tag_loc = { "#Physics", "#Molecular physics and thermodynamics" };
-		Form f(ind, formula, vars, des, tag_cl, tag_loc);
-		fillForms(f, dbVars, dbOperations);
+		ind = make_pair(116, 2);
+		varNameInd = { "iv52", "iv13", "iv24", "iv8" };
+		varInd = { 0, 2, 5, 7 };
+		opNameInd = { "io7", "io3", "io4", "io2", "io5" };
+		opInd = { 1, 3, 4, 6, 8 };
+		tagLocation = { "#Physics", "#Molecular physics and thermodynamics" };
+		Form f(ind, "T=p/(n*k)", varNameInd, varInd, opNameInd, opInd, "Формула, позволяющая вычислить абсолютную температуру по давлению идеального газа, концентрации молекул и постоянной Больцмана", "#Class10", tagLocation, true, dbVars);
 		form_.emplace("if343", f);
 	}
+
 }

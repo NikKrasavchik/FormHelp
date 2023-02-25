@@ -27,4 +27,5 @@ public:
 	string getLocationTag() { return this->_tag_subject; }
 
 	Var operator= (Var v_);
+	friend bool operator==(const Var& variable1, const Var& variable2);
 };
